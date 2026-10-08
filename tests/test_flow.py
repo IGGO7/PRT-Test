@@ -299,3 +299,10 @@ def test_memory_storage_refused_on_vercel(monkeypatch):
     assert r.status_code == 503 and r.json()["code"] == "STORAGE_NOT_CONFIGURED"
     h = c.get("/api/health").json()
     assert h["storage"]["ok"] is False and h["status"] == "incompleto"
+
+
+@pytest.mark.parametrize("raw", ["https://abc.supabase.co", "abc.supabase.co", "abc.supabase.co/", "https://abc.supabase.co/rest/v1/", "abc"])
+def test_supabase_url_normalized(raw):
+    from vitalis.config import normalize_supabase_url
+
+    assert normalize_supabase_url(raw) == "https://abc.supabase.co"

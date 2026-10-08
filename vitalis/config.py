@@ -14,9 +14,27 @@ DATASET_DIR = ROOT_DIR / "data" / "dataset"
 
 def _env(name: str, default: str | None = None) -> str | None:
     value = os.environ.get(name)
-    if value is None or value.strip() == "":
+    if value is None:
         return default
-    return value.strip()
+    value = value.strip().strip('"').strip("'").strip()  # tolera aspas coladas junto com o valor no painel
+    return value or default
+
+
+def normalize_supabase_url(raw: str | None) -> str | None:
+    """Aceita a URL com ou sem https://, com /rest/v1 no fim, ou só o ID do projeto."""
+    if not raw:
+        return None
+    u = raw.strip().rstrip("/")
+    if u.startswith(("postgres://", "postgresql://")):  # string de conexão do banco colada no lugar da URL da API
+        import re
+
+        m = re.search(r"(?:postgres\.|db\.)([a-z0-9]{20})", u)
+        return f"https://{m.group(1)}.supabase.co" if m else None
+    if u.endswith("/rest/v1"):
+        u = u[: -len("/rest/v1")]
+    if "://" not in u:
+        u = "https://" + (u if "." in u else f"{u}.supabase.co")
+    return u.rstrip("/")
 
 
 def _env_int(name: str, default: int) -> int:
@@ -76,7 +94,7 @@ def get_settings() -> Settings:
     environment = _env("APP_ENV", "development") or "development"
     bd_raw = _env("BUSINESS_DATE", "2026-09-30") or "2026-09-30"
     return Settings(
-        supabase_url=supabase_url.rstrip("/") if supabase_url else None,
+        supabase_url=normalize_supabase_url(supabase_url),
         supabase_secret_key=supabase_key,
         storage_backend=backend,
         openai_api_key=_env("OPENAI_API_KEY"),

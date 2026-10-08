@@ -125,6 +125,8 @@ class SupabaseStore:
         """Confere se a tabela existe e se a chave tem acesso (sem gravar nada)."""
         try:
             resp = self.client.get(self.base, params={"select": "id", "limit": "1"})
+        except httpx.UnsupportedProtocol:
+            return False, "SUPABASE_URL inválida — use o formato https://SEU-PROJETO.supabase.co"
         except httpx.HTTPError as exc:
             return False, f"sem conexão com o Supabase ({type(exc).__name__})"
         if resp.status_code == 200:

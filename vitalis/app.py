@@ -93,6 +93,10 @@ def create_app(store: SessionStore | None = None, extractor_factory: Callable[[]
         return data
 
     # ------------------------------------------------------------------ rotas
+    @app.get("/api/health/deep")
+    def health_deep() -> dict[str, Any]:
+        return health(deep=1)
+
     @app.get("/api/health")
     def health(deep: int = 0) -> dict[str, Any]:
         """Diagnóstico para o deploy: confere banco e chave de IA sem expor segredos.

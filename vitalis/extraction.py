@@ -218,9 +218,9 @@ def describe_llm_error(exc: BaseException, model: str) -> str:
         return "a conta da OpenAI está sem créditos ou atingiu o limite de gasto"
     if name == "RateLimitError":
         return "limite de requisições da OpenAI atingido — aguarde alguns segundos"
-    if name in ("APITimeoutError", "Timeout", "ReadTimeout", "TimeoutError"):
+    if name in ("APITimeoutError", "OpenAITimeoutError", "Timeout", "ReadTimeout", "TimeoutError"):
         return "a OpenAI demorou mais que o limite para responder"
-    if name in ("APIConnectionError", "ConnectError"):
+    if name in ("APIConnectionError", "OpenAIConnectionError", "ConnectError"):
         return "o servidor não conseguiu se conectar à OpenAI"
     if name == "GraphRecursionError":
         return "o agente não concluiu a leitura dentro do número máximo de passos"
