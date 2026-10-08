@@ -306,3 +306,11 @@ def test_supabase_url_normalized(raw):
     from vitalis.config import normalize_supabase_url
 
     assert normalize_supabase_url(raw) == "https://abc.supabase.co"
+
+
+@pytest.mark.parametrize("raw", ["db.gjmiwygmnqkampsxzquf.supabase.co", "https://db.gjmiwygmnqkampsxzquf.supabase.co:5432",
+                                 "postgresql://postgres:x@db.gjmiwygmnqkampsxzquf.supabase.co:5432/postgres"])
+def test_supabase_db_host_mapped_to_api(raw):
+    from vitalis.config import normalize_supabase_url
+
+    assert normalize_supabase_url(raw) == "https://gjmiwygmnqkampsxzquf.supabase.co"

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 from dataclasses import dataclass, field
 from datetime import date
 from functools import lru_cache
@@ -26,14 +27,14 @@ def normalize_supabase_url(raw: str | None) -> str | None:
         return None
     u = raw.strip().rstrip("/")
     if u.startswith(("postgres://", "postgresql://")):  # string de conexão do banco colada no lugar da URL da API
-        import re
-
         m = re.search(r"(?:postgres\.|db\.)([a-z0-9]{20})", u)
         return f"https://{m.group(1)}.supabase.co" if m else None
     if u.endswith("/rest/v1"):
         u = u[: -len("/rest/v1")]
     if "://" not in u:
         u = "https://" + (u if "." in u else f"{u}.supabase.co")
+    # host do banco (db.<ref>.supabase.co) colado no lugar da URL da API
+    u = re.sub(r"^https?://db\.([a-z0-9]{20})\.supabase\.co(?::\d+)?", r"https://\1.supabase.co", u)
     return u.rstrip("/")
 
 
