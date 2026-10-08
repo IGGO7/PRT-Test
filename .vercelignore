@@ -1,0 +1,9 @@
+.venv
+tests
+docs
+scripts
+supabase
+.pytest_cache
+**/__pycache__
+.env
+frontend

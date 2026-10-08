@@ -1,0 +1,17 @@
+{
+  "status_http": 422,
+  "body": {
+    "error": "VALIDATION_ERROR",
+    "message": "Payload inválido",
+    "campos": [
+      {
+        "campo": "data_fim",
+        "erro": "obrigatório"
+      },
+      {
+        "campo": "lojas[1]",
+        "erro": "loja inexistente: LOJA-999"
+      }
+    ]
+  }
+}

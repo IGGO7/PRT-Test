@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Central de Condições Comerciais</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%231F4D46%22/%3E%3Ctext x=%2216%22 y=%2221%22 font-family=%22monospace%22 font-size=%2213%22 font-weight=%22700%22 text-anchor=%22middle%22 fill=%22white%22%3ECC%3C/text%3E%3C/svg%3E">
+<meta name="description" content="Cadastro assistido de condições comerciais com fornecedores — demonstração com dados fictícios.">
+<script>window.__resources = {"https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js": "/assets/react-dom.production.min.js", "https://unpkg.com/react@18.3.1/umd/react.production.min.js": "/assets/react.production.min.js"};</script>
+<script src="/assets/dc-runtime.js"></script>
+</head>
+<body>
+
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<style>/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/fonts/586696b8-f8b7-4cd2-947f-5f5172f937aa.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/fonts/c22b7c32-cbd7-45f2-9d09-c3b9d2d1f553.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/fonts/c1f049f0-d7e5-47a1-a7ee-64d964de9fce.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/fonts/090c8fa7-6e77-4963-a58d-49896ace5860.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/fonts/ce5a0bcb-ecd2-41ff-86e4-128673b129c1.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/fonts/2cb9c9f7-508a-412b-b9d3-e45e0b1931d9.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/fonts/c512a09a-52bd-4de6-a5d7-b8f79d45fd88.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/fonts/91141814-460e-4335-955f-21f0fb36176a.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/fonts/322d60bb-e5ca-4c74-9958-8851d18cdfcd.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/fonts/16197405-32b8-4ae1-8c7f-2bb407359e6e.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/assets/fonts/9e0be594-0079-4a15-9b53-edb0bab3d00e.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/assets/fonts/debfa736-8559-4c2f-a354-6c1005952794.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/assets/fonts/c8264d3d-a99d-45d5-9960-e7757e07617b.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/assets/fonts/dcbce8d9-84b7-4fae-ad5f-0d44a0742bb6.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/assets/fonts/8e1286af-d46c-42a7-ba6f-63ff1d122fde.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/d5a04c2b-a35f-44df-83c6-ee571e858e08.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/12b61012-9139-487b-b27d-dfd0b02e63c9.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/d49cf8a9-6801-4e03-ba73-4685fc575421.woff2") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/fd4af60f-d8eb-4a4f-a9b5-8ddb80c7ce31.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/085465f9-35a1-4c9a-8bd4-e50d4a31293b.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/c8e2b62e-cd18-4aa1-b77a-59881c5e01b7.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/d5a04c2b-a35f-44df-83c6-ee571e858e08.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/12b61012-9139-487b-b27d-dfd0b02e63c9.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/d49cf8a9-6801-4e03-ba73-4685fc575421.woff2") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/fd4af60f-d8eb-4a4f-a9b5-8ddb80c7ce31.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/085465f9-35a1-4c9a-8bd4-e50d4a31293b.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/c8e2b62e-cd18-4aa1-b77a-59881c5e01b7.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/d5a04c2b-a35f-44df-83c6-ee571e858e08.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/12b61012-9139-487b-b27d-dfd0b02e63c9.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/d49cf8a9-6801-4e03-ba73-4685fc575421.woff2") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/fd4af60f-d8eb-4a4f-a9b5-8ddb80c7ce31.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/085465f9-35a1-4c9a-8bd4-e50d4a31293b.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/c8e2b62e-cd18-4aa1-b77a-59881c5e01b7.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/d5a04c2b-a35f-44df-83c6-ee571e858e08.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/12b61012-9139-487b-b27d-dfd0b02e63c9.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/d49cf8a9-6801-4e03-ba73-4685fc575421.woff2") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/fd4af60f-d8eb-4a4f-a9b5-8ddb80c7ce31.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/085465f9-35a1-4c9a-8bd4-e50d4a31293b.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/assets/fonts/c8e2b62e-cd18-4aa1-b77a-59881c5e01b7.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+
+
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#F4F3EF;color:#17191C;font-family:'IBM Plex Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#1F4D46}a:hover{color:#123530}
+input,textarea,select,button{font-family:inherit}
+button:disabled{cursor:not-allowed}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+<header style="background:#fff;border-bottom:1px solid #E2E0DA;padding:12px 24px;display:flex;align-items:center;gap:14px 28px;flex-wrap:wrap">
+<div style="display:flex;align-items:center;gap:12px">
+<div style="width:34px;height:34px;border-radius:7px;background:#1F4D46;color:#fff;display:grid;place-items:center;font:700 14px 'IBM Plex Sans'">CC</div>
+<div style="display:flex;flex-direction:column;gap:1px">
+<span style="font:700 16px/1.1 'IBM Plex Sans'">Central de Condições Comerciais</span>
+<span style="font:400 12.5px/1.2 'IBM Plex Sans';color:#5F6368">Cadastro assistido de condições com fornecedores</span>
+</div>
+</div>
+<nav style="display:flex;align-items:center;gap:6px;flex:1 1 auto;flex-wrap:wrap">
+<sc-for list="{{ steps }}" as="st" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:6px">
+<button sc-camel-on-click="{{ st.go }}" disabled="{{ st.disabled }}" style="display:flex;align-items:center;gap:8px;border:0;background:{{ st.bg }};padding:6px 10px 6px 6px;border-radius:999px;cursor:pointer;opacity:{{ st.opacity }}">
+<span style="width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:600 11px 'IBM Plex Mono';background:{{ st.dotBg }};color:{{ st.dotFg }};border:1px solid {{ st.dotBd }}">{{ st.icon }}</span>
+<span style="font:500 13px 'IBM Plex Sans';color:{{ st.fg }}">{{ st.label }}</span>
+</button>
+<sc-if value="{{ st.sep }}" hint-placeholder-val="{{ true }}"><span style="width:16px;height:1px;background:#D6D3CB"></span></sc-if>
+</div>
+</sc-for>
+</nav>
+<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center" title="{{ backendLabel }} · sessão {{ sessionShort }}">
+<span style="font:600 11.5px 'IBM Plex Mono';padding:5px 9px;border-radius:6px;background:#17191C;color:#fff;white-space:nowrap">Data de negócio 30/09/2026</span>
+<span style="font:500 11.5px 'IBM Plex Sans';padding:5px 9px;border-radius:6px;background:#ECEBE6;color:#3F4347">Demonstração · dados fictícios · ERP e aprovadores simulados</span>
+</div>
+<label title="Mostra códigos de regra, controles de teste e o estado bruto da sessão. Referência de desenvolvimento." style="display:flex;gap:6px;align-items:center;font:500 12px 'IBM Plex Sans';color:#5F6368;cursor:pointer;white-space:nowrap"><input type="checkbox" checked="{{ tech }}" sc-camel-on-change="{{ onToggleTech }}" style="width:14px;height:14px;accent-color:#5F6368">Modo técnico</label>
+<button sc-camel-on-click="{{ onReset }}" style="border:1px solid #D6D3CB;background:#fff;color:#17191C;font:500 13px 'IBM Plex Sans';padding:8px 14px;border-radius:7px;cursor:pointer" style-hover="background:#F4F3EF">Reiniciar demonstração</button>
+</header>
+<sc-if value="{{ showBar }}" hint-placeholder-val="{{ false }}">
+<div style="background:#FCFBF9;border-bottom:1px solid #E2E0DA;padding:10px 24px;display:flex;gap:8px 18px;flex-wrap:wrap;align-items:center;font:500 12px 'IBM Plex Mono';color:#5F6368">
+<span style="color:#17191C;font-weight:600;white-space:nowrap">{{ p.id }}</span>
+<span style="font-family:'IBM Plex Sans';color:#17191C;max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ p.source.subject }}</span>
+<span style="white-space:nowrap" title="hash {{ p.revision_hash }} · {{ srcKindLabel }}">revisão {{ p.revision }}</span>
+<span style="flex:1"></span>
+<span style="padding:4px 10px;border-radius:999px;font-weight:600;white-space:nowrap;color:{{ stFg }};background:{{ stBg }}">{{ stLabel }}</span>
+</div>
+</sc-if>
+<main style="flex:1;width:100%;max-width:1440px;margin:0 auto;padding:24px;display:grid;gap:16px;align-content:start">
+<sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}">
+<div style="padding:12px 16px;border:1px solid #F4C7C1;background:#FDECEA;color:#B42318;border-radius:8px;display:grid;gap:6px">
+<div style="display:flex;gap:12px;justify-content:space-between;align-items:baseline;flex-wrap:wrap">
+<span style="font:600 13.5px/1.45 'IBM Plex Sans'">{{ error.message }}</span>
+<sc-if value="{{ tech }}" hint-placeholder-val="{{ false }}"><span style="font:500 11.5px 'IBM Plex Mono'">{{ errorMeta }}</span></sc-if>
+</div>
+<sc-for list="{{ errorFindings }}" as="ef"><span style="font:400 12.5px/1.45 'IBM Plex Sans';color:#17191C">{{ ef.message }}</span></sc-for>
+<button sc-camel-on-click="{{ onDismissError }}" style="justify-self:start;border:0;background:transparent;color:#B42318;font:600 12px 'IBM Plex Sans';padding:0;cursor:pointer">Fechar</button>
+</div>
+</sc-if>
+<sc-if value="{{ isAnalyzing }}" hint-placeholder-val="{{ false }}">
+<div role="status" style="padding:12px 16px;border:1px solid #CBD7E2;background:#E8EEF3;color:#3D5A73;border-radius:8px;font:500 13.5px/1.45 'IBM Plex Sans'">A IA está lendo a mensagem e o anexo — costuma levar de 10 a 30 segundos. Nada é gravado sem a sua revisão.</div>
+</sc-if>
+<sc-if value="{{ hasNotice }}" hint-placeholder-val="{{ false }}">
+<div style="padding:12px 16px;border:1px solid #CBD7E2;background:#E8EEF3;color:#3D5A73;border-radius:8px;font:500 13.5px/1.45 'IBM Plex Sans'">{{ notice }}</div>
+</sc-if>
+<sc-if value="{{ isS1 }}" hint-placeholder-val="{{ true }}">
+<details style="background:#fff;border:1px solid #E2E0DA;border-radius:10px">
+<summary style="padding:14px 20px;font:600 13.5px 'IBM Plex Sans';cursor:pointer">Sobre esta demonstração · o que está dentro e fora do escopo</summary>
+<div style="padding:4px 20px 18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:16px 28px">
+<div style="display:grid;gap:8px;align-content:start"><span style="font:600 11px 'IBM Plex Mono';letter-spacing:.08em;color:#5F6368">DENTRO DO ESCOPO</span>
+<ul style="margin:0;padding-left:18px;display:grid;gap:4px;font:400 13px/1.5 'IBM Plex Sans';color:#17191C"><li>E-mail em texto livre, com ou sem planilha anexa, como entrada</li><li>Leitura do e-mail por agente de IA, com evidência do trecho de origem de cada dado</li><li>Dados extraídos com indicação do que é explícito, normalizado, inferido ou ausente</li><li>Conferência com a política comercial POL-COM-004 v3.2 e com o estado do ERP simulado</li><li>Correção humana, ciência de avisos, encaminhamento, rejeição e aprovação por alçada</li><li>Gravação no ERP simulado no formato do contrato, com chave de idempotência e reenvio automático quando o ERP está em manutenção</li></ul></div>
+<div style="display:grid;gap:8px;align-content:start"><span style="font:600 11px 'IBM Plex Mono';letter-spacing:.08em;color:#5F6368">FORA DO ESCOPO</span>
+<ul style="margin:0;padding-left:18px;display:grid;gap:4px;font:400 13px/1.5 'IBM Plex Sans';color:#17191C"><li>Garantia de acerto da leitura por IA: todo dado incerto passa pela sua verificação antes das regras</li><li>Leitura automática da caixa de entrada e integração com SAP, SharePoint ou Teams</li><li>Login e identidade real do aprovador (perfil declarado, sem autenticação)</li><li>Envio de mensagens ao fornecedor, à área de Cadastro ou à Diretoria (o encaminhamento é registrado aqui)</li></ul></div>
+</div>
+</details>
+<section data-screen-label="01 Caixa de entrada" style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
+<div style="flex:1 1 440px;min-width:0;background:#fff;border:1px solid #E2E0DA;border-radius:10px;overflow:hidden">
+<div style="padding:18px 20px;border-bottom:1px solid #E2E0DA;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-end">
+<div>
+<h1 style="margin:0;font:600 20px/1.2 'IBM Plex Sans'">Caixa de entrada</h1>
+<span style="font:400 12.5px 'IBM Plex Sans';color:#5F6368">{{ inboxCount }}</span>
+</div>
+<span style="font:500 11.5px 'IBM Plex Sans';color:#5F6368">Mensagens recebidas nesta sessão</span>
+</div>
+<sc-if value="{{ inboxEmpty }}" hint-placeholder-val="{{ true }}">
+<div style="padding:40px 24px;display:grid;gap:6px;text-align:center;color:#5F6368">
+<span style="font:600 14px 'IBM Plex Sans';color:#17191C">Nenhum e-mail recebido</span>
+<span style="font:400 13px/1.5 'IBM Plex Sans';text-wrap:pretty">Simule o recebimento de um e-mail ao lado — escrito livremente ou a partir de um exemplo do dataset.</span>
+</div>
+</sc-if>
+<sc-for list="{{ inbox }}" as="it" hint-placeholder-count="0">
+<button sc-camel-on-click="{{ it.open }}" disabled="{{ it.disabled }}" style="width:100%;text-align:left;display:grid;gap:5px;padding:14px 20px;border:0;border-bottom:1px solid #F0EEE9;background:{{ it.bg }};box-shadow:inset 3px 0 0 {{ it.mark }};cursor:{{ it.cursor }}">
+<span style="display:flex;justify-content:space-between;gap:10px;align-items:baseline">
+<span style="font:{{ it.weight }} 14px/1.3 'IBM Plex Sans';color:{{ it.textFg }};min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ it.sender }}</span>
+<span style="font:400 11.5px 'IBM Plex Mono';color:#5F6368;white-space:nowrap">{{ it.when }}</span>
+</span>
+<span style="font:{{ it.weight }} 13.5px/1.35 'IBM Plex Sans';color:{{ it.textFg }};min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ it.subject }}</span>
+<sc-if value="{{ it.isRejected }}"><span style="font:400 12.5px/1.45 'IBM Plex Sans';color:#3F4347;text-wrap:pretty">{{ it.rejectText }}</span></sc-if>
+<span style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+<span style="font:600 10.5px 'IBM Plex Mono';padding:2px 7px;border-radius:4px;color:{{ it.sFg }};background:{{ it.sBg }}">{{ it.status }}</span>
+<span style="font:500 10.5px 'IBM Plex Mono';padding:2px 7px;border-radius:4px;color:#3F4347;background:#ECEBE6">{{ it.kindLabel }}</span>
+<sc-if value="{{ it.has_attachment }}"><span style="font:500 10.5px 'IBM Plex Mono';padding:2px 7px;border-radius:4px;color:#3F4347;background:#ECEBE6">CSV</span></sc-if>
+<span style="flex:1"></span>
+<span style="font:600 12px 'IBM Plex Sans';color:#1F4D46">{{ it.cta }}</span>
+</span>
+</button>
+</sc-for>
+</div>
+<div style="flex:1 1 520px;min-width:0;background:#fff;border:1px solid #E2E0DA;border-radius:10px">
+<div style="padding:18px 22px;border-bottom:1px solid #E2E0DA;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center">
+<div style="display:grid;gap:2px">
+<h2 style="margin:0;font:600 17px/1.2 'IBM Plex Sans'">Simular e-mail recebido</h2>
+<span style="font:400 12.5px 'IBM Plex Sans';color:#5F6368">Recurso do protótipo — em produção os e-mails chegam à caixa de entrada.</span>
+</div>
+<span style="font:500 11.5px 'IBM Plex Mono';padding:4px 9px;border-radius:999px;color:{{ srcFg }};background:{{ srcBg }}">{{ srcLabel }}</span>
+</div>
+<div style="padding:18px 22px;display:grid;gap:14px">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+<span style="font:600 12.5px 'IBM Plex Sans';color:#3F4347">Preencher com exemplo do dataset</span>
+<div style="display:flex;gap:6px">
+<sc-for list="{{ examples }}" as="ex" hint-placeholder-count="4">
+<button sc-camel-on-click="{{ ex.load }}" title="{{ ex.title }}" style="width:36px;height:36px;border-radius:7px;border:1px solid {{ ex.bd }};background:{{ ex.bg }};color:{{ ex.fg }};font:600 14px 'IBM Plex Mono';cursor:pointer" style-hover="border-color:#1F4D46">{{ ex.letter }}</button>
+</sc-for>
+</div>
+<sc-if value="{{ hasExampleCaption }}"><span style="font:400 12px 'IBM Plex Sans';color:#5F6368">{{ exampleCaption }}</span></sc-if>
+</div>
+<label style="display:grid;gap:6px">
+<span style="font:600 12.5px 'IBM Plex Sans';color:#3F4347">Remetente</span>
+<input type="text" value="{{ form.from }}" sc-camel-on-change="{{ onFrom }}" placeholder="Nome &lt;fornecedor@empresa.com.br&gt;" style="font:400 14px 'IBM Plex Mono';padding:10px 12px;border:1px solid #D6D3CB;border-radius:7px;background:#FCFBF9;color:#17191C;outline:none;min-width:0" style-focus="border-color:#1F4D46;background:#fff">
+</label>
+<label style="display:grid;gap:6px">
+<span style="font:600 12.5px 'IBM Plex Sans';color:#3F4347">Assunto</span>
+<input type="text" value="{{ form.subject }}" sc-camel-on-change="{{ onSubject }}" placeholder="Assunto do e-mail" style="font:400 14px 'IBM Plex Sans';padding:10px 12px;border:1px solid #D6D3CB;border-radius:7px;background:#FCFBF9;color:#17191C;outline:none;min-width:0" style-focus="border-color:#1F4D46;background:#fff">
+</label>
+<label style="display:grid;gap:6px">
+<span style="display:flex;justify-content:space-between;gap:8px;font:600 12.5px 'IBM Plex Sans';color:#3F4347"><span>Corpo do e-mail</span><span style="font:400 11.5px 'IBM Plex Mono';color:#5F6368">{{ bodyCount }}</span></span>
+<textarea value="{{ form.body }}" sc-camel-on-change="{{ onBody }}" rows="11" placeholder="Conteúdo da proposta do fornecedor." style="font:400 14px/1.6 'IBM Plex Sans';padding:12px;border:1px solid #D6D3CB;border-radius:7px;background:#FCFBF9;color:#17191C;outline:none;resize:vertical;min-width:0" style-focus="border-color:#1F4D46;background:#fff"></textarea>
+</label>
+<div style="display:grid;gap:6px">
+<span style="font:600 12.5px 'IBM Plex Sans';color:#3F4347">Anexo CSV <span style="font-weight:400;color:#5F6368">(opcional · até 200 KB)</span></span>
+<sc-if value="{{ hasCsv }}" hint-placeholder-val="{{ false }}">
+<div style="border:1px solid #D6D3CB;border-radius:7px;overflow:hidden">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;background:#F4F3EF;border-bottom:1px solid #E2E0DA">
+<span style="font:500 12.5px 'IBM Plex Mono'">{{ form.csvName }}</span>
+<button sc-camel-on-click="{{ onRemoveCsv }}" style="border:0;background:transparent;color:#B42318;font:500 12.5px 'IBM Plex Sans';cursor:pointer">Remover</button>
+</div>
+<div style="overflow-x:auto">
+<sc-raw-table style="border-collapse:collapse;width:100%;font:400 12px 'IBM Plex Mono'">
+<sc-raw-thead><sc-raw-tr><sc-for list="{{ csvHeader }}" as="h"><sc-raw-th style="text-align:left;padding:6px 10px;color:#5F6368;font-weight:500;border-bottom:1px solid #E2E0DA;white-space:nowrap">{{ h }}</sc-raw-th></sc-for></sc-raw-tr></sc-raw-thead>
+<sc-raw-tbody><sc-for list="{{ csvRows }}" as="r"><sc-raw-tr><sc-for list="{{ r.cells }}" as="c"><sc-raw-td style="padding:6px 10px;border-bottom:1px solid #F0EEE9;white-space:nowrap">{{ c.v }}</sc-raw-td></sc-for></sc-raw-tr></sc-for></sc-raw-tbody>
+</sc-raw-table>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ noCsv }}" hint-placeholder-val="{{ true }}">
+<label style="display:flex;align-items:center;justify-content:center;padding:12px;border:1px dashed #C9C6BE;border-radius:7px;background:#FCFBF9;color:#5F6368;font:400 13px 'IBM Plex Sans';cursor:pointer" style-hover="border-color:#1F4D46;color:#1F4D46">
+<input type="file" accept=".csv,text/csv" sc-camel-on-change="{{ onFile }}" style="display:none">
+<span>Selecionar arquivo .csv</span>
+</label>
+</sc-if>
+</div>
+<p style="margin:0;font:400 12px/1.5 'IBM Plex Sans';color:#5F6368;text-wrap:pretty">Nenhum e-mail é enviado ou buscado. O conteúdo é tratado como dado: instruções contidas no texto não controlam a análise.</p>
+</div>
+<div style="padding:14px 22px;border-top:1px solid #E2E0DA;display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap">
+<button sc-camel-on-click="{{ onClear }}" style="border:1px solid #D6D3CB;background:#fff;color:#17191C;font:500 14px 'IBM Plex Sans';padding:10px 18px;border-radius:7px;cursor:pointer">Limpar</button>
+<button sc-camel-on-click="{{ onReceive }}" disabled="{{ receiveDisabled }}" style="border:0;background:#1F4D46;color:#fff;font:600 14px 'IBM Plex Sans';padding:10px 22px;border-radius:7px;cursor:pointer;opacity:{{ receiveOpacity }}" style-hover="background:#173B35">{{ receiveLabel }}</button>
+</div>
+</div>
+</section>
+</sc-if>
+<sc-if value="{{ isS2 }}" hint-placeholder-val="{{ false }}">
+<section data-screen-label="02 Interpretação" style="display:grid;gap:16px">
+<div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end">
+<div style="flex:1 1 520px;min-width:0;display:grid;gap:6px">
+<span style="font:600 11px 'IBM Plex Mono';letter-spacing:.08em;color:#5F6368">ETAPA 2 DE 4 · INTERPRETAÇÃO DA IA</span>
+<h1 style="margin:0;font:600 22px/1.25 'IBM Plex Sans'">Os dados extraídos estão corretos?</h1>
+<p style="margin:0;font:400 14px/1.5 'IBM Plex Sans';color:#3F4347;max-width:860px;text-wrap:pretty">Compare cada dado proposto com a mensagem. Nesta etapa você só confirma, corrige ou registra que o dado não existe na fonte. Impedimentos de política e encaminhamentos são tratados na etapa de regras.</p>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr));gap:16px;align-items:start">
+<div style="min-width:0;background:#fff;border:1px solid #E2E0DA;border-radius:10px;overflow:hidden;position:{{ srcPos }};top:16px;display:flex;flex-direction:column;max-height:{{ srcMaxH }}">
+<div style="padding:14px 18px;border-bottom:1px solid #E2E0DA;display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap">
+<h2 style="margin:0;font:600 14px 'IBM Plex Sans'">Fonte</h2>
+<span style="display:flex;gap:10px;font:400 11.5px 'IBM Plex Sans';color:#5F6368"><span><mark style="background:#FBE7A6;padding:0 4px;border-radius:2px">evidência</mark></span><span><mark style="background:#FAD4CF;padding:0 4px;border-radius:2px">sinal de risco</mark></span></span>
+</div>
+<div style="padding:12px 18px;display:grid;gap:5px;border-bottom:1px solid #F0EEE9;font:400 12.5px/1.4 'IBM Plex Sans'">
+<sc-for list="{{ srcMeta }}" as="m"><div style="display:flex;gap:10px"><span style="width:76px;flex:none;color:#5F6368">{{ m.k }}</span><span style="font-family:'IBM Plex Mono';font-size:12px;word-break:break-all">{{ m.v }}</span></div></sc-for>
+</div>
+<div style="padding:16px 18px;font:400 14px/1.65 'IBM Plex Sans';white-space:pre-wrap;color:#17191C;flex:1 1 auto;min-height:160px;overflow:auto;overscroll-behavior:contain">
+<sc-for list="{{ segments }}" as="sg"><sc-if value="{{ sg.ev }}"><mark title="{{ sg.title }}" style="background:#FBE7A6;color:#17191C;padding:1px 2px;border-radius:3px;box-shadow:inset 0 -2px 0 #D9B640">{{ sg.t }}</mark></sc-if><sc-if value="{{ sg.risk }}"><mark title="Sinal de risco — tratado como dado não confiável" style="background:#FAD4CF;color:#17191C;padding:1px 2px;border-radius:3px;box-shadow:inset 0 -2px 0 #D9534F">{{ sg.t }}</mark></sc-if><sc-if value="{{ sg.plain }}"><span>{{ sg.t }}</span></sc-if></sc-for>
+</div>
+<sc-if value="{{ srcHasCsv }}" hint-placeholder-val="{{ false }}">
+<div style="border-top:1px solid #E2E0DA;flex:none;max-height:40%;overflow:auto">
+<div style="padding:10px 18px;font:500 12px 'IBM Plex Mono';color:#5F6368;background:#F4F3EF">Anexo · {{ srcCsvName }}</div>
+<div style="overflow-x:auto">
+<sc-raw-table style="border-collapse:collapse;width:100%;font:400 12px 'IBM Plex Mono'">
+<sc-raw-thead><sc-raw-tr><sc-for list="{{ srcCsvHeader }}" as="h"><sc-raw-th style="text-align:left;padding:6px 10px;color:#5F6368;font-weight:500;border-bottom:1px solid #E2E0DA;white-space:nowrap">{{ h }}</sc-raw-th></sc-for></sc-raw-tr></sc-raw-thead>
+<sc-raw-tbody><sc-for list="{{ srcCsvRows }}" as="r"><sc-raw-tr><sc-for list="{{ r.cells }}" as="c"><sc-raw-td style="padding:6px 10px;border-bottom:1px solid #F0EEE9;white-space:nowrap;background:{{ c.bg }}">{{ c.v }}</sc-raw-td></sc-for></sc-raw-tr></sc-for></sc-raw-tbody>
+</sc-raw-table>
+</div>
+</div>
+</sc-if>
+</div>
+<div style="min-width:0;display:grid;gap:16px">
+<sc-if value="{{ hasInsights }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;overflow:hidden">
+<div style="padding:14px 18px;border-bottom:1px solid #E2E0DA;display:grid;gap:2px"><h2 style="margin:0;font:600 14px 'IBM Plex Sans'">Sinais identificados no texto</h2><span style="font:400 12.5px/1.45 'IBM Plex Sans';color:#5F6368">Leitura da IA sobre a mensagem. Não exige ação aqui; os efeitos aparecem na validação de regras.</span></div>
+<sc-for list="{{ insights }}" as="in" hint-placeholder-count="0"><div style="padding:12px 18px;border-bottom:1px solid #F0EEE9;display:grid;gap:4px">
+<span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font:600 10px 'IBM Plex Mono';letter-spacing:.06em;padding:2px 6px;border-radius:4px;color:{{ in.tFg }};background:{{ in.tBg }}">{{ in.tag }}</span><span style="font:600 13.5px/1.35 'IBM Plex Sans'">{{ in.title }}</span></span>
+<span style="font:400 12.5px/1.5 'IBM Plex Sans';color:#3F4347;text-wrap:pretty">{{ in.text }}</span>
+<sc-if value="{{ in.hasQuote }}"><span style="font:400 12px/1.5 'IBM Plex Mono';color:#5F6368;overflow-wrap:anywhere">“{{ in.quote }}”</span></sc-if>
+</div></sc-for>
+</div>
+</sc-if>
+<div style="min-width:0;background:#fff;border:1px solid #E2E0DA;border-radius:10px;overflow:hidden">
+<div style="padding:14px 18px;border-bottom:1px solid #E2E0DA;display:grid;gap:4px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap"><h2 style="margin:0;font:600 14px 'IBM Plex Sans'">Dados propostos</h2><sc-if value="{{ tech }}" hint-placeholder-val="{{ false }}"><span style="font:400 11.5px 'IBM Plex Mono';color:#5F6368">{{ p.extractor }}</span></sc-if></div>
+<span style="font:400 12.5px/1.45 'IBM Plex Sans';color:#5F6368;text-wrap:pretty">{{ aiSummary }}</span>
+</div>
+<sc-for list="{{ fieldGroups }}" as="g" hint-placeholder-count="2">
+<div style="padding:10px 18px;background:#F4F3EF;border-bottom:1px solid #E2E0DA;font:600 11px 'IBM Plex Mono';letter-spacing:.07em;color:#5F6368">{{ g.title }}</div>
+<sc-for list="{{ g.fields }}" as="f" hint-placeholder-count="4">
+<div id="fld-{{ f.key }}" style="padding:12px 18px;border-bottom:1px solid #F0EEE9;display:grid;gap:7px;background:{{ f.rowBg }};scroll-margin-top:90px">
+<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap">
+<span style="font:600 11px 'IBM Plex Mono';letter-spacing:.05em;color:#5F6368;text-transform:uppercase">{{ f.label }}</span>
+<span style="display:flex;gap:6px;flex-wrap:wrap">
+<sc-if value="{{ f.hasStatus }}"><span style="font:600 10.5px 'IBM Plex Mono';padding:2px 7px;border-radius:4px;color:{{ f.sFg }};background:{{ f.sBg }}">{{ f.statusLabel }}</span></sc-if>
+<span style="font:500 10.5px 'IBM Plex Mono';padding:2px 7px;border-radius:4px;color:{{ f.oFg }};background:{{ f.oBg }}">{{ f.oLabel }}</span>
+</span>
+</div>
+<sc-if value="{{ f.notEditing }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">
+<span style="font:600 14.5px/1.4 'IBM Plex Sans';color:{{ f.valueFg }};min-width:0;overflow-wrap:anywhere">{{ f.shown }}</span>
+<span style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ f.btns }}" as="b"><button sc-camel-on-click="{{ b.go }}" style="border:1px solid {{ b.bd }};background:{{ b.bg }};color:{{ b.fg }};font:600 12px 'IBM Plex Sans';padding:5px 10px;border-radius:5px;cursor:pointer">{{ b.label }}</button></sc-for></span>
+</div>
+</sc-if>
+<sc-if value="{{ f.editing }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;gap:8px;padding:10px;border:1px solid #1F4D46;border-radius:7px;background:#fff">
+<sc-if value="{{ f.isSupplier }}">
+<sc-raw-select value="{{ editVal }}" sc-camel-on-change="{{ onEditVal }}" style="font:400 13.5px 'IBM Plex Sans';padding:8px 10px;border:1px solid #D6D3CB;border-radius:6px;width:100%;min-width:0">
+<option value="">Selecione no cadastro de fornecedores…</option>
+<sc-for list="{{ supplierOpts }}" as="o"><option value="{{ o.cod }}">{{ o.label }}</option></sc-for>
+</sc-raw-select>
+</sc-if>
+<sc-if value="{{ f.isCategory }}">
+<sc-raw-select value="{{ editVal }}" sc-camel-on-change="{{ onEditVal }}" style="font:400 13.5px 'IBM Plex Sans';padding:8px 10px;border:1px solid #D6D3CB;border-radius:6px;width:100%;min-width:0">
+<option value="">Selecione a categoria do ERP…</option>
+<sc-for list="{{ categoryOpts }}" as="o"><option value="{{ o }}">{{ o }}</option></sc-for>
+</sc-raw-select>
+</sc-if>
+<sc-if value="{{ f.isStores }}">
+<label style="display:flex;gap:8px;align-items:center;font:600 13px 'IBM Plex Sans';cursor:pointer"><input type="checkbox" checked="{{ redeChecked }}" sc-camel-on-change="{{ onToggleRede }}" style="width:16px;height:16px;accent-color:#1F4D46">REDE — todas as lojas ativas (uso isolado, RB09)</label>
+<input type="text" value="{{ storeFilter }}" sc-camel-on-change="{{ onStoreFilter }}" placeholder="Filtrar lojas…" style="font:400 13px 'IBM Plex Sans';padding:7px 10px;border:1px solid #D6D3CB;border-radius:6px;min-width:0">
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:4px 12px;max-height:220px;overflow:auto;opacity:{{ storesOpacity }}">
+<sc-for list="{{ storeOpts }}" as="o"><label style="display:flex;gap:6px;align-items:center;font:400 12.5px 'IBM Plex Sans';cursor:pointer;padding:2px 0"><input type="checkbox" checked="{{ o.checked }}" sc-camel-on-change="{{ o.toggle }}" disabled="{{ redeChecked }}" style="accent-color:#1F4D46"><span style="font-family:'IBM Plex Mono';font-size:11.5px;color:#5F6368">{{ o.cod }}</span>{{ o.nome }}</label></sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ f.isNumber }}"><input type="text" sc-camel-input-mode="decimal" value="{{ editVal }}" sc-camel-on-change="{{ onEditVal }}" placeholder="{{ f.numHint }}" style="font:500 14px 'IBM Plex Mono';padding:8px 10px;border:1px solid #D6D3CB;border-radius:6px;min-width:0"></sc-if>
+<sc-if value="{{ f.isDate }}"><input type="date" value="{{ editVal }}" sc-camel-on-change="{{ onEditVal }}" style="font:500 14px 'IBM Plex Mono';padding:8px 10px;border:1px solid #D6D3CB;border-radius:6px;min-width:0"></sc-if>
+<sc-if value="{{ f.isText }}"><textarea value="{{ editVal }}" sc-camel-on-change="{{ onEditVal }}" rows="3" sc-camel-max-length="500" style="font:400 13.5px/1.5 'IBM Plex Sans';padding:8px 10px;border:1px solid #D6D3CB;border-radius:6px;resize:vertical;min-width:0"></textarea></sc-if>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<button sc-camel-on-click="{{ f.apply }}" style="border:0;background:#1F4D46;color:#fff;font:600 12.5px 'IBM Plex Sans';padding:7px 12px;border-radius:6px;cursor:pointer">Salvar correção</button>
+<button sc-camel-on-click="{{ onCancelEdit }}" style="border:1px solid #D6D3CB;background:#fff;font:500 12.5px 'IBM Plex Sans';padding:7px 10px;border-radius:6px;cursor:pointer">Cancelar</button>
+</div>
+</div>
+</sc-if>
+<span style="font:400 12px/1.45 'IBM Plex Sans';color:#5F6368;overflow-wrap:anywhere">“{{ f.raw_value }}” · {{ f.source_location }}</span>
+<sc-if value="{{ f.hasNote }}"><span style="font:400 12px/1.45 'IBM Plex Sans';color:#3F4347">{{ f.note }}</span></sc-if>
+</div>
+</sc-for>
+</sc-for>
+</div>
+</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;padding:16px 18px;border-radius:10px;background:#fff;border:1px solid #E2E0DA">
+<div style="flex:1 1 320px;min-width:0;display:grid;gap:8px">
+<span style="font:600 13.5px 'IBM Plex Sans'">{{ i2.doneLabel }}</span>
+<div style="height:6px;border-radius:3px;background:#ECEBE6;overflow:hidden"><div style="height:100%;width:{{ i2.pct }};background:#1F4D46;border-radius:3px"></div></div>
+<span style="font:400 12.5px/1.45 'IBM Plex Sans';color:#5F6368;text-wrap:pretty">{{ i2.hint }}</span>
+</div>
+<button sc-camel-on-click="{{ i2.cta }}" disabled="{{ i2.ctaDisabled }}" style="border:0;background:#1F4D46;color:#fff;font:600 13.5px 'IBM Plex Sans';padding:10px 14px;border-radius:7px;cursor:pointer;opacity:{{ i2.ctaOpacity }}" style-hover="background:#173B35">{{ i2.ctaLabel }}</button>
+</div>
+</section>
+</sc-if>
+<sc-if value="{{ isS3 }}" hint-placeholder-val="{{ false }}">
+<section data-screen-label="03 Regras" style="display:grid;gap:20px;width:100%;max-width:960px;margin:0 auto">
+<div style="display:grid;gap:6px">
+<span style="font:600 11px 'IBM Plex Mono';letter-spacing:.08em;color:#5F6368">ETAPA 3 DE 4 · REGRAS E PENDÊNCIAS · {{ policyVersion }}</span>
+<h1 style="margin:0;font:600 22px/1.25 'IBM Plex Sans'">O que impede ou condiciona o cadastro?</h1>
+<p style="margin:0;font:500 15px/1.45 'IBM Plex Sans';color:#17191C;text-wrap:pretty">{{ p.summary }}</p>
+</div>
+<sc-if value="{{ r3.clean }}" hint-placeholder-val="{{ false }}"><div style="padding:16px 18px;border-radius:10px;background:#E3EEEB;color:#1F4D46;font:600 14px/1.5 'IBM Plex Sans'">{{ r3.cleanText }}</div></sc-if>
+<sc-for list="{{ ruleGroups }}" as="g" hint-placeholder-count="2">
+<div style="display:grid;gap:10px">
+<div style="display:flex;gap:4px 12px;align-items:baseline;flex-wrap:wrap"><span style="font:600 11px 'IBM Plex Mono';letter-spacing:.08em;color:#5F6368">{{ g.title }}</span><span style="font:400 12.5px/1.45 'IBM Plex Sans';color:#5F6368;text-wrap:pretty">{{ g.hint }}</span></div>
+<sc-for list="{{ g.items }}" as="fd" hint-placeholder-count="2">
+<div id="fnd-{{ fd.id }}" style="background:#fff;border:1px solid {{ fd.bd }};border-radius:9px;padding:14px 16px;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;scroll-margin-top:90px;opacity:{{ fd.doneOpacity }}">
+<div style="flex:1 1 100%;min-width:0;display:grid;gap:6px">
+<span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font:600 10.5px 'IBM Plex Mono';letter-spacing:.05em;padding:2px 7px;border-radius:4px;color:{{ fd.fg }};background:{{ fd.bg }};text-transform:uppercase">{{ fd.sevLabel }}</span><sc-if value="{{ tech }}" hint-placeholder-val="{{ false }}"><span style="font:500 11px 'IBM Plex Mono';color:#5F6368">{{ fd.rule_id }}</span></sc-if><sc-if value="{{ fd.hasOwner }}"><span style="font:500 12px 'IBM Plex Sans';color:#3F4347;white-space:nowrap">· {{ fd.ownerLabel }}</span></sc-if></span>
+<span style="font:400 14px/1.55 'IBM Plex Sans';color:#17191C;text-wrap:pretty">{{ fd.message }}</span>
+</div>
+<sc-if value="{{ fd.hasActions }}"><div style="flex:1 1 100%;display:flex;gap:6px 8px;flex-wrap:wrap;padding-top:10px;border-top:1px solid #F0EEE9"><sc-for list="{{ fd.actions }}" as="ac"><button sc-camel-on-click="{{ ac.go }}" disabled="{{ ac.disabled }}" title="{{ ac.title }}" style="border:1px solid {{ ac.bd }};background:{{ ac.bg }};color:{{ ac.fg }};font:600 12.5px 'IBM Plex Sans';padding:7px 12px;border-radius:6px;cursor:pointer;opacity:{{ ac.opacity }}">{{ ac.label }}</button></sc-for></div></sc-if>
+</div>
+</sc-for>
+</div>
+</sc-for>
+<div style="display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;padding:16px 18px;border-radius:10px;background:#fff;border:1px solid #E2E0DA">
+<div style="flex:1 1 320px;min-width:0;display:grid;gap:8px">
+<span style="font:600 13.5px 'IBM Plex Sans'">{{ r3.recLabel }}</span>
+<span style="font:400 12.5px/1.45 'IBM Plex Sans';color:#5F6368;text-wrap:pretty">{{ r3.autoHint }}</span>
+<sc-if value="{{ r3.showAuto }}" hint-placeholder-val="{{ false }}"><label style="justify-self:start;display:flex;gap:8px;align-items:center;padding:7px 9px;border:1px dashed #C9C6BE;border-radius:7px;background:#FCFBF9;font:500 12px 'IBM Plex Sans';cursor:pointer"><input type="checkbox" checked="{{ r3.autoOn }}" sc-camel-on-change="{{ r3.onToggleAuto }}" style="width:15px;height:15px;accent-color:#8A4B00"><span><span style="font:600 10.5px 'IBM Plex Mono';color:#8A4B00">MODO DE TESTE</span> · aplicar conclusão automática</span></label></sc-if>
+</div>
+<button sc-camel-on-click="{{ r3.cta }}" disabled="{{ r3.ctaDisabled }}" style="border:0;background:#1F4D46;color:#fff;font:600 13.5px 'IBM Plex Sans';padding:10px 14px;border-radius:7px;cursor:pointer;opacity:{{ r3.ctaOpacity }}" style-hover="background:#173B35">{{ r3.ctaLabel }}</button>
+</div>
+</section>
+</sc-if>
+<sc-if value="{{ isS4 }}" hint-placeholder-val="{{ false }}">
+<section data-screen-label="03 Conclusão" style="display:grid;gap:16px">
+<div>
+<div style="font:600 11px 'IBM Plex Mono';letter-spacing:.08em;color:#5F6368">ETAPA 4 DE 4 · CONCLUSÃO</div>
+<h1 style="margin:6px 0 4px;font:600 22px/1.25 'IBM Plex Sans'">{{ conclHeadline }}</h1>
+<p style="margin:0;font:400 13.5px/1.5 'IBM Plex Sans';color:#5F6368;max-width:920px;text-wrap:pretty">{{ conclSub }}</p>
+</div>
+<sc-if value="{{ isAuto }}" hint-placeholder-val="{{ false }}">
+<div style="background:#FDECEA;border:1px solid #F4C7C1;border-radius:10px;padding:20px 24px;display:grid;gap:8px">
+<span style="font:600 11px 'IBM Plex Mono';letter-spacing:.08em;color:#B42318">{{ autoKicker }}</span>
+<span style="font:600 22px/1.25 'IBM Plex Sans';color:#B42318">{{ autoTitle }}</span>
+<span style="font:400 14px/1.55 'IBM Plex Sans';color:#17191C;text-wrap:pretty">{{ autoBasis }}</span>
+<sc-if value="{{ autoHasRoute }}"><span style="font:500 13.5px/1.5 'IBM Plex Sans';color:#17191C">Próxima ação, fora deste sistema: {{ autoRoute }}</span></sc-if>
+<span style="font:400 12.5px/1.5 'IBM Plex Sans';color:#5F6368;text-wrap:pretty">Calculada pelas regras do backend, sem decisão humana. Uma correção de dados na interpretação reavalia a conclusão. A rejeição continua disponível como decisão humana.</span>
+</div>
+</sc-if>
+<sc-if value="{{ hasDecision }}" hint-placeholder-val="{{ false }}">
+<div style="background:#FCEBD9;border:1px solid #F1CDA8;border-radius:10px;padding:18px 22px;display:grid;gap:6px">
+<span style="font:600 11px 'IBM Plex Mono';letter-spacing:.08em;color:#8A4B00">{{ decKicker }}</span>
+<span style="font:600 19px/1.3 'IBM Plex Sans';color:#17191C">{{ decTitle }}</span>
+<span style="font:400 13.5px/1.5 'IBM Plex Sans';color:#3F4347;text-wrap:pretty">{{ decText }}</span>
+</div>
+</sc-if>
+<sc-if value="{{ hasOpenSummary }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border:1px solid #F1CDA8;border-radius:10px;padding:12px 18px;display:flex;gap:10px 16px;align-items:center;flex-wrap:wrap">
+<span style="flex:1 1 300px;font:500 13.5px/1.5 'IBM Plex Sans';color:#8A4B00;text-wrap:pretty">{{ openSummary }}</span>
+</div>
+</sc-if>
+<sc-if value="{{ hasOptions }}" hint-placeholder-val="{{ true }}">
+<div id="decision-box" style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;overflow:hidden;scroll-margin-top:90px">
+<div style="padding:14px 18px;border-bottom:1px solid #E2E0DA"><span style="font:600 15px 'IBM Plex Sans'">{{ optionsTitle }}</span></div>
+<sc-for list="{{ optionsV }}" as="o" hint-placeholder-count="5">
+<div id="opt-{{ o.code }}" style="border-bottom:1px solid #F0EEE9;background:{{ o.bg }};scroll-margin-top:90px">
+<button sc-camel-on-click="{{ o.pick }}" disabled="{{ o.disabled }}" style="width:100%;text-align:left;display:flex;gap:12px;align-items:flex-start;padding:14px 18px;border:0;background:transparent;cursor:pointer;opacity:{{ o.opacity }}">
+<span style="margin-top:2px;width:18px;height:18px;flex:none;border-radius:50%;border:2px solid {{ o.ring }};background:{{ o.dot }};box-shadow:inset 0 0 0 3px #fff"></span>
+<span style="flex:1;display:grid;gap:3px;min-width:0">
+<span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font:600 14px/1.35 'IBM Plex Sans';color:#17191C">{{ o.label }}</span><sc-if value="{{ o.recommended }}"><span style="font:600 10px 'IBM Plex Mono';padding:2px 6px;border-radius:4px;color:#1F4D46;background:#E3EEEB">INDICADA PELAS REGRAS</span></sc-if></span>
+<span style="font:400 12.5px/1.45 'IBM Plex Sans';color:#5F6368;text-wrap:pretty">{{ o.why }}</span>
+</span>
+</button>
+<sc-if value="{{ o.open }}">
+<div style="padding:0 18px 18px 48px;display:grid;gap:12px">
+<sc-for list="{{ dlgLines }}" as="il"><div style="display:flex;gap:10px;font:500 13.5px/1.5 'IBM Plex Sans'"><span style="color:{{ il.c }}">{{ il.mark }}</span><span>{{ il.t }}</span></div></sc-for>
+<sc-if value="{{ dlgApprove }}">
+<sc-if value="{{ dlgPhaseA }}">
+<label style="display:grid;gap:6px"><span style="font:600 12.5px 'IBM Plex Sans';color:#3F4347">Perfil do aprovador <span style="font-weight:400;color:#5F6368">· exigida: {{ p.required.role }}</span></span>
+<sc-raw-select value="{{ approverId }}" sc-camel-on-change="{{ onApprover }}" style="width:100%;min-width:0;font:400 13.5px 'IBM Plex Sans';padding:9px 10px;border:1px solid #D6D3CB;border-radius:7px;background:#FCFBF9"><option value="">Selecione o perfil simulado…</option><sc-for list="{{ approverOpts }}" as="ap"><option value="{{ ap.id }}">{{ ap.label }}</option></sc-for></sc-raw-select>
+<span style="font:400 11.5px/1.4 'IBM Plex Sans';color:#5F6368">Nesta demonstração o perfil é declarado, sem login. O sistema verifica se ele tem alçada.</span></label>
+<button sc-camel-on-click="{{ onApprove }}" disabled="{{ approveDisabled }}" style="border:0;background:#1F4D46;color:#fff;font:600 14px 'IBM Plex Sans';padding:11px 18px;border-radius:7px;cursor:pointer;background:#17191C;opacity:{{ approveOpacity }}">{{ approveLabel }}</button>
+<span style="font:400 12px 'IBM Plex Sans';color:#5F6368">Passo 1 de 2 · em seguida você confirma o cadastro no ERP.</span>
+</sc-if>
+<sc-if value="{{ dlgPhaseB }}">
+<div style="display:grid;gap:2px;padding:10px 12px;border-radius:7px;background:#E3EEEB;color:#1F4D46;font:400 12px/1.5 'IBM Plex Mono';word-break:break-all"><span style="font:600 13px 'IBM Plex Sans'">✓ Revisão aprovada</span><span>{{ apLine1 }}</span></div>
+<sc-if value="{{ tech }}" hint-placeholder-val="{{ false }}"><label style="display:flex;gap:8px;align-items:center;padding:8px 10px;border:1px dashed #C9C6BE;border-radius:7px;background:#FCFBF9;font:500 12.5px 'IBM Plex Sans';cursor:pointer"><input type="checkbox" checked="{{ failNext }}" sc-camel-on-change="{{ onToggleFail }}" style="width:15px;height:15px;accent-color:#8A4B00"><span><span style="font:600 10.5px 'IBM Plex Mono';color:#8A4B00">MODO DE TESTE</span> · ERP indisponível neste cadastro (as 3 tentativas automáticas falham)</span></label>
+<label style="display:flex;gap:8px;align-items:center;padding:8px 10px;border:1px dashed #C9C6BE;border-radius:7px;background:#FCFBF9;font:500 12.5px 'IBM Plex Sans';cursor:pointer"><input type="checkbox" checked="{{ randomFail }}" sc-camel-on-change="{{ onToggleRandom }}" style="width:15px;height:15px;accent-color:#8A4B00"><span><span style="font:600 10.5px 'IBM Plex Mono';color:#8A4B00">MODO DE TESTE</span> · manutenção aleatória do ERP: 1 a cada 5 chamadas retorna 503</span></label></sc-if>
+<button sc-camel-on-click="{{ onRegister }}" disabled="{{ registerDisabled }}" style="border:0;background:#1F4D46;color:#fff;font:600 14px 'IBM Plex Sans';padding:11px 18px;border-radius:7px;cursor:pointer;opacity:{{ registerOpacity }}">{{ registerLabel }}</button>
+<span style="font:400 12px 'IBM Plex Sans';color:#5F6368">Passo 2 de 2 · o sistema confere a revisão de novo antes de gravar. Se o ERP estiver em manutenção, o envio é repetido sem risco de duplicar.</span>
+</sc-if>
+</sc-if>
+<sc-if value="{{ dlgEscalate }}">
+<sc-if value="{{ dlgHasFindings }}"><div style="display:grid;gap:6px;padding:10px 12px;border-radius:7px;background:#F4F3EF"><span style="font:600 10.5px 'IBM Plex Mono';letter-spacing:.06em;color:#5F6368">SERÁ REGISTRADO COM AS PENDÊNCIAS</span><sc-for list="{{ dlgFindings }}" as="df"><span style="font:400 12.5px/1.45 'IBM Plex Sans'"><sc-if value="{{ tech }}" hint-placeholder-val="{{ false }}"><span style="font:600 11px 'IBM Plex Mono';color:{{ df.fg }}">{{ df.rule_id }} </span></sc-if>{{ df.message }}</span></sc-for></div></sc-if>
+<label style="display:grid;gap:6px"><span style="font:600 12.5px 'IBM Plex Sans';color:#3F4347">Observação <span style="font-weight:400;color:#5F6368">(opcional)</span></span><textarea value="{{ note }}" sc-camel-on-change="{{ onNote }}" rows="3" style="font:400 13px/1.5 'IBM Plex Sans';padding:8px 10px;border:1px solid #D6D3CB;border-radius:6px;resize:vertical;min-width:0"></textarea></label>
+<button sc-camel-on-click="{{ onEscalate }}" disabled="{{ actDisabled }}" style="border:0;background:#1F4D46;color:#fff;font:600 14px 'IBM Plex Sans';padding:11px 18px;border-radius:7px;cursor:pointer;background:#17191C;opacity:{{ actOpacity }}">Registrar encaminhamento</button>
+</sc-if>
+<sc-if value="{{ dlgReject }}">
+<label style="display:grid;gap:6px"><span style="font:600 12.5px 'IBM Plex Sans';color:#3F4347">Motivo padronizado <span style="color:#B42318">(obrigatório)</span></span><sc-raw-select value="{{ rejectCode }}" sc-camel-on-change="{{ onRejectCode }}" style="width:100%;min-width:0;font:400 13.5px 'IBM Plex Sans';padding:9px 10px;border:1px solid #D6D3CB;border-radius:7px;background:#FCFBF9"><option value="">Selecione o motivo…</option><sc-for list="{{ rejectOpts }}" as="r"><option value="{{ r.code }}">{{ r.label }}</option></sc-for></sc-raw-select></label>
+<label style="display:grid;gap:6px"><span style="font:600 12.5px 'IBM Plex Sans';color:#3F4347">Observação <span style="font-weight:400;color:#5F6368">(opcional)</span></span><textarea value="{{ note }}" sc-camel-on-change="{{ onNote }}" rows="2" style="font:400 13px/1.5 'IBM Plex Sans';padding:8px 10px;border:1px solid #D6D3CB;border-radius:6px;resize:vertical;min-width:0"></textarea></label>
+<button sc-camel-on-click="{{ onReject }}" disabled="{{ rejectDisabled }}" style="border:0;background:#1F4D46;color:#fff;font:600 14px 'IBM Plex Sans';padding:11px 18px;border-radius:7px;cursor:pointer;background:#B42318;opacity:{{ rejectOpacity }}">Registrar rejeição</button>
+</sc-if>
+</div>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ showTech }}" hint-placeholder-val="{{ true }}">
+<details style="background:#fff;border:1px solid #E2E0DA;border-radius:10px">
+<summary style="padding:14px 18px;font:600 13px 'IBM Plex Sans';cursor:pointer">Detalhes técnicos · estado da sessão (GET /api/state)</summary>
+<pre style="margin:0;padding:16px 18px;border-top:1px solid #E2E0DA;background:#17191C;color:#D9DBD6;font:400 12px/1.55 'IBM Plex Mono';overflow:auto;max-height:440px;border-radius:0 0 10px 10px">{{ jsonText }}</pre>
+</details>
+</sc-if>
+</section>
+</sc-if>
+<sc-if value="{{ isS5 }}" hint-placeholder-val="{{ false }}">
+<section data-screen-label="03b Resultado" style="display:grid;gap:16px">
+<div style="font:600 11px 'IBM Plex Mono';letter-spacing:.08em;color:#5F6368">RESULTADO — A OPERAÇÃO REALMENTE FOI CONCLUÍDA?</div>
+<sc-if value="{{ rOk }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;overflow:hidden">
+<div style="background:#1F4D46;color:#fff;padding:24px 28px;display:grid;gap:6px">
+<span style="font:600 11px 'IBM Plex Mono';letter-spacing:.08em;opacity:.85">COMPROVANTE · 201 CONFIRMADO PELO ERP SIMULADO</span>
+<span style="font:600 40px/1.1 'IBM Plex Mono'">{{ cod }}</span>
+<span style="font:400 13.5px/1.5 'IBM Plex Sans';opacity:.9">Resposta registrada e persistida na sessão em {{ confirmedAt }}. Atualizar a página não apaga este resultado.</span>
+</div>
+<div style="padding:8px 28px 18px">
+<sc-for list="{{ receiptRows }}" as="rr" hint-placeholder-count="8"><div style="display:flex;flex-wrap:wrap;gap:4px 16px;padding:10px 0;border-bottom:1px solid #F0EEE9;font:400 13.5px 'IBM Plex Sans'"><span style="width:190px;flex:none;color:#5F6368">{{ rr.k }}</span><span style="flex:1 1 240px;min-width:0;font-family:'IBM Plex Mono';font-size:12.5px;overflow-wrap:anywhere">{{ rr.v }}</span></div></sc-for>
+</div>
+<sc-if value="{{ hasErpAfter }}">
+<div style="padding:16px 28px;border-top:1px solid #E2E0DA;display:grid;gap:8px;background:#FCFBF9">
+<span style="font:600 11px 'IBM Plex Mono';letter-spacing:.08em;color:#5F6368">ESTADO DO ERP SIMULADO APÓS A OPERAÇÃO</span>
+<sc-for list="{{ erpAfter }}" as="ea"><div style="display:flex;flex-wrap:wrap;gap:4px 12px;font:400 13px/1.5 'IBM Plex Sans'"><span style="font:600 12.5px 'IBM Plex Mono'">{{ ea.cod }}</span><span>{{ ea.txt }}</span></div></sc-for>
+</div>
+</sc-if>
+</div>
+</sc-if>
+<sc-if value="{{ rFail }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border:1px solid #F4C7C1;border-radius:10px;overflow:hidden">
+<div style="background:#FDECEA;padding:24px 28px;display:grid;gap:6px">
+<span style="font:600 11px 'IBM Plex Mono';letter-spacing:.08em;color:#B42318">FALHA_REGISTRO · SEM CONFIRMAÇÃO</span>
+<span style="font:600 24px/1.25 'IBM Plex Sans';color:#B42318">O cadastro não foi confirmado</span>
+<span style="font:400 14px/1.5 'IBM Plex Sans';color:#17191C;text-wrap:pretty">{{ failText }}</span>
+</div>
+<div style="padding:14px 28px;display:grid;gap:6px">
+<sc-for list="{{ failRows }}" as="fr"><div style="display:flex;flex-wrap:wrap;gap:4px 16px;font:400 13px 'IBM Plex Sans'"><span style="width:190px;flex:none;color:#5F6368">{{ fr.k }}</span><span style="flex:1 1 240px;min-width:0;font-family:'IBM Plex Mono';font-size:12.5px;overflow-wrap:anywhere">{{ fr.v }}</span></div></sc-for>
+</div>
+<div style="padding:14px 28px;border-top:1px solid #F0EEE9;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+<button sc-camel-on-click="{{ onRetry }}" disabled="{{ retryDisabled }}" style="border:0;background:#17191C;color:#fff;font:600 14px 'IBM Plex Sans';padding:11px 18px;border-radius:7px;cursor:pointer;opacity:{{ retryOpacity }}">{{ retryLabel }}</button>
+<span style="flex:1 1 260px;font:400 12.5px/1.45 'IBM Plex Sans';color:#5F6368">Reenvio explícito com a mesma chave, válido por 24 h. Depois disso, o reenvio fica bloqueado e exige verificação manual fora da demonstração.</span>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ rWaiting }}" hint-placeholder-val="{{ false }}">
+<div style="background:#FCEBD9;border:1px solid #F1CDA8;border-radius:10px;padding:24px 28px;color:#8A4B00;font:600 16px 'IBM Plex Sans'">Aguardando confirmação do ERP simulado…</div>
+</sc-if>
+<sc-if value="{{ rConcl }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;overflow:hidden">
+<div style="padding:24px 28px;display:grid;gap:6px;background:{{ conclBg }}">
+<span style="font:600 11px 'IBM Plex Mono';letter-spacing:.08em;color:{{ conclFg }}">{{ conclKicker }}</span>
+<span style="font:600 24px/1.25 'IBM Plex Sans';color:{{ conclFg }}">{{ conclTitle }}</span>
+<span style="font:400 14px/1.5 'IBM Plex Sans';color:#17191C;text-wrap:pretty">{{ conclText }}</span>
+</div>
+<sc-if value="{{ hasReasons }}">
+<div style="padding:16px 28px;display:grid;gap:4px">
+<span style="font:600 11px 'IBM Plex Mono';letter-spacing:.08em;color:#5F6368">PENDÊNCIAS DOCUMENTADAS NO MOMENTO DA DECISÃO</span>
+<sc-for list="{{ reasons }}" as="rs"><div style="display:grid;grid-template-columns:{{ rsCols }};gap:4px 12px;padding:10px 0;border-bottom:1px solid #F0EEE9"><sc-if value="{{ tech }}" hint-placeholder-val="{{ false }}"><span style="font:600 11px 'IBM Plex Mono';color:{{ rs.fg }}">{{ rs.rule_id }}</span></sc-if><span style="display:grid;gap:2px"><span style="font:400 13.5px/1.5 'IBM Plex Sans'">{{ rs.message }}</span><span style="font:500 11.5px 'IBM Plex Sans';color:#5F6368">{{ rs.owner }}</span></span></div></sc-for>
+</div>
+</sc-if>
+</div>
+</sc-if>
+<sc-if value="{{ showAttempts }}">
+<div style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;padding:16px 24px;display:grid;gap:8px">
+<span style="font:600 11px 'IBM Plex Mono';letter-spacing:.08em;color:#5F6368">TENTATIVAS · POST /condicoes · Idempotency-Key {{ opKey }}</span>
+<sc-for list="{{ attempts }}" as="at"><div style="display:flex;flex-wrap:wrap;gap:4px 16px;font:400 12.5px 'IBM Plex Mono'"><span style="color:#5F6368">#{{ at.n }}</span><span style="color:{{ at.fg }};font-weight:600">{{ at.http }}</span><span style="flex:1 1 200px">{{ at.result }}</span><span style="color:#5F6368">{{ at.when }}</span></div></sc-for>
+</div>
+</sc-if>
+<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+<sc-if value="{{ rOk }}"><button sc-camel-on-click="{{ onRetry }}" style="border:1px solid #D6D3CB;background:#fff;color:#17191C;font:500 13.5px 'IBM Plex Sans';padding:10px 16px;border-radius:7px;cursor:pointer">Reenviar com a mesma chave (teste de idempotência)</button></sc-if>
+<button sc-camel-on-click="{{ onNew }}" style="border:0;background:#1F4D46;color:#fff;font:600 13.5px 'IBM Plex Sans';padding:10px 18px;border-radius:7px;cursor:pointer">Voltar à caixa de entrada</button>
+</div>
+</section>
+</sc-if>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;showTechnical&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Exibição&quot;}}">
+class Component extends DCLogic {
+  // Trocar para false quando o FastAPI estiver publicado: as mesmas rotas passam a ser chamadas via fetch.
+  static USE_MOCK = false;
+  static EXAMPLES = [
+    { id: 'beta', letter: 'A', name: 'Beta', who: 'Distribuidora Beta', desc: '13% em HPC para Tijuca, Méier e Botafogo. Há condição vigente no ERP para as mesmas lojas.', expect: 'Cadastro com substituição', tone: 'ok' },
+    { id: 'gama', letter: 'B', name: 'Gama', who: 'Gama Dermocosméticos', desc: 'Desconto e verba de R$ 8.000 com anexo CSV loja a loja; sem data final.', expect: 'Pendência / escalonamento', tone: 'warn' },
+    { id: 'alfa', letter: 'C', name: 'Alfa', who: 'Alfa Pharma', desc: 'Campanha de fim de ano: 28% em genéricos para toda a rede.', expect: 'Bloqueio normativo / escalonamento', tone: 'warn' },
+    { id: 'nutrivida', letter: 'D', name: 'Nutrivida', who: 'Nutrivida Suplementos', desc: 'Renovação de 18% em suplementos, com nota dirigida a processamento automático.', expect: 'Bloqueio', tone: 'block' }
+  ];
+  static STATES = { NOVA: ['Nova', '#3F4347', '#ECEBE6'], EM_ANALISE: ['Em análise', '#3D5A73', '#E8EEF3'], PENDENTE_REVISAO: ['Pendente de revisão', '#8A4B00', '#FCEBD9'], BLOQUEADA: ['Bloqueada', '#B42318', '#FDECEA'], PRONTA_PARA_APROVACAO: ['Pronta para aprovação', '#1F4D46', '#E3EEEB'], APROVADA: ['Aprovada', '#1F4D46', '#E3EEEB'], AGUARDANDO_REGISTRO: ['Aguardando registro', '#8A4B00', '#FCEBD9'], AGUARDANDO_CONFIRMACAO: ['Aguardando confirmação', '#8A4B00', '#FCEBD9'], CADASTRADA: ['Cadastrada', '#FFFFFF', '#1F4D46'], FALHA_REGISTRO: ['Falha no registro', '#B42318', '#FDECEA'], REJEITADA: ['Rejeitada', '#3F4347', '#ECEBE6'] };
+  static SEV = { BLOCKER: ['Bloqueio', '#B42318', '#FDECEA', '#F4C7C1'], REQUIRES_CONFIRMATION: ['Requer confirmação', '#8A4B00', '#FCEBD9', '#F1CDA8'], WARNING: ['Aviso', '#6B5A00', '#F7F1CF', '#E6DA9C'], INFO: ['Informação', '#3D5A73', '#E8EEF3', '#CBD7E2'] };
+  static ORIGIN = { EXPLICIT: ['Explícito', '#3F4347', '#ECEBE6'], NORMALIZED: ['Normalizado', '#2F5D8A', '#E4EDF6'], INFERRED: ['Inferido', '#6A3F8F', '#F0E8F6'], HUMAN_CORRECTED: ['Corrigido por humano', '#1F4D46', '#E3EEEB'], MISSING: ['Ausente', '#B42318', '#FDECEA'], CONFLICT: ['Conflito', '#8A4B00', '#FCEBD9'] };
+  static OWNER = { REVISOR: 'Resolvível na revisão', EXTERNO: 'Depende de regularização externa', NORMATIVO: 'Depende de interpretação normativa' };
+  static SRC = { DATASET_EMAIL: 'Fixture original do dataset', MANUAL_SIMULATION: 'Entrada manual · origem não verificada', EDITED_EXAMPLE: 'Exemplo editado pelo operador' };
+
+  state = { step: 1, v: null, fixtures: null, form: { from: '', subject: '', body: '', csvName: '', csv: '' }, exampleId: null, edited: false, busy: null, error: null, notice: null,
+    draft: { changes: {}, confirms: {}, acks: null }, editKey: null, editVal: null, storeFilter: '', approverId: '', modal: null, reason: '', note: '', selOpt: null, rejectCode: '', dlg: null, tech: (() => { try { return localStorage.getItem('cc-tech') === '1' || /[?&]dev=1/.test(location.search); } catch (e) { return false; } })(), wide: typeof window !== 'undefined' ? window.innerWidth >= 920 : true };
+
+  async componentDidMount() {
+    this._rs = () => { const w = window.innerWidth >= 920; if (w !== this.state.wide) this.setState({ wide: w }); }; window.addEventListener('resize', this._rs);
+    window.scrollTo(0, 0);
+    if (window.CC_DATASET) this.setState({ fixtures: window.CC_DATASET.fixtures });
+    else try { const fx = await fetch('/api/examples', { credentials: 'include' }).then(r => r.json()); this.setState({ fixtures: fx }); } catch (e) {}
+    for (let i = 0; i < 40 && Component.USE_MOCK && !window.CCMockAPI; i++) await new Promise(r => setTimeout(r, 100));
+    try { const v = await this.api('GET', '/api/state'); this.setState({ v, step: this.inferStep(v), draft: this.loadDraft(v) }); }
+    catch (e) { this.setState({ error: this.envelope(e) }); }
+  }
+
+  // ---------- camada de API ----------
+  async api(method, path, body) {
+    if (Component.USE_MOCK) {
+      if (!window.CCMockAPI) throw { code: 'MOCK_NOT_LOADED', message: 'Simulador do backend não carregado.' };
+      return window.CCMockAPI.request(method, path, body);
+    }
+    const r = await fetch(path, { method, credentials: 'include', headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw Object.assign({ status: r.status }, j);
+    return j;
+  }
+  envelope(e) { return { status: e.status || null, code: e.code || 'ERRO', message: e.message || String(e), correlation_id: e.correlation_id || null, findings: e.findings || [] }; }
+  async call(kind, method, path, body, after) {
+    this.setState({ busy: kind, error: null, notice: null });
+    try { const v = await this.api(method, path, body); this.setState({ v, busy: null, notice: v.notice || null }); if (after) after(v); return v; }
+    catch (e) { this.setState({ busy: null, error: this.envelope(e) }); return null; }
+  }
+  inferStep(v) {
+    const p = v && v.proposal; if (!p) return 1;
+    if (p.decision || p.stage === 'CONCLUSAO' || ['CADASTRADA', 'FALHA_REGISTRO', 'REJEITADA', 'APROVADA', 'AGUARDANDO_CONFIRMACAO'].includes(p.state)) return 4;
+    return p.stage === 'REGRAS' ? 3 : 2;
+  }
+  emptyDraft() { return { changes: {}, confirms: {}, absent: {}, acks: null }; }
+
+  // ---------- entrada ----------
+  setForm(k, val) {
+    this.setState(s => {
+      const f = s.fixtures && s.exampleId && s.fixtures[s.exampleId]; const form = { ...s.form, [k]: val };
+      const edited = !!f && (form.from !== f.from || form.subject !== f.subject || form.body !== f.body || form.csv !== ((f.attachment && f.attachment.content) || ''));
+      return { form, edited };
+    });
+  }
+  loadExample(id) {
+    const f = this.state.fixtures && this.state.fixtures[id];
+    if (!f) return this.setState({ error: { code: 'FIXTURE_UNAVAILABLE', message: 'Fixtures do dataset não carregadas (dataset/fixtures.json).' } });
+    this.setState({ form: { from: f.from, subject: f.subject, body: f.body, csvName: f.attachment ? f.attachment.name : '', csv: f.attachment ? f.attachment.content : '' }, exampleId: id, edited: false, error: null });
+  }
+  onFile(ev) {
+    const f = ev.target.files && ev.target.files[0]; if (!f) return;
+    if (!/\.csv$/i.test(f.name)) return this.setState({ error: { code: 'INVALID_FILE', message: 'Apenas arquivos .csv são aceitos.' } });
+    if (f.size > 200 * 1024) return this.setState({ error: { code: 'ATTACHMENT_TOO_LARGE', message: 'O anexo excede 200 KB.' } });
+    const r = new FileReader(); r.onload = () => { this.setForm('csv', String(r.result)); this.setForm('csvName', f.name); }; r.readAsText(f);
+  }
+  // Simula a chegada de um e-mail: entra na caixa de entrada sem ser analisado.
+  receive() {
+    const s = this.state, orig = s.exampleId && !s.edited;
+    const body = orig ? { mode: 'dataset_example', example_id: s.exampleId }
+      : { mode: 'manual_simulation', sender: s.form.from, subject: s.form.subject, body: s.form.body, csv: s.form.csv || null, csv_name: s.form.csvName || null, derived_from_example: s.exampleId || null };
+    this.call('receive', 'POST', '/api/inbox', body, () => this.setState({ form: { from: '', subject: '', body: '', csvName: '', csv: '' }, exampleId: null, edited: false, notice: 'E-mail recebido na caixa de entrada. Selecione-o para analisar.' }));
+  }
+  // Abre a mensagem: analisa na primeira abertura; nas seguintes, retoma a análise persistida.
+  openItem(id) {
+    this.setState({ draft: this.emptyDraft(), editKey: null, approverId: '', selOpt: null, note: '', rejectCode: '' });
+    this.call('analyze', 'POST', '/api/analyze', { item_id: id }, v => this.setState({ step: this.inferStep(v), draft: this.loadDraft(v) }));
+  }
+  backInbox() { this.call('close', 'POST', '/api/inbox/close', {}, () => this.setState({ step: 1, draft: this.emptyDraft(), editKey: null })); }
+  goField(key) {
+    const p = this.state.v.proposal, f = p.fields.find(x => x.key === key); if (!f) return;
+    this.setState({ step: 2 }); this.startEdit(f);
+    setTimeout(() => { const el = document.getElementById('fld-' + key); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 90, behavior: 'smooth' }); }, 60);
+  }
+
+  // ---------- revisão (rascunho local → POST /api/review) ----------
+  startEdit(f) {
+    const d = this.state.draft, has = Object.prototype.hasOwnProperty.call(d.changes, f.key);
+    let val = has ? d.changes[f.key] : f.value;
+    if (f.editor === 'stores') val = Array.isArray(val) ? val.slice() : [];
+    if ((f.editor === 'percent' || f.editor === 'money') && val != null) val = String(val).replace('.', ',');
+    this.setState({ editKey: f.key, editVal: val == null ? '' : val, storeFilter: '' });
+  }
+  applyEdit(f) {
+    let v = this.state.editVal;
+    if (f.editor === 'percent' || f.editor === 'money') { v = parseFloat(String(v).replace(/\./g, f.editor === 'money' ? '' : '.').replace(',', '.')); if (!isFinite(v) || v <= 0) return this.setState({ error: { code: 'INVALID_VALUE', message: f.label + ': informe um número maior que zero.' } }); v = Math.round(v * 100) / 100; }
+    if (f.editor === 'text') { v = String(v).trim(); if (!v) return; }
+    if (f.editor === 'stores' && !v.length) return this.setState({ error: { code: 'INVALID_VALUE', message: 'Selecione ao menos uma loja ou REDE.' } });
+    if (!v && v !== 0) return;
+    this.setState(s => { const changes = { ...s.draft.changes }; if (JSON.stringify(v) === JSON.stringify(f.value)) delete changes[f.key]; else changes[f.key] = v; const confirms = { ...s.draft.confirms }; delete confirms[f.key]; const absent = { ...(s.draft.absent || {}) }; delete absent[f.key]; return { draft: { ...s.draft, changes, confirms, absent }, editKey: null, error: null }; });
+  }
+  // Rascunho da revisão: guardado automaticamente enquanto a aba estiver aberta (sessionStorage) e enviado ao avançar para a conclusão.
+  draftKey() { const p = this.state.v && this.state.v.proposal; return p ? 'cc6-draft-' + p.id + '-r' + p.revision : null; }
+  loadDraft(v) { const p = v && v.proposal; if (!p) return this.emptyDraft(); try { return JSON.parse(sessionStorage.getItem('cc6-draft-' + p.id + '-r' + p.revision)) || this.emptyDraft(); } catch (e) { return this.emptyDraft(); } }
+  componentDidUpdate() { const k = this.draftKey(); if (!k) return; try { const d = this.state.draft; if (Object.keys(d.changes).length || Object.keys(d.confirms).length || Object.keys(d.absent || {}).length) sessionStorage.setItem(k, JSON.stringify(d)); else sessionStorage.removeItem(k); } catch (e) {} }
+  discard(key) { this.setState(s => { const changes = { ...s.draft.changes }; delete changes[key]; return { draft: { ...s.draft, changes } }; }); }
+  toggleConfirm(key) { this.setState(s => { const confirms = { ...s.draft.confirms }; if (confirms[key]) delete confirms[key]; else confirms[key] = true; return { draft: { ...s.draft, confirms } }; }); }
+  toggleAck(id) {
+    this.setState(s => { const p = s.v.proposal; const cur = s.draft.acks || Object.fromEntries(p.findings.filter(f => f.severity === 'WARNING' && f.acknowledged).map(f => [f.id, true])); const acks = { ...cur }; if (acks[id]) delete acks[id]; else acks[id] = true; return { draft: { ...s.draft, acks } }; });
+  }
+  // Etapa 2 → 3: envia as verificações da interpretação; o backend revalida e libera a etapa de regras.
+  closeInterp() {
+    const s = this.state, d = s.draft, p = s.v.proposal;
+    const dirty = Object.keys(d.changes).length || Object.keys(d.confirms).length || Object.keys(d.absent || {}).length;
+    if (!dirty && p.stage !== 'INTERPRETACAO') return this.go(3);
+    const body = { proposal_id: p.id, expected_version: s.v.version, changes: d.changes, confirmations: Object.keys(d.confirms), absent: Object.keys(d.absent || {}) };
+    try { sessionStorage.removeItem(this.draftKey()); } catch (e) {}
+    this.call('interp', 'POST', '/api/interpretation/close', body, () => { this.setState({ draft: this.emptyDraft(), editKey: null }); this.go(3); });
+  }
+  go(n) { this.setState({ step: n, editKey: null }); window.scrollTo(0, 0); }
+  markAbsent(k) { this.setState(s => ({ draft: { ...s.draft, absent: { ...(s.draft.absent || {}), [k]: true } } })); }
+  // Ciência de aviso: registrada na hora (etapa 3).
+  ack(id, on) {
+    const s = this.state, p = s.v.proposal, cur = p.findings.filter(f => f.severity === 'WARNING' && f.acknowledged).map(f => f.id);
+    this.call('ack', 'POST', '/api/review', { proposal_id: p.id, expected_version: s.v.version, acknowledged_warning_ids: on ? cur.concat(id) : cur.filter(x => x !== id) });
+  }
+  // Etapa 3 → 4. Com code: o revisor escolheu o retorno num apontamento, então a regra automática não se sobrepõe.
+  closeRules(code) {
+    const s = this.state, p = s.v.proposal;
+    this.call('rules', 'POST', '/api/rules/close', { proposal_id: p.id, expected_version: s.v.version, apply_auto: !code }, () => { this.setState({ step: 4, editKey: null, dlg: code || null }); window.scrollTo(0, 0); if (code) this.scrollToId('opt-' + code); });
+  }
+  goConclusion(code) { this.closeRules(code); }
+  openDecision(code) { this.closeRules(code); }
+  closeDecision() { this.setState({ dlg: null }); }
+  approve() {
+    const s = this.state, p = s.v.proposal;
+    this.call('approve', 'POST', '/api/approve', { proposal_id: p.id, revision_hash: p.revision_hash, expected_version: s.v.version, approver_id: s.approverId });
+  }
+  register() {
+    const s = this.state, p = s.v.proposal;
+    this.call('register', 'POST', '/api/erp/register', { proposal_id: p.id, approval_id: s.v.approval.approval_id, expected_version: s.v.version }, () => this.setState({ dlg: null, step: 4 }));
+  }
+  escalate(route) { const s = this.state; this.call('escalate', 'POST', '/api/review', { proposal_id: s.v.proposal.id, expected_version: s.v.version, decision: 'ESCALAR', route, note: s.note }, () => this.setState({ note: '', dlg: null, step: 4 })); }
+  reject() { const s = this.state; this.call('reject', 'POST', '/api/review', { proposal_id: s.v.proposal.id, expected_version: s.v.version, decision: 'REJEITAR', reason_code: s.rejectCode, note: s.note }, () => this.setState({ note: '', rejectCode: '', dlg: null, step: 4 })); }
+  reset() { this.call('reset', 'POST', '/api/reset', {}, () => this.setState({ step: 1, form: { from: '', subject: '', body: '', csvName: '', csv: '' }, exampleId: null, edited: false, draft: this.emptyDraft(), approverId: '', editKey: null })); }
+
+  fmt(editor, v) {
+    const c = (this.state.v && this.state.v.catalog) || { fornecedores: [] };
+    if (v == null || v === '' || (Array.isArray(v) && !v.length)) return null;
+    if (editor === 'supplier') { const s = c.fornecedores.find(x => x.cod === v); return v + (s ? ' · ' + s.nome : ''); }
+    if (editor === 'stores') return v.includes('REDE') ? 'REDE (todas as lojas ativas)' : v.join(', ');
+    if (editor === 'percent') return String(v).replace('.', ',') + '%';
+    if (editor === 'money') return 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    if (editor === 'date') return v.slice(8, 10) + '/' + v.slice(5, 7) + '/' + v.slice(0, 4);
+    return String(v);
+  }
+  br(iso) { return iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4) : '—'; }
+  dt(iso) { return iso ? new Date(iso).toLocaleString('pt-BR') : '—'; }
+
+  renderVals() {
+    const s = this.state, C = Component, v = s.v, p = v && v.proposal;
+    const hasResult = !!p && (!!p.decision || ['CADASTRADA', 'FALHA_REGISTRO', 'REJEITADA', 'AGUARDANDO_CONFIRMACAO'].includes(p.state));
+    const past = !!p && p.stage !== 'INTERPRETACAO';
+    const steps = ['Caixa de entrada', 'Interpretação', 'Regras', 'Conclusão'].map((label, i) => {
+      const n = i + 1, cur = s.step === n, enabled = n === 1 || (n === 2 && !!p) || (n > 2 && past), done = !!p && n < s.step;
+      return { label, sep: n < 4, disabled: !enabled || !!s.busy, opacity: enabled ? 1 : 0.45, go: () => n === 1 && p ? this.backInbox() : n === 4 && p.stage !== 'CONCLUSAO' ? this.closeRules() : this.go(n),
+        icon: done ? '✓' : String(n), bg: cur ? '#ECEBE6' : 'transparent', fg: cur ? '#17191C' : '#3F4347',
+        dotBg: cur ? '#17191C' : done ? '#1F4D46' : 'transparent', dotFg: cur || done ? '#fff' : '#8A8D91', dotBd: cur || done ? 'transparent' : '#C9C6BE' };
+    });
+    const d = s.draft, valueChanges = Object.keys(d.changes).length, confCount = Object.keys(d.confirms).length;
+    const serverAcks = p ? p.findings.filter(f => f.severity === 'WARNING' && f.acknowledged).map(f => f.id).sort().join() : '';
+    const ackChanged = !!d.acks && Object.keys(d.acks).sort().join() !== serverAcks;
+    const dirtyN = valueChanges + confCount + Object.keys(d.absent || {}).length;
+    const interp = !!p && p.stage === 'INTERPRETACAO' && !p.decision && !['CADASTRADA', 'REJEITADA'].includes(p.state);
+    const st = !p ? ['', '', ''] : interp ? ['Em interpretação', '#3D5A73', '#E8EEF3'] : C.STATES[p.state] || [p.state, '#3F4347', '#ECEBE6'];
+    const err = s.error || {};
+    const tech = !!s.tech;
+    const base = { tech, onToggleTech: () => this.setState(st => { const t = !st.tech; try { localStorage.setItem('cc-tech', t ? '1' : '0'); } catch (e) {} return { tech: t }; }), rsCols: tech ? 'auto 1fr' : '1fr', srcPos: s.wide ? 'sticky' : 'static', srcMaxH: s.wide ? 'calc(100vh - 32px)' : 'none',
+      backendLabel: C.USE_MOCK ? 'backend simulado no navegador (sem IA)' : 'backend conectado · leitura por agente de IA',
+      sessionShort: v ? v.session_id.slice(0, 8) : '—', steps, onReset: () => this.reset(), onBackInbox: () => this.backInbox(),
+      showBar: !!p && s.step > 1, p: p || { required: {}, source: {} }, srcKindLabel: p ? C.SRC[p.source.kind] : '',
+      dirty: dirtyN > 0, dirtyLabel: dirtyN + ' alteração(ões) não salva(s)', stLabel: st[0], stFg: st[1], stBg: st[2], stCode: interp ? 'regras ainda não avaliadas' : p ? p.state : '',
+      hasError: !!s.error, error: err, errorMeta: [err.status, err.code, err.correlation_id].filter(Boolean).join(' · '), errorFindings: err.findings || [],
+      onDismissError: () => this.setState({ error: null }), hasNotice: !!s.notice, notice: s.notice, isAnalyzing: s.busy === 'analyze',
+      isS1: s.step === 1, isS2: s.step === 2 && !!p, isS3: s.step === 3 && !!p, isS4: s.step === 4 && !!p, isS5: s.step === 4 && hasResult
+    };
+    try {
+      const all = Object.assign(base, this.entryVals(), p ? this.reviewVals(p, { valueChanges, dirtyN }) : {}, p ? this.decisionVals(p) : {}, p ? this.resultVals(p) : {});
+      return all;
+    } catch (e) { console.error('[renderVals]', e && e.stack || e); return Object.assign(base, { hasError: true, error: { message: 'Falha de renderização: ' + (e && e.message) } }); }
+  }
+  entryVals() {
+    const s = this.state, C = Component, fx = s.fixtures && s.exampleId ? s.fixtures[s.exampleId] : null;
+    const ex = C.EXAMPLES.find(e => e.id === s.exampleId);
+    const src = !ex ? ['Entrada manual · origem não verificada', '#3D5A73', '#E8EEF3'] : s.edited ? ['Exemplo editado · derivado de ' + ex.name, '#8A4B00', '#FCEBD9'] : ['Fixture original · ' + ex.name, '#1F4D46', '#E3EEEB'];
+    const tone = { ok: ['#1F4D46', '#E3EEEB'], warn: ['#8A4B00', '#FCEBD9'], block: ['#B42318', '#FDECEA'] };
+    const rows = (s.form.csv || '').trim().split(/\r?\n/).filter(Boolean).map(r => r.split(';'));
+    const disabled = !s.form.body.trim() || !!s.busy;
+    return {
+      srcLabel: src[0], srcFg: src[1], srcBg: src[2], form: s.form,
+      showFixtureMeta: !!fx && !s.edited, fixtureFile: fx ? 'dataset/emails/' + fx.file : '', fixtureMsgId: fx ? fx.message_id : '', fixtureDate: fx ? fx.date : '',
+      onFrom: e => this.setForm('from', e.target.value), onSubject: e => this.setForm('subject', e.target.value), onBody: e => this.setForm('body', e.target.value.slice(0, 8000)),
+      bodyCount: s.form.body.length + ' / 8000', hasCsv: !!s.form.csv, noCsv: !s.form.csv,
+      csvHeader: rows[0] || [], csvRows: rows.slice(1).map(r => ({ cells: r.map(x => ({ v: x || '∅' })) })),
+      onFile: e => this.onFile(e), onRemoveCsv: () => { this.setForm('csv', ''); this.setForm('csvName', ''); },
+      onClear: () => this.setState({ form: { from: '', subject: '', body: '', csvName: '', csv: '' }, exampleId: null, edited: false, error: null }),
+      onReceive: () => this.receive(), receiveDisabled: disabled, receiveOpacity: disabled ? 0.45 : 1, receiveLabel: s.busy === 'receive' ? 'Recebendo…' : 'Simular recebimento',
+      examples: C.EXAMPLES.map(e => { const a = e.id === s.exampleId; return { ...e, title: e.letter + ' · ' + e.who + ' — ' + e.desc + ' Esperado: ' + e.expect + '.', bd: a ? '#1F4D46' : '#D6D3CB', bg: a ? '#1F4D46' : '#fff', fg: a ? '#fff' : '#17191C', load: () => this.loadExample(e.id) }; }),
+      hasExampleCaption: !!ex, exampleCaption: ex ? ex.who + (s.edited ? ' · editado — será analisado como texto livre' : ' · e-mail original do dataset') : '',
+      ...this.inboxVals()
+    };
+  }
+  scrollToId(id) { setTimeout(() => { const el = document.getElementById(id); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 90, behavior: 'smooth' }); }, 60); }
+  stageVals(p, x, fv, locked) {
+    const s = this.state, v = s.v, d = s.draft, ab = d.absent || {}, busy = !!s.busy, cc = p.conclusion || {};
+    const need = p.fields.filter(f => f.confirmation_status === 'PENDING');
+    const done = need.filter(f => Object.prototype.hasOwnProperty.call(d.changes, f.key) || d.confirms[f.key] || ab[f.key]).length;
+    const left = need.length - done, closed = p.stage !== 'INTERPRETACAO';
+    let ctaLabel, cta = () => this.closeInterp(), ctaDis = busy || left > 0;
+    if (locked) { ctaLabel = 'Ver conclusão →'; cta = () => this.go(4); ctaDis = false; }
+    else if (s.busy === 'interp') ctaLabel = 'Validando regras…';
+    else if (closed && !x.dirtyN) ctaLabel = 'Ir para regras →';
+    else if (closed) ctaLabel = 'Enviar correções e revalidar →';
+    else ctaLabel = 'Concluir interpretação →';
+    const hint = locked ? 'Análise encerrada; os dados ficam só para consulta.' : left ? 'Falta verificar ' + left + ' dado(s) marcados “A verificar”. Os demais foram lidos explicitamente da fonte — corrija se discordar.' : x.dirtyN && closed ? x.dirtyN + ' correção(ões) a enviar. Enviar gera nova revisão e descarta ciências e encaminhamentos.' : x.dirtyN ? x.dirtyN + ' verificação(ões) prontas. Ao concluir, o motor de regras valida os dados.' : closed ? 'Corrigir um dado agora gera nova revisão e refaz as regras.' : 'Nenhum dado pendente de verificação.';
+    const fl = p.flags || {}, ins = [];
+    if (fl.injection) ins.push(['RISCO', 'Instrução dirigida a processamento automático', 'Tratada como dado não confiável: não altera regras, aprovação nem cadastro.', fl.injection]);
+    if (fl.approval_claim) ins.push(['RISCO', 'Alegação de aprovação prévia', 'Afirmação do fornecedor não é evidência de aprovação da empresa.', fl.approval_claim]);
+    if (fl.seasonal) ins.push(['CONTEXTO', 'Menção a campanha sazonal', 'Pode envolver a exceção de teto da política; a validação de regras avalia.', fl.seasonal === 'sazonal' ? '' : fl.seasonal]);
+    if (fl.quoted_thread) ins.push(['CONTEXTO', 'Mensagem com histórico citado', 'Confira se os valores vêm da mensagem atual e não do histórico.', '']);
+    const k = o => p.fields.filter(f => f.origin_kind === o).length;
+    const aiSummary = p.fields.length + ' dados propostos: ' + [[k('EXPLICIT'), 'explícito(s)'], [k('NORMALIZED'), 'normalizado(s)'], [k('INFERRED'), 'inferido(s)'], [k('CONFLICT'), 'em conflito'], [k('MISSING'), 'não identificado(s)'], [k('HUMAN_CORRECTED'), 'corrigido(s)']].filter(a => a[0]).map(a => a[0] + ' ' + a[1]).join(' · ') + '. Fornecedor, categoria e lojas são escolhidos nos catálogos do ERP simulado.';
+    const blk = fv.filter(f => f.severity === 'BLOCKER'), wrn = fv.filter(f => f.severity === 'WARNING'), info = fv.filter(f => f.severity === 'INFO');
+    const wOpen = wrn.filter(f => !f.acknowledged).length;
+    const ruleGroups = [blk.length ? { title: 'IMPEDIMENTOS AO CADASTRO · ' + blk.length, hint: 'Bloqueiam a aprovação. Corrija o dado ou encaminhe na conclusão.', items: blk } : null,
+      wrn.length ? { title: 'AVISOS · ' + wOpen + ' SEM CIÊNCIA DE ' + wrn.length, hint: 'A aprovação exige ciência de cada um.', items: wrn } : null].filter(Boolean);
+    const autoOn = !(v.test_mode && v.test_mode.auto_conclusion === false);
+    const revOpen = blk.some(f => f.resolution_owner === 'REVISOR');
+    const recNames = { APROVAR_CADASTRAR: 'Aprovar e cadastrar', 'ESCALAR:DIRETORIA': 'Escalar à Diretoria Comercial', 'ESCALAR:CADASTRO': 'Encaminhar à área de Cadastro', 'ESCALAR:FORNECEDOR': 'Devolver ao fornecedor' };
+    const recLabel = [blk.length ? blk.length + ' impedimento(s)' : '', wOpen ? wOpen + ' aviso(s) sem ciência' : ''].filter(Boolean).join(' · ') || 'Sem pendências';
+    const autoHint = p.stage === 'CONCLUSAO' ? 'Validação concluída. Corrigir um dado na interpretação refaz esta etapa.' : !autoOn ? 'Conclusão automática desligada: na conclusão você escolhe o retorno manualmente.' : !revOpen && blk.some(f => f.resolution_owner === 'EXTERNO') ? 'Ao concluir a validação, o sistema encaminha automaticamente ao Cadastro.' : !revOpen && blk.some(f => f.resolution_owner === 'NORMATIVO') ? 'Ao concluir a validação, o sistema encaminha automaticamente à Diretoria.' : blk.some(f => f.id === 'RB02:TETO' || f.id === 'RB03:VEDADO') ? 'Ao concluir a validação, o sistema registra bloqueio por política.' : 'Nenhuma conclusão automática se aplica: a decisão é sua.';
+    return {
+      i2: { doneLabel: need.length ? done + ' de ' + need.length + ' dados verificados' : closed ? (p.fields.filter(f => ['CONFIRMED', 'ABSENT'].includes(f.confirmation_status)).length + ' dados verificados · interpretação concluída') : 'Nenhum dado exige verificação', pct: (need.length ? Math.round(done / need.length * 100) : 100) + '%', hint, cta, ctaLabel, ctaDisabled: ctaDis, ctaOpacity: ctaDis ? 0.45 : 1, reopenWarn: closed && !locked && (x.dirtyN > 0 || !!s.editKey) },
+      insights: ins.map(a => ({ tag: a[0], tFg: a[0] === 'RISCO' ? '#B42318' : '#3D5A73', tBg: a[0] === 'RISCO' ? '#FDECEA' : '#E8EEF3', title: a[1], text: a[2], quote: a[3], hasQuote: !!a[3] })), hasInsights: ins.length > 0, aiSummary,
+      ruleGroups, r3: { recLabel, autoHint, autoOn, onToggleAuto: () => this.call('test', 'POST', '/api/test-mode', { auto_conclusion: !autoOn }), clean: !blk.length && !wOpen,
+        cleanText: wrn.length ? 'Nenhum impedimento e todos os avisos com ciência. Pronta para aprovação na conclusão.' : 'Nenhum impedimento ou aviso para estes dados. Pronta para aprovação na conclusão.',
+        cta: locked || p.stage === 'CONCLUSAO' ? () => this.go(4) : () => this.closeRules(), ctaLabel: locked ? 'Ver conclusão →' : p.stage === 'CONCLUSAO' ? 'Ir para conclusão →' : s.busy === 'rules' ? 'Concluindo…' : 'Concluir validação →', showAuto: !locked && p.stage !== 'CONCLUSAO' && !!s.tech, ctaDisabled: busy, ctaOpacity: busy ? 0.45 : 1 },
+      findingsInfo: info, hasInfo: info.length > 0, infoTitle: info.length + ' informação(ões) de contexto — alçada, componentes e regras aplicadas'
+    };
+  }
+  footVals(p, a, st, dirtyN) {
+    const s = this.state, fin = ['CADASTRADA', 'REJEITADA'].includes(p.state) || (p.decision && p.decision.type === 'ESCALAR');
+    const F = (label, go, primary, dis) => ({ label, go, disabled: !!dis, opacity: dis ? 0.5 : 1, bd: primary ? '0' : '1px solid #5F6368', bg: primary ? '#F4F3EF' : 'transparent', fg: primary ? '#17191C' : '#fff' });
+    if (s.step === 2) return { showFooter: true, footText: 'Interpretação · ' + a.i2.doneLabel + (dirtyN ? ' · ' + dirtyN + ' a enviar' : ''), footBtns: [F('← Caixa de entrada', () => this.backInbox()), F(a.i2.ctaLabel, a.i2.cta, true, a.i2.ctaDisabled)] };
+    if (s.step === 3) return { showFooter: true, footText: 'Regras · ' + p.counts.blockers + ' impedimento(s) · ' + p.counts.warnings_open + ' aviso(s) sem ciência', footBtns: [F('← Interpretação', () => this.go(2)), F(a.r3.ctaLabel, a.r3.cta, true, a.r3.ctaDisabled)] };
+    return { showFooter: true, footText: fin ? 'Requisição concluída: ' + st[0] + (p.decision && p.decision.type === 'ESCALAR' ? ' · encaminhada' : '') : 'Conclusão · ' + st[0], footBtns: [F('← Regras', () => this.go(3)), F(fin ? 'Voltar à caixa de entrada →' : 'Caixa de entrada', () => this.backInbox(), fin)] };
+  }
+  inboxVals() {
+    const s = this.state, C = Component, v = s.v, items = (v && v.inbox) || [], rotas = (v && v.catalog.rotas) || {};
+    const short = { DIRETORIA: 'Diretoria', CADASTRO: 'Cadastro', FORNECEDOR: 'Fornecedor' };
+    const kind = i => i.kind === 'DATASET_EMAIL' ? 'Dataset' : i.kind === 'EDITED_EXAMPLE' ? 'Exemplo editado' : 'Manual';
+    const list = items.map(i => {
+      let st;
+      if (!i.state) st = ['Não analisado', '#3D5A73', '#E8EEF3'];
+      else if (i.decision && i.decision.type === 'ESCALAR') st = ['Encaminhado · ' + (short[i.decision.route] || i.decision.route), '#8A4B00', '#FCEBD9'];
+      else st = C.STATES[i.state] || [i.state, '#3F4347', '#ECEBE6'];
+      if (i.state && !i.decision && i.stage !== 'CONCLUSAO' && !['CADASTRADA', 'REJEITADA', 'APROVADA', 'FALHA_REGISTRO', 'AGUARDANDO_CONFIRMACAO'].includes(i.state)) st = i.stage === 'REGRAS' ? ['Etapa 3 · regras', '#3D5A73', '#E8EEF3'] : ['Etapa 2 · interpretação', '#3D5A73', '#E8EEF3'];
+      if (i.auto && !i.decision && i.state === 'BLOQUEADA') st = ['Bloqueado automaticamente', '#B42318', '#FDECEA'];
+      const final = ['CADASTRADA', 'REJEITADA'].includes(i.state) || (i.decision && i.decision.type === 'ESCALAR') || (i.auto && i.state === 'BLOQUEADA');
+      const fresh = !i.state;
+      const name = (i.from || '(sem remetente)').replace(/\s*<[^>]+>/, '');
+      const rej = i.state === 'REJEITADA', dz = i.decision || {};
+      return { ...i, sender: name, subject: i.subject || '(sem assunto)', when: this.dt(i.received_at).slice(0, 17), kindLabel: kind(i), status: st[0], sFg: rej ? '#5F6368' : st[1], sBg: rej ? '#E2E0DA' : st[2],
+        weight: fresh ? 600 : 400, bg: rej ? '#F1F0EC' : fresh ? '#fff' : '#FCFBF9', mark: fresh ? '#1F4D46' : 'transparent', cta: rej ? '' : fresh ? 'Analisar →' : final ? 'Ver resultado →' : 'Continuar →',
+        isRejected: rej, rejectText: rej ? 'Motivo: ' + (dz.reason_label || dz.reason_code || '—') + (dz.note ? ' — “' + dz.note + '”' : '') + ' · ' + this.dt(dz.at).slice(0, 17) : '',
+        textFg: rej ? '#8A8D91' : '#17191C', cursor: rej ? 'default' : 'pointer', disabled: !!s.busy || rej, open: () => rej ? null : this.openItem(i.id) };
+    });
+    const pend = items.filter(i => !i.state).length, open = items.filter(i => i.state && !(['CADASTRADA', 'REJEITADA'].includes(i.state) || (i.decision && i.decision.type === 'ESCALAR') || (i.auto && i.state === 'BLOQUEADA'))).length;
+    return { inbox: list, inboxEmpty: !list.length, inboxCount: list.length ? list.length + ' mensagem(ns) · ' + pend + ' não analisada(s) · ' + open + ' em revisão' : 'Vazia' };
+  }
+  reviewVals(p, x) {
+    const s = this.state, C = Component, v = s.v, d = s.draft, cat = v.catalog;
+    const locked = ['CADASTRADA', 'REJEITADA'].includes(p.state) || (!!v.operation && v.operation.confirmation_status !== 'CONFIRMED');
+    const src = p.source, body = src.body || '';
+    const esc = t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const ev = (p.evidence || []).slice().sort((a, b) => b.text.length - a.text.length);
+    const evMap = Object.fromEntries(ev.map(e => [e.text, e]));
+    const segments = ev.length ? body.split(new RegExp('(' + ev.map(e => esc(e.text)).join('|') + ')', 'g')).filter(t => t !== '').map(t => { const e = evMap[t]; return { t, ev: !!e && e.kind !== 'risk', risk: !!e && e.kind === 'risk', plain: !e, title: e && e.field ? 'Evidência · ' + (p.fields.find(f => f.key === e.field) || {}).label : '' }; }) : [{ t: body, plain: true }];
+    const srcMeta = [['De', src.from || '—'], ['Para', src.to], ['Cc', src.cc], ['Assunto', src.subject || '—'], ['Data', src.date || (src.received_simulated_at ? this.dt(src.received_simulated_at) + ' (simulado)' : null)], [src.message_id ? 'Message-ID' : 'Referência', src.message_id || src.ref + ' (técnica, não é Message-ID)'], ['In-Reply-To', src.in_reply_to]].filter(m => m[1]).map(m => ({ k: m[0], v: m[1] }));
+    const rows = src.attachment ? src.attachment.content.trim().split(/\r?\n/).map(r => r.split(';')) : [];
+    const hl = p.csv_highlights || [];
+    const ab = d.absent || {};
+    const VS = { fix: ['Corrigido · a enviar', '#8A4B00', '#FCEBD9'], conf: ['Confirmado · a enviar', '#8A4B00', '#FCEBD9'], abs: ['Ausência · a enviar', '#8A4B00', '#FCEBD9'], ABSENT: ['Ausente na fonte', '#3F4347', '#ECEBE6'], PENDING: ['A verificar', '#B42318', '#FDECEA'], CONFIRMED: ['Verificado', '#1F4D46', '#E3EEEB'] };
+    const BT = (label, go, primary) => ({ label, go, bd: primary ? '#1F4D46' : '#D6D3CB', bg: primary ? '#1F4D46' : '#fff', fg: primary ? '#fff' : '#17191C' });
+    const undo = k => this.setState(st => { const dd = st.draft, c = { ...dd.changes }, cf = { ...dd.confirms }, a = { ...(dd.absent || {}) }; delete c[k]; delete cf[k]; delete a[k]; return { draft: { ...dd, changes: c, confirms: cf, absent: a } }; });
+    const fieldVM = f => {
+      const changed = Object.prototype.hasOwnProperty.call(d.changes, f.key), conf = !!d.confirms[f.key], abs = !!ab[f.key], editing = s.editKey === f.key;
+      const shown = changed ? this.fmt(f.editor, d.changes[f.key]) : f.display;
+      const origin = C.ORIGIN[changed ? 'HUMAN_CORRECTED' : f.origin_kind] || C.ORIGIN.EXPLICIT;
+      const empty = f.value == null || (Array.isArray(f.value) && !f.value.length);
+      const needs = f.confirmation_status === 'PENDING', local = changed || conf || abs;
+      const status = changed ? VS.fix : conf ? VS.conf : abs ? VS.abs : VS[f.confirmation_status] || null;
+      let btns = [];
+      if (!locked) {
+        if (local) btns = [BT('Desfazer', () => undo(f.key))].concat(changed ? [BT('Editar', () => this.startEdit(f))] : []);
+        else if (needs && !empty) btns = [BT('Confirmar', () => this.toggleConfirm(f.key), true), BT('Corrigir', () => this.startEdit(f))];
+        else if (needs) btns = [BT('Informar', () => this.startEdit(f), true)].concat(f.origin_kind === 'CONFLICT' ? [] : [BT('Ausente na fonte', () => this.markAbsent(f.key))]);
+        else btns = [{ ...BT(empty ? 'Informar' : 'Corrigir', () => this.startEdit(f)), bd: 'transparent', bg: 'transparent', fg: '#1F4D46' }];
+      }
+      const notes = [f.reason, f.corrected_from ? 'Valor anterior: ' + f.corrected_from : null].filter(Boolean);
+      return { ...f, editing, notEditing: !editing, shown: shown || (abs || f.confirmation_status === 'ABSENT' ? '— ausente na fonte —' : '— não identificado —'), valueFg: shown ? '#17191C' : '#B42318', rowBg: needs && !local ? '#FFFBF5' : '#fff',
+        oLabel: origin[0], oFg: origin[1], oBg: origin[2], hasStatus: !!status, statusLabel: status ? status[0] : '', sFg: status ? status[1] : '', sBg: status ? status[2] : '', btns, apply: () => this.applyEdit(f),
+        isSupplier: f.editor === 'supplier', isCategory: f.editor === 'category', isStores: f.editor === 'stores', isNumber: f.editor === 'percent' || f.editor === 'money', isDate: f.editor === 'date', isText: f.editor === 'text',
+        numHint: f.editor === 'percent' ? 'Ex.: 12,5' : 'Ex.: 8000,00', hasNote: notes.length > 0, note: notes.join(' · ') };
+    };
+    const G = keys => keys.map(k => p.fields.find(f => f.key === k)).filter(Boolean).map(fieldVM);
+    const fieldGroups = [{ title: 'CONDIÇÃO', fields: G(['fornecedor', 'categoria', 'lojas', 'inicio', 'fim', 'contrapartida']) }, { title: 'COMPONENTES COMERCIAIS', fields: G(['desconto', 'verba']) }].filter(g => g.fields.length);
+    const ev2 = Array.isArray(s.editVal) ? s.editVal : [], rede = ev2.includes('REDE'), q = (s.storeFilter || '').toLowerCase();
+    const storeOpts = cat.lojas.filter(l => !q || (l.cod + ' ' + l.nome).toLowerCase().includes(q)).map(l => ({ ...l, checked: ev2.includes(l.cod), toggle: () => this.setState(st => { const a = (st.editVal || []).filter(c => c !== 'REDE'); return { editVal: a.includes(l.cod) ? a.filter(c => c !== l.cod) : a.concat(l.cod) }; }) }));
+    const opts = (p.conclusion && p.conclusion.options) || [], rec = p.conclusion && p.conclusion.recommended, busyAny = !!s.busy;
+    const lbl = k => ((p.fields.find(y => y.key === k) || { label: k }).label || k).toLowerCase();
+    const concl = { 'ESCALAR:DIRETORIA': 'Escalar à Diretoria', 'ESCALAR:CADASTRO': 'Encaminhar ao Cadastro', 'ESCALAR:FORNECEDOR': 'Devolver ao fornecedor', REJEITAR: 'Rejeitar' };
+    const B = (label, go, dis, title, kind) => ({ label, go, disabled: dis, opacity: dis ? 0.45 : 1, title: title || '', bd: kind === 'p' ? '#1F4D46' : kind === 'r' ? '#F4C7C1' : kind === 'l' ? 'transparent' : '#D6D3CB', bg: kind === 'p' ? '#1F4D46' : kind === 'l' ? 'transparent' : '#fff', fg: kind === 'p' ? '#fff' : kind === 'r' ? '#B42318' : kind === 'l' ? '#1F4D46' : '#17191C' });
+    const actions = f => {
+      const out = [], ra = f.resolution_actions || [];
+      if (f.severity === 'WARNING') out.push(f.acknowledged ? B('✓ Ciência registrada · desfazer', () => this.ack(f.id, false), locked || busyAny) : B('Registrar ciência', () => this.ack(f.id, true), locked || busyAny, '', 'p'));
+      ra.filter(a => a.code === 'EDIT_FIELD').forEach(a => out.push(B('Corrigir ' + lbl(a.field) + ' na interpretação', () => this.goField(a.field), locked, 'Volta à etapa 2. A correção gera nova revisão e refaz esta validação.', 'l')));
+      return out;
+    };
+    const OWN = { REVISOR: 'resolve: revisor ou fornecedor', EXTERNO: 'resolve: área de Cadastro', NORMATIVO: 'resolve: Diretoria Comercial' };
+    const findingsV = p.findings.map(f => { const sv = C.SEV[f.severity], isWarn = f.severity === 'WARNING', acts = actions(f);
+      return { ...f, sevLabel: sv[0], fg: sv[1], bg: sv[2], bd: sv[3], ownerLabel: isWarn ? '' : f.severity === 'INFO' ? '' : OWN[f.resolution_owner] || '',
+        hasFields: f.affected_fields.length > 0, fieldsText: f.affected_fields.map(k => (p.fields.find(y => y.key === k) || { label: k }).label).join(', '),
+        doneOpacity: isWarn && f.acknowledged ? 0.7 : 1, hasActions: acts.length > 0, actions: acts, hasOwner: !isWarn && f.severity !== 'INFO' && !!OWN[f.resolution_owner] }; });
+    const forn = (p.fields.find(f => f.key === 'fornecedor') || {}).value;
+    const fs = cat.fornecedores.find(f => f.cod === forn);
+    const erpConds = (v.erp_condicoes || []).filter(c => c.cod_fornecedor === forn && c.status === 'VIGENTE').map(c => ({ cod: c.cod_condicao, valor: c.percentual != null ? String(c.percentual).replace('.', ',') + '%' : 'R$ ' + Number(c.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 }), cat: c.cod_categoria, tipo: c.tipo, lojas: c.lojas.join(', '), vig: this.br(c.data_inicio) + ' – ' + this.br(c.data_fim) }));
+    const busy = s.busy === 'review';
+    const barText = locked ? 'Revisão travada: ' + (p.state === 'CADASTRADA' ? 'condição cadastrada.' : p.state === 'REJEITADA' ? 'proposta rejeitada.' : 'há operação de registro sem confirmação.') : x.dirtyN ? x.dirtyN + ' alteração(ões) em rascunho. Salve para o backend revalidar e recalcular o estado.' : 'Sem alterações pendentes. Estado atual: ' + (C.STATES[p.state] || [p.state])[0] + '.';
+    return {
+      segments, srcMeta, srcHasCsv: rows.length > 0, srcCsvName: src.attachment ? src.attachment.name : '', srcCsvHeader: rows[0] || [],
+      srcCsvRows: rows.slice(1).map(r => ({ cells: r.map(c => ({ v: c || '∅', bg: c && hl.includes(c) ? '#FBE7A6' : 'transparent' })) })),
+      fieldGroups, editVal: Array.isArray(s.editVal) ? '' : s.editVal, onEditVal: e => this.setState({ editVal: e.target.value }), onCancelEdit: () => this.setState({ editKey: null }),
+      supplierOpts: cat.fornecedores.map(f => ({ cod: f.cod, label: f.cod + ' · ' + f.nome + (f.status !== 'ATIVO' ? ' (' + f.status + ')' : '') })), categoryOpts: cat.categorias,
+      redeChecked: rede, onToggleRede: () => this.setState(st => ({ editVal: (st.editVal || []).includes('REDE') ? [] : ['REDE'] })), storeFilter: s.storeFilter, onStoreFilter: e => this.setState({ storeFilter: e.target.value }), storeOpts, storesOpacity: rede ? 0.45 : 1,
+      barText, onDiscardAll: () => this.setState({ draft: this.emptyDraft(), editKey: null }), onSave: () => this.saveReview(),
+      saveDisabled: !x.dirtyN || busy || locked, saveOpacity: !x.dirtyN || locked ? 0.4 : 1, saveLabel: busy ? 'Enviando…' : 'Enviar e revalidar (' + x.dirtyN + ')',
+      onToS2: () => this.setState({ step: 2 }), onToS3: () => this.go(3), onToS4: () => this.setState({ step: 3, editKey: null }),
+      stale: x.valueChanges > 0, policyVersion: v.policy_version, findingsV,
+      ...this.stageVals(p, x, findingsV, locked),
+      erpSnapshot: this.dt(v.erp_snapshot_at), erpSupplierName: fs ? fs.cod + ' · ' + fs.nome : 'Fornecedor não definido', erpSupplierStatus: fs ? fs.status : '—',
+      erpSupplierFg: fs && fs.status === 'ATIVO' ? '#1F4D46' : '#B42318', erpSupplierBg: fs && fs.status === 'ATIVO' ? '#E3EEEB' : '#FDECEA', erpConds, noErpConds: !erpConds.length
+    };
+  }
+  decisionVals(p) {
+    const s = this.state, v = s.v, a = v.approval, op = v.operation, st = p.state, C = Component, cat = v.catalog;
+    const cc = p.conclusion || { mode: 'MANUAL', options: [], recommended: null, auto: null };
+    const dec = p.decision, rotas = cat.rotas || {};
+    const impactLines = p.impact.map(t => ({ t, mark: /^Encerrar/.test(t) ? '−' : /^Criar/.test(t) ? '+' : '·', c: /^Encerrar/.test(t) ? '#B42318' : /^Criar/.test(t) ? '#1F4D46' : '#8A8D91' }));
+    const hints = { APROVAR_CADASTRAR: 'Aprovação por perfil com alçada ' + p.required.role + ' e, em seguida, cadastro com confirmação.', 'ESCALAR:DIRETORIA': 'Para pendência normativa sem precedência definida (Política §11).', 'ESCALAR:CADASTRO': 'Para impedimento de elegibilidade do fornecedor (Política §8).', 'ESCALAR:FORNECEDOR': 'Para dado ausente, divergente ou sem comprovação.', REJEITAR: 'Decisão humana com motivo padronizado.' };
+    const btns = { APROVAR_CADASTRAR: 'Aprovar e cadastrar…', 'ESCALAR:DIRETORIA': 'Escalar…', 'ESCALAR:CADASTRO': 'Encaminhar…', 'ESCALAR:FORNECEDOR': 'Solicitar…', REJEITAR: 'Rejeitar…' };
+    const isCur = o => dec && dec.type === 'ESCALAR' && o.code === 'ESCALAR:' + dec.route;
+    const optionsV = cc.options.filter(o => !isCur(o)).map(o => { const rec = o.code === cc.recommended && o.available, dis = !o.available || !!s.busy, rej = o.code === 'REJEITAR';
+      const on = s.dlg === o.code && o.available;
+      return { code: o.code, label: o.label.split(' — ')[0], recommended: rec, disabled: dis, opacity: o.available ? 1 : 0.55, why: o.available ? hints[o.code] : o.unavailable_reason,
+        open: on, bg: on ? '#F5FAF8' : '#fff', ring: on ? '#1F4D46' : '#C9C6BE', dot: on ? '#1F4D46' : '#fff',
+        pick: () => this.setState({ dlg: on ? null : o.code, note: '', rejectCode: '', approverId: on ? s.approverId : '' }) }; });
+    const final = ['CADASTRADA', 'REJEITADA'].includes(st);
+    const headline = st === 'CADASTRADA' ? 'Condição cadastrada' : st === 'FALHA_REGISTRO' ? 'Registro não confirmado' : st === 'REJEITADA' ? 'Proposta rejeitada' : dec && dec.type === 'ESCALAR' ? 'Encaminhada' + (dec.automatic ? ' automaticamente' : '') : cc.mode === 'AUTOMATICA' ? 'Cadastro bloqueado pelas regras' : st === 'APROVADA' ? 'Aprovada — falta confirmar o cadastro' : st === 'PRONTA_PARA_APROVACAO' ? 'Pronta para aprovação' : 'Decisão necessária';
+    const sub = final ? 'Análise encerrada. Volte à caixa de entrada para a próxima mensagem.' : dec && dec.type === 'ESCALAR' ? 'Nada mais é exigido de você nesta mensagem. Se preferir outra conclusão, ela ainda pode ser registrada abaixo.' : 'Escolha uma conclusão. Cada opção é registrada aqui mesmo; as indisponíveis mostram o motivo.';
+    const dlg = s.dlg, opt = cc.options.find(o => o.code === dlg) || {};
+    const valid = a && a.status === 'VALIDA';
+    const canApprove = st === 'PRONTA_PARA_APROVACAO' && !!s.approverId && !s.busy;
+    const canRegister = st === 'APROVADA' && p.registerable && !s.busy;
+    const canAct = !s.busy;
+    const dlgFindings = (p.findings || []).filter(f => f.severity === 'BLOCKER' || f.severity === 'REQUIRES_CONFIRMATION').map(f => ({ rule_id: f.rule_id, message: f.message, fg: C.SEV[f.severity][1] }));
+    const { erp_condicoes, catalog, ...rest } = v;
+    return {
+      impactLines, conclHeadline: headline, conclSub: sub,
+      hasOpenSummary: !final && !(dec && dec.type === 'ESCALAR') && (p.counts.blockers + p.counts.warnings_open) > 0,
+      openSummary: [p.counts.blockers ? p.counts.blockers + ' impedimento(s)' : '', p.counts.warnings_open ? p.counts.warnings_open + ' aviso(s) sem ciência' : ''].filter(Boolean).join(' e ') + ' em aberto. Aprovar exige zero pendências; encaminhar ou rejeitar é possível agora.', onToRules: () => this.go(3),
+      autoOn: !(v.test_mode && v.test_mode.auto_conclusion === false), onToggleAuto: () => this.call('test', 'POST', '/api/test-mode', { auto_conclusion: !!(v.test_mode && v.test_mode.auto_conclusion === false) }),
+      isAuto: !!cc.auto && !dec, autoKicker: cc.auto ? 'CONCLUSÃO AUTOMÁTICA' + (s.tech ? ' · ' + cc.auto.rule : '') + ' · ' + this.dt(cc.auto.at) : '', autoRule: cc.auto ? cc.auto.rule : '', autoAt: cc.auto ? this.dt(cc.auto.at) : '', autoTitle: cc.auto ? cc.auto.title : '', autoBasis: cc.auto ? cc.auto.basis : '',
+      autoHasRoute: false, autoRoute: '',
+      hasDecision: !!dec && dec.type === 'ESCALAR', decKicker: dec ? (dec.automatic ? 'ENCAMINHAMENTO AUTOMÁTICO' + (s.tech ? ' · ' + dec.rule : '') : 'ENCAMINHAMENTO · ' + dec.actor) + ' · ' + this.dt(dec.at) : '',
+      decTitle: dec ? (rotas[dec.route] || dec.route) : '', decText: dec ? (dec.automatic ? 'Regra estabelecida: o impedimento depende de ' + (dec.route === 'CADASTRO' ? 'regularização externa do fornecedor' : 'interpretação normativa') + ' e não há dados pendentes do revisor. ' : '') + (cc.auto ? cc.auto.basis : (dec.open_findings || []).map(f => f.rule_id).join(' · ')) + (dec.note ? ' — “' + dec.note + '”' : '') : '',
+      optionsTitle: dec && dec.type === 'ESCALAR' ? 'Alterar o retorno desta requisição' : 'Retorno da requisição', optionsV: final ? [] : optionsV, hasOptions: !final && optionsV.length > 0,
+      dlgOpen: !!dlg, dlgApprove: dlg === 'APROVAR_CADASTRAR', dlgEscalate: !!dlg && dlg.indexOf('ESCALAR:') === 0, dlgReject: dlg === 'REJEITAR',
+      dlgKicker: dlg === 'APROVAR_CADASTRAR' ? 'APROVAÇÃO E CADASTRO · REVISÃO ' + p.revision : dlg === 'REJEITAR' ? 'DECISÃO HUMANA' : 'ENCAMINHAMENTO',
+      dlgTitle: dlg === 'APROVAR_CADASTRAR' ? 'Aprovar e cadastrar no ERP simulado' : dlg === 'REJEITAR' ? 'Rejeitar proposta' : (opt.label || ''),
+      dlgLines: dlg === 'APROVAR_CADASTRAR' ? impactLines : dlg === 'REJEITAR' ? [{ t: 'Encerra a requisição. Ela fica somente para consulta na caixa de entrada.', mark: '·', c: '#8A8D91' }] : [{ t: 'Nenhuma condição será criada no ERP simulado.', mark: '·', c: '#8A8D91' }],
+      dlgPhaseA: !valid, dlgPhaseB: !!valid, dlgHasFindings: dlgFindings.length > 0, dlgFindings, dlgCloseLabel: 'Cancelar', onCloseDlg: () => this.closeDecision(),
+      approverOpts: cat.aprovadores.map(x => ({ id: x.id, label: x.nome + ' — ' + x.cargo + ' (' + x.matricula + ')' })), approverId: s.approverId,
+      onApprover: e => this.setState({ approverId: e.target.value }),
+      onApprove: () => this.approve(), approveDisabled: !canApprove, approveOpacity: canApprove ? 1 : 0.4, approveLabel: s.busy === 'approve' ? 'Registrando…' : 'Aprovar revisão ' + p.revision,
+      apLine1: a ? a.approver_name + ' · ' + a.approver_role + (s.tech ? ' · ' + a.approval_id : '') : '',
+      onRegister: () => this.register(), registerDisabled: !canRegister, registerOpacity: canRegister ? 1 : 0.4, registerLabel: s.busy === 'register' ? 'Enviando…' : 'Confirmar cadastro',
+      randomFail: !!(v.test_mode && v.test_mode.erp_random_503), onToggleRandom: () => this.call('test', 'POST', '/api/test-mode', { erp_random_503: !(v.test_mode && v.test_mode.erp_random_503) }),
+      failNext: !!(v.test_mode && v.test_mode.erp_fail_next), onToggleFail: () => this.call('test', 'POST', '/api/test-mode', { erp_fail_next: !(v.test_mode && v.test_mode.erp_fail_next) }),
+      note: s.note, onNote: e => this.setState({ note: e.target.value }),
+      onEscalate: () => this.escalate(dlg.split(':')[1]), actDisabled: !canAct, actOpacity: canAct ? 1 : 0.4,
+      rejectOpts: Object.entries(cat.motivos_rejeicao || {}).map(([code, label]) => ({ code, label })), rejectCode: s.rejectCode, onRejectCode: e => this.setState({ rejectCode: e.target.value }),
+      onReject: () => this.reject(), rejectDisabled: !s.rejectCode || !canAct, rejectOpacity: s.rejectCode && canAct ? 1 : 0.4,
+      autoRules: (v.auto_rules || []).map(r => ({ id: r.id, label: r.label, status: r.enabled ? 'ATIVA' : 'NÃO PERMITIDA', fg: r.enabled ? '#1F4D46' : '#B42318', bg: r.enabled ? '#E3EEEB' : '#FDECEA', text: r.enabled ? 'Quando: ' + r.when + ' → ' + r.outcome : r.disabled_reason })),
+      showTech: !!s.tech, jsonText: JSON.stringify(rest, null, 2)
+    };
+  }
+  resultVals(p) {
+    const s = this.state, v = s.v, op = v.operation, a = v.approval, st = p.state, C = Component;
+    const pl = op ? op.erp_payload : null;
+    const rOk = st === 'CADASTRADA', rFail = st === 'FALHA_REGISTRO', rWaiting = st === 'AGUARDANDO_CONFIRMACAO';
+    const rConcl = !rOk && !rFail && !rWaiting && st === 'REJEITADA';
+    const cod = op && op.erp_response ? op.erp_response.cod_condicao : '';
+    const receiptRows = rOk && pl ? [['Fornecedor', pl.cod_fornecedor], ['Categoria', pl.cod_categoria], ['Tipo', pl.tipo], ['Valor', pl.percentual != null ? String(pl.percentual).replace('.', ',') + '%' : 'R$ ' + Number(pl.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })], ['Lojas', pl.lojas.join(', ')], ['Vigência', this.br(pl.data_inicio) + ' – ' + this.br(pl.data_fim)], ['Contrapartida', pl.contrapartida], ['Condição substituída', pl.cod_condicao_substituida], ['Aprovador', pl.aprovador.nome + ' · ' + pl.aprovador.matricula + ' (simulado)'], ['Revisão aprovada', a ? 'rev ' + a.revision + ' · ' + a.revision_hash : ''], ['Origem', pl.origem.tipo + ' · ' + pl.origem.referencia], ['Operação', op.operation_id], ['Idempotency-Key', op.idempotency_key], ['Data de negócio', '30/09/2026']].filter(r => r[1]).map(r => ({ k: r[0], v: r[1] })) : [];
+    const erpAfter = rOk ? (v.erp_condicoes || []).filter(c => c.cod_condicao === cod || c.encerrada_por === cod).map(c => ({ cod: c.cod_condicao, txt: c.cod_condicao === cod ? 'criada · VIGENTE ' + this.br(c.data_inicio) + ' – ' + this.br(c.data_fim) : 'vigência encerrada em ' + this.br(c.data_fim) + ' (substituída por ' + cod + ')' })) : [];
+    const le = op && op.last_error;
+    const isPrp = !!p.decision && p.decision.type === 'REJEITAR';
+    const dec = p.decision || { at: null, reason: '', actor: '', note: '' };
+    const reasons = !rConcl ? [] : (p.decision.open_findings || p.findings.filter(f => ['BLOCKER', 'REQUIRES_CONFIRMATION'].includes(f.severity))).map(f => ({ rule_id: f.rule_id, message: f.message, fg: C.SEV[f.severity][1], owner: C.OWNER[f.resolution_owner] || '' }));
+    const busy = s.busy === 'register';
+    return {
+      rOk, rFail, rWaiting, rConcl, cod, confirmedAt: op && op.erp_response ? this.dt(op.erp_response.confirmed_at) : '', receiptRows, erpAfter, hasErpAfter: erpAfter.length > 0,
+      failText: le ? (le.http === 429 ? 'Limite de requisições do ERP excedido. Aguarde ' + le.retry_after + ' s (Retry-After) e tente novamente com a mesma chave.' : le.http === 503 ? 'ERP simulado indisponível (manutenção). Nenhuma confirmação foi recebida; esta operação não deve ser considerada cadastrada.' : le.message) : '',
+      failRows: le && !s.tech ? [['Motivo', le.http === 503 ? 'ERP em manutenção' : le.http === 429 ? 'Muitas chamadas em pouco tempo' : le.message], ['Tentativas', String(op.attempts.length)]] : le ? [['HTTP', String(le.http)], ['Erro', le.code], ['Mensagem', le.message], ['Correlation ID', le.correlation_id], ['Operação', op.operation_id], ['Idempotency-Key', op.idempotency_key]].map(r => ({ k: r[0], v: r[1] })) : [],
+      onRetry: () => this.call('register', 'POST', '/api/erp/register', { proposal_id: p.id, approval_id: a ? a.approval_id : null, expected_version: v.version }),
+      retryDisabled: busy, retryOpacity: busy ? 0.5 : 1, retryLabel: busy ? 'Enviando…' : 'Tentar novamente com a mesma chave',
+      conclKicker: isPrp ? 'REJEITADA · DECISÃO HUMANA' : 'ESCALONAMENTO REGISTRADO · ESTADO ' + st, conclTitle: isPrp ? 'Proposta rejeitada' : 'Proposta encaminhada com pendências',
+      conclText: isPrp ? 'Motivo: ' + ((v.catalog.motivos_rejeicao || {})[dec.reason_code] || dec.reason_code) + (dec.note ? ' — “' + dec.note + '”' : '') + ' · ' + dec.actor + ' · ' + this.dt(dec.at) + '. Nenhuma condição foi criada.' : ((v.catalog.rotas || {})[dec.route] || 'Encaminhado') + ' · ' + this.dt(dec.at) + (dec.note ? ' — “' + dec.note + '”' : '') + '. O estado permanece ' + (C.STATES[st] || [st])[0] + ' e nenhuma condição foi criada no ERP simulado.',
+      conclFg: isPrp ? '#3F4347' : '#8A4B00', conclBg: isPrp ? '#ECEBE6' : '#FCEBD9', reasons, hasReasons: reasons.length > 0,
+      hasAttempts: !!(op && op.attempts.length), showAttempts: !!s.tech && !!(op && op.attempts.length), opKey: op ? op.idempotency_key : '',
+      attempts: op ? op.attempts.map(t => ({ ...t, fg: t.http === 201 ? '#1F4D46' : '#B42318', when: this.dt(t.at) + (t.retry_after ? ' · Retry-After ' + t.retry_after + 's' : '') })) : [],
+      onNew: () => this.backInbox()
+    };
+  }
+}
+</script>
+
+
+</body></html>

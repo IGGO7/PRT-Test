@@ -1,0 +1,7 @@
+{
+  "status_http": 400,
+  "body": {
+    "error": "MISSING_IDEMPOTENCY_KEY",
+    "message": "Header Idempotency-Key é obrigatório"
+  }
+}

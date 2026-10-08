@@ -1,0 +1,8 @@
+# Runtime (Vercel instala a partir deste arquivo). Versões validadas em 08/10/2026.
+fastapi==0.142.4
+pydantic==2.13.5
+httpx==0.28.1
+jsonschema==4.26.0
+langchain==1.4.3
+langgraph==1.2.14
+langchain-openai==1.6.7

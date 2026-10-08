@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "POST /condicoes — corpo da requisição",
+  "type": "object",
+  "required": [
+    "cod_fornecedor",
+    "cod_categoria",
+    "tipo",
+    "lojas",
+    "data_inicio",
+    "data_fim",
+    "aprovador",
+    "origem"
+  ],
+  "properties": {
+    "cod_fornecedor": {
+      "type": "string",
+      "pattern": "^FORN-\\d{3}$"
+    },
+    "cod_categoria": {
+      "type": "string",
+      "enum": [
+        "GENERICOS",
+        "MEDICAMENTOS_REFERENCIA",
+        "MIP",
+        "HIGIENE_BELEZA",
+        "DERMOCOSMETICOS",
+        "SUPLEMENTOS"
+      ]
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "DESCONTO_PERCENTUAL",
+        "VERBA_EXPOSICAO"
+      ]
+    },
+    "lojas": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^(LOJA-\\d{3}|REDE)$"
+      },
+      "description": "Códigos de loja, ou [\"REDE\"] para todas as lojas ativas."
+    },
+    "percentual": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 100,
+      "multipleOf": 0.01,
+      "description": "Obrigatório quando tipo = DESCONTO_PERCENTUAL. Proibido em VERBA_EXPOSICAO."
+    },
+    "valor": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "multipleOf": 0.01,
+      "description": "Em reais. Obrigatório quando tipo = VERBA_EXPOSICAO. Proibido em DESCONTO_PERCENTUAL."
+    },
+    "data_inicio": {
+      "type": "string",
+      "format": "date"
+    },
+    "data_fim": {
+      "type": "string",
+      "format": "date"
+    },
+    "contrapartida": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "cod_condicao_substituida": {
+      "type": "string",
+      "pattern": "^COND-\\d{3}$",
+      "description": "Opcional. Quando informado, a condição referenciada tem a vigência encerrada na véspera de data_inicio."
+    },
+    "aprovador": {
+      "type": "object",
+      "required": [
+        "matricula",
+        "nome"
+      ],
+      "properties": {
+        "matricula": {
+          "type": "string"
+        },
+        "nome": {
+          "type": "string"
+        }
+      }
+    },
+    "origem": {
+      "type": "object",
+      "required": [
+        "tipo",
+        "referencia"
+      ],
+      "properties": {
+        "tipo": {
+          "type": "string",
+          "enum": [
+            "EMAIL"
+          ]
+        },
+        "referencia": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

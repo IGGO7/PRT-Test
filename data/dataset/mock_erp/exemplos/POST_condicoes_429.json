@@ -1,0 +1,10 @@
+{
+  "status_http": 429,
+  "headers": {
+    "Retry-After": "60"
+  },
+  "body": {
+    "error": "RATE_LIMIT_EXCEEDED",
+    "message": "Limite de requisições excedido"
+  }
+}

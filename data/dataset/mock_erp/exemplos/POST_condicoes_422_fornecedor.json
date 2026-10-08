@@ -1,0 +1,7 @@
+{
+  "status_http": 422,
+  "body": {
+    "error": "SUPPLIER_NOT_ACTIVE",
+    "message": "Fornecedor não possui cadastro ativo"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "_comentario": "Exemplo ilustrativo. Os valores não se referem a nenhum e-mail do dataset.",
+  "metodo": "POST",
+  "caminho": "/api/v1/condicoes",
+  "headers": {
+    "Content-Type": "application/json",
+    "Idempotency-Key": "5f0c1e2a-8b7d-4c1e-9a3f-2d6e7b8c9a01"
+  },
+  "body": {
+    "cod_fornecedor": "FORN-006",
+    "cod_categoria": "MIP",
+    "tipo": "DESCONTO_PERCENTUAL",
+    "lojas": [
+      "LOJA-120",
+      "LOJA-121"
+    ],
+    "percentual": 9.5,
+    "data_inicio": "2026-11-01",
+    "data_fim": "2027-01-31",
+    "contrapartida": "Ponto extra no balcao de MIP durante toda a vigencia",
+    "aprovador": {
+      "matricula": "004512",
+      "nome": "Fulano de Tal"
+    },
+    "origem": {
+      "tipo": "EMAIL",
+      "referencia": "<id-da-mensagem@exemplo>"
+    }
+  }
+}

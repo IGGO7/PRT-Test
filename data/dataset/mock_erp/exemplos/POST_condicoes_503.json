@@ -1,0 +1,7 @@
+{
+  "status_http": 503,
+  "body": {
+    "error": "SERVICE_UNAVAILABLE",
+    "message": "Sistema em manutenção"
+  }
+}

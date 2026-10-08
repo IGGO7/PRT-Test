@@ -1,0 +1,286 @@
+{
+  "consultado_em": "2026-09-30T08:15:00-03:00",
+  "total": 40,
+  "itens": [
+    {
+      "cod_loja": "LOJA-101",
+      "nome": "DROG VITALIS COPACABANA",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-102",
+      "nome": "DROG VITALIS IPANEMA",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-103",
+      "nome": "DROG VITALIS LEBLON",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-104",
+      "nome": "DROG VITALIS TIJUCA",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-105",
+      "nome": "DROG VITALIS FLAMENGO",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-106",
+      "nome": "DROG VITALIS LARANJEIRAS",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-107",
+      "nome": "DROG VITALIS MEIER",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-108",
+      "nome": "DROG VITALIS MADUREIRA",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-109",
+      "nome": "DROG VITALIS BARRA SHOPPING",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-110",
+      "nome": "DROG VITALIS RECREIO",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-111",
+      "nome": "DROG VITALIS JACAREPAGUA",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-112",
+      "nome": "DROG VITALIS BOTAFOGO",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-113",
+      "nome": "DROG VITALIS CENTRO RIO BRANCO",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-114",
+      "nome": "DROG VITALIS CENTRO CARIOCA",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-115",
+      "nome": "DROG VITALIS VILA ISABEL",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-116",
+      "nome": "DROG VITALIS GRAJAU",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-117",
+      "nome": "DROG VITALIS CAMPO GRANDE",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-118",
+      "nome": "DROG VITALIS BANGU",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-119",
+      "nome": "DROG VITALIS ILHA DO GOVERNADOR",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-120",
+      "nome": "DROG VITALIS NITEROI ICARAI",
+      "municipio": "NITEROI",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-121",
+      "nome": "DROG VITALIS NITEROI CENTRO",
+      "municipio": "NITEROI",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-122",
+      "nome": "DROG VITALIS SAO GONCALO",
+      "municipio": "SAO GONCALO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-123",
+      "nome": "DROG VITALIS DUQUE DE CAXIAS",
+      "municipio": "DUQUE DE CAXIAS",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-124",
+      "nome": "DROG VITALIS NOVA IGUACU",
+      "municipio": "NOVA IGUACU",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-125",
+      "nome": "DROG VITALIS NILOPOLIS",
+      "municipio": "NILOPOLIS",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-126",
+      "nome": "DROG VITALIS PENHA",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-127",
+      "nome": "DROG VITALIS OLARIA",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-128",
+      "nome": "DROG VITALIS IRAJA",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-129",
+      "nome": "DROG VITALIS TAQUARA",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-130",
+      "nome": "DROG VITALIS FREGUESIA",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-131",
+      "nome": "DROG VITALIS HUMAITA",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-132",
+      "nome": "DROG VITALIS GAVEA",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-133",
+      "nome": "DROG VITALIS CATETE",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-134",
+      "nome": "DROG VITALIS GLORIA",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-135",
+      "nome": "DROG VITALIS LAGOA",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-136",
+      "nome": "DROG VITALIS SAO CRISTOVAO",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-137",
+      "nome": "DROG VITALIS ENGENHO NOVO",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-138",
+      "nome": "DROG VITALIS CACHAMBI",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-139",
+      "nome": "DROG VITALIS PECHINCHA",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    },
+    {
+      "cod_loja": "LOJA-140",
+      "nome": "DROG VITALIS SANTA CRUZ",
+      "municipio": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "status": "ATIVA"
+    }
+  ]
+}

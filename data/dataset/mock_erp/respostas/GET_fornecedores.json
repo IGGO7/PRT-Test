@@ -1,0 +1,70 @@
+{
+  "consultado_em": "2026-09-30T08:15:00-03:00",
+  "total": 8,
+  "itens": [
+    {
+      "cod_fornecedor": "FORN-001",
+      "razao_social": "ALFA PHARMA INDUSTRIA FARMACEUTICA LTDA",
+      "cnpj": "12.345.678/0001-90",
+      "status": "ATIVO",
+      "data_inativacao": null,
+      "motivo_inativacao": null
+    },
+    {
+      "cod_fornecedor": "FORN-002",
+      "razao_social": "BETA DISTRIBUIDORA DE PRODUTOS DE HIGIENE LTDA",
+      "cnpj": "23.456.789/0001-01",
+      "status": "ATIVO",
+      "data_inativacao": null,
+      "motivo_inativacao": null
+    },
+    {
+      "cod_fornecedor": "FORN-003",
+      "razao_social": "GAMA DERMOCOSMETICOS S.A.",
+      "cnpj": "34.567.890/0001-12",
+      "status": "ATIVO",
+      "data_inativacao": null,
+      "motivo_inativacao": null
+    },
+    {
+      "cod_fornecedor": "FORN-004",
+      "razao_social": "DELTA LABORATORIOS S.A.",
+      "cnpj": "45.678.901/0001-23",
+      "status": "ATIVO",
+      "data_inativacao": null,
+      "motivo_inativacao": null
+    },
+    {
+      "cod_fornecedor": "FORN-005",
+      "razao_social": "NUTRIVIDA SUPLEMENTOS ALIMENTARES LTDA",
+      "cnpj": "56.789.012/0001-34",
+      "status": "INATIVO",
+      "data_inativacao": "2026-08-31",
+      "motivo_inativacao": "PENDENCIA DOCUMENTAL - CERTIDAO FISCAL VENCIDA"
+    },
+    {
+      "cod_fornecedor": "FORN-006",
+      "razao_social": "EPSILON FARMA LTDA",
+      "cnpj": "67.890.123/0001-45",
+      "status": "ATIVO",
+      "data_inativacao": null,
+      "motivo_inativacao": null
+    },
+    {
+      "cod_fornecedor": "FORN-007",
+      "razao_social": "ZETA COSMETICOS LTDA",
+      "cnpj": "78.901.234/0001-56",
+      "status": "ATIVO",
+      "data_inativacao": null,
+      "motivo_inativacao": null
+    },
+    {
+      "cod_fornecedor": "FORN-008",
+      "razao_social": "OMEGA GENERICOS LTDA",
+      "cnpj": "89.012.345/0001-67",
+      "status": "ATIVO",
+      "data_inativacao": null,
+      "motivo_inativacao": null
+    }
+  ]
+}
