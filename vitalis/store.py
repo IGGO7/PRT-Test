@@ -128,7 +128,9 @@ class SupabaseStore:
         except httpx.UnsupportedProtocol:
             return False, "SUPABASE_URL inválida — use o formato https://SEU-PROJETO.supabase.co"
         except httpx.HTTPError as exc:
-            return False, f"sem conexão com o Supabase ({type(exc).__name__})"
+            host = httpx.URL(self.base).host
+            return False, (f"sem conexão com o Supabase em {host} ({type(exc).__name__}) — confira SUPABASE_URL: "
+                           "deve ser https://<ID-do-projeto>.supabase.co (Supabase → Project Settings → API)")
         if resp.status_code == 200:
             return True, "tabela demo_sessions acessível"
         if resp.status_code == 404 or "PGRST205" in resp.text or "does not exist" in resp.text:
