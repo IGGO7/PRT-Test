@@ -102,7 +102,7 @@ def get_settings() -> Settings:
         openai_model=_env("OPENAI_MODEL", "gpt-5-nano") or "gpt-5-nano",
         openai_timeout_s=_env_int("OPENAI_TIMEOUT_S", 90),
         openai_max_retries=_env_int("OPENAI_MAX_RETRIES", 1),
-        openai_reasoning_effort=(_env("OPENAI_REASONING_EFFORT", "low") or "low").lower(),
+        openai_reasoning_effort=(_env("OPENAI_REASONING_EFFORT") or ("medium" if "nano" in (_env("OPENAI_MODEL", "gpt-5-nano") or "") else "low")).lower(),
         business_date=date.fromisoformat(bd_raw),
         max_analyses_per_session=_env_int("MAX_ANALYSES_PER_SESSION", 25),
         max_body_chars=_env_int("MAX_BODY_CHARS", 8_000),

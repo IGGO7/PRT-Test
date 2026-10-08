@@ -88,7 +88,8 @@ class Flow:
         p = self.p
         self.check("leitura feita pelo agente de IA real (não dublê)", p["extractor"].startswith("Agente de IA") and "gpt" in p["extractor"], p["extractor"])
         meta = p.get("extraction_meta") or {}
-        self.check("metadados da chamada ao modelo registrados", meta.get("engine") == "langchain.create_agent" and meta.get("latency_ms", 0) > 300,
+        self.engine = meta.get("engine")
+        self.check("metadados da chamada ao modelo registrados", str(meta.get("engine", "")).startswith("langchain.") and meta.get("latency_ms", 0) > 300,
                    {k: meta.get(k) for k in ("engine", "model", "latency_ms")})
         return p
 
@@ -354,7 +355,7 @@ def run_one(name, fn):
     except Exception as exc:  # noqa: BLE001
         err = f"{type(exc).__name__}: {exc}"
         traceback.print_exc()
-    return {"cenario": name, "erro": err, "checks": t.checks if t else [], "segundos_ia": getattr(t, "analysis_secs", None),
+    return {"cenario": name, "erro": err, "checks": t.checks if t else [], "segundos_ia": getattr(t, "analysis_secs", None), "motor": getattr(t, "engine", None),
             "snapshot": t.snapshot() if t and t.v.get("proposal") else None}
 
 
@@ -397,7 +398,7 @@ def main():
         total += len(r["checks"]) + (1 if r["erro"] else 0)
         ok += n_ok
         status = "OK" if not r["erro"] and n_ok == len(r["checks"]) else "FALHOU"
-        lines += [f"## {r['cenario']} — {status} ({n_ok}/{len(r['checks'])})" + (f" · leitura {r['segundos_ia']} s" if r["segundos_ia"] else "")]
+        lines += [f"## {r['cenario']} — {status} ({n_ok}/{len(r['checks'])})" + (f" · leitura {r['segundos_ia']} s" if r["segundos_ia"] else "") + (" · 2ª tentativa" if "2ª" in str(r.get("motor")) else "")]
         for c in r["checks"]:
             lines.append(f"- {'✅' if c['ok'] else '❌'} {c['check']}" + ("" if c["ok"] else f" — obtido: `{json.dumps(c['got'], ensure_ascii=False, default=str)[:400]}`"))
         if r["erro"]:
