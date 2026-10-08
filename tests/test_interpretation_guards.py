@@ -93,3 +93,19 @@ def test_body_vs_attachment_percent_conflict_even_if_model_picks_one():
 def test_no_conflict_when_sources_agree_or_no_attachment():
     out = to_fields(beta_extraction(BETA_SRC["body"]), BETA_SRC, ERP)
     assert next(x for x in out["fields"] if x["key"] == "desconto")["origin_kind"] == "EXPLICIT"
+
+
+def test_quarter_is_not_seasonal_campaign():
+    from tests.conftest import gama_extraction
+
+    src = Service._fixture_source(load_examples()["gama"])
+    llm = gama_extraction(src["body"])
+    llm.seasonal_campaign = q("assunto", "Proposta Q4 - Gama Dermo")
+    assert "seasonal" not in to_fields(llm, src, ERP)["flags"]
+    alfa = Service._fixture_source(load_examples()["alfa"])
+    from tests.conftest import alfa_extraction
+
+    a = alfa_extraction(alfa["body"])
+    a.seasonal_campaign = q("corpo", "Campanha de Fim de Ano da linha de genéricos Alfa")
+    out = to_fields(a, alfa, ERP)
+    assert out["flags"]["seasonal"].startswith("Campanha de Fim de Ano") and "agente" in out["flag_sources"]["seasonal"]

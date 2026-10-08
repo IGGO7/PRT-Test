@@ -178,6 +178,8 @@ def sc_gama(t: Flow):
     t.check("categoria DERMOCOSMETICOS (\"linha dermo\")", t.val("categoria") == "DERMOCOSMETICOS", t.val("categoria"))
     t.check("lojas do anexo (Copacabana, Ipanema, Leblon, Barra)", sorted(t.val("lojas") or []) == ["LOJA-101", "LOJA-102", "LOJA-103", "LOJA-109"], t.val("lojas"))
     t.check("células do CSV destacadas", len(t.p.get("csv_highlights") or []) > 0, t.p.get("csv_highlights"))
+    t.check("sem falso sinal de campanha sazonal (\"Q4\" é período, não campanha)", not t.p["flags"].get("seasonal"), t.p["flags"].get("seasonal"))
+    t.check("sem falso sinal de instrução embutida", not t.p["flags"].get("injection"), t.p["flags"].get("injection"))
     t.close_interp(changes={"desconto": 12.5}, absent=[k for k in t.missing_empty() if k != "desconto"])
     t.check("bloqueios: RB06 componentes (normativo) + RB04 fim", {"RB06:COMPONENTES", "RB04:FIM"} <= t.ids(), sorted(t.ids()))
     t.close_rules()

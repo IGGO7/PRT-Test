@@ -22,6 +22,8 @@ _CLAIM = re.compile(r"[^.\n\[]*(pr[eé]-?aprovad|j[aá] (foi )?aprovad)[^.\n]*",
 _CAMPAIGN = re.compile(r"campanha [^\n.,]*", re.I)
 _DIRECTIVE = re.compile(r"sistema|automat|processamento|\bIA\b|intelig[eê]ncia|rob[oô]|\bbot\b|agente|ignor|desconsider|regras?|valida|"
                         r"aprovad|aprove|status|registre|cadastre|sem (necessidade de )?revis", re.I)
+_SEASON_WORDS = re.compile(r"campanha|sazona|natal|fim de ano|black ?friday|dia d[aoe]s? |p[aá]scoa|inverno|ver[aã]o|volta [aà]s aulas|"
+                           r"promo[cç]", re.I)
 _THREAD = re.compile(r"-{3,}\s*mensagem original", re.I)
 
 
@@ -292,7 +294,9 @@ def to_fields(llm: LLMExtraction, source: dict, erp: dict) -> dict:
     merge("approval_claim", ai_span(llm.claimed_approvals), m.group(0).split(":")[-1].strip() if m else None)
     ai_season = None
     if llm.seasonal_campaign:
-        ai_season = ctx.locate(llm.seasonal_campaign)[0] or llm.seasonal_campaign.quote
+        ai_season = ctx.locate(llm.seasonal_campaign)[0]
+        if ai_season and not _SEASON_WORDS.search(ai_season):
+            ai_season = None  # período comercial ("Q4", "trimestre") não caracteriza campanha sazonal
     m = _CAMPAIGN.search(ctx.body) or _CAMPAIGN.search(ctx.texts["assunto"])
     merge("seasonal", ai_season, m.group(0).strip() if m else ("sazonal" if re.search(r"sazonal", ctx.body, re.I) else None))
     if _THREAD.search(ctx.body):
