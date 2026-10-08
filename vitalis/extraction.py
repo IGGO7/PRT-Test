@@ -215,7 +215,7 @@ def build_read_tools(erp: dict[str, Any]):
 
 def _is_reasoning_model(model: str) -> bool:
     m = (model or "").lower()
-    return m.startswith(("gpt-5", "o1", "o3", "o4")) and "chat" not in m
+    return m.startswith(("gpt-5", "gpt-6", "o1", "o3", "o4")) and "chat" not in m
 
 
 def build_chat_model(api_key: str, model: str, timeout_s: int, max_retries: int, reasoning_effort: str | None):

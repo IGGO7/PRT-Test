@@ -1,6 +1,6 @@
 # Verificação ponta a ponta no site publicado, com o agente de IA real.
-# Roda a cada push na main (depois que a Vercel publica o mesmo commit) e grava o relatório
-# na branch `e2e-report` (RELATORIO.md + resultado.json).
+# Roda só quando pedido: push na main com "[e2e]" na mensagem do commit, ou execução manual.
+# Espera a Vercel publicar o mesmo commit e grava o relatório na branch `e2e-report`.
 name: e2e-producao
 
 on:
@@ -14,6 +14,7 @@ concurrency:
 
 jobs:
   e2e:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[e2e]')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
