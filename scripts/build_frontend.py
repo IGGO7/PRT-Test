@@ -178,6 +178,54 @@ def apply_ux(t: str) -> str:
     t = replace_once(t, "title: e.letter + ' · ' + e.who + ' — ' + e.desc + ' Esperado: ' + e.expect + '.',",
                      "title: e.letter + ' · ' + e.who + ' — e-mail original do dataset',", "dica exemplos")
     t = replace_once(t, "  componentWillUnmount() {", "  componentWillUnmount() { clearInterval(this._tick);", "unmount") if "  componentWillUnmount() {" in t else t
+    # Cabeçalho: marca à esquerda, 4 etapas centralizadas na tela, reiniciar à direita; selos e detalhes técnicos numa faixa abaixo
+    m = re.search(r'<header style="[^"]*">(.*?)</header>', t, re.S)
+    inner = m.group(1)
+    logo = re.search(r'(<div style="display:flex;align-items:center;gap:12px">.*?</div>\n</div>)\n<nav', inner, re.S).group(1)
+    nav = re.search(r'<nav style="[^"]*">(.*?)</nav>', inner, re.S).group(1)
+    chips = re.search(r'(<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center" title="\{\{ backendLabel \}\}.*?</div>)', inner, re.S).group(1)
+    tech = re.search(r'(<label title="Opcional.*?</label>)', inner, re.S).group(1)
+    reset = re.search(r'(<button sc-camel-on-click="\{\{ onReset \}\}".*?</button>)', inner, re.S).group(1)
+    reset = reset.replace('padding:8px 14px', 'padding:8px 14px;white-space:nowrap')
+    reset = reset.replace('>Reiniciar demonstração</button>', '>{{ resetLabel }}</button>')
+    chips = chips.replace("font:600 11.5px 'IBM Plex Mono';padding:5px 9px", "font:600 11px 'IBM Plex Mono';padding:3px 8px").replace(
+        "font:500 11.5px 'IBM Plex Sans';padding:5px 9px", "font:500 11px 'IBM Plex Sans';padding:3px 8px")
+    header = ('<header style="background:#fff;border-bottom:1px solid #E2E0DA">\n'
+              '<div style="display:grid;grid-template-columns:{{ hdCols }};align-items:center;gap:12px 20px;padding:12px 24px 8px">\n'
+              '<div style="grid-column:1;grid-row:1;justify-self:start;min-width:0">' + logo + '</div>\n'
+              '<nav aria-label="Etapas" style="grid-column:{{ navCol }};grid-row:{{ navRow }};justify-self:{{ navJustify }};display:flex;align-items:center;gap:6px;flex-wrap:{{ navWrap }}">' + nav + '</nav>\n'
+              '<div style="grid-column:{{ resetCol }};grid-row:1;justify-self:end">' + reset + '</div>\n'
+              '</div>\n'
+              '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap;padding:0 24px 10px">' + chips + tech + '</div>\n'
+              '</header>')
+    t = t[:m.start()] + header + t[m.end():]
+    t = replace_once(t, "      onDismissError: () => this.setState({ error: null }),",
+                     "      hdCols: s.hdWide ? 'minmax(0,1fr) auto minmax(0,1fr)' : 'minmax(0,1fr) auto', navCol: s.hdWide ? '2' : '1 / -1', navRow: s.hdWide ? '1' : '2',\n"
+                     "      navJustify: s.hdWide ? 'center' : 'start', navWrap: s.hdWide ? 'nowrap' : 'wrap', resetCol: s.hdWide ? '3' : '2', resetLabel: s.wide ? 'Reiniciar demonstração' : 'Reiniciar',\n"
+                     "      onDismissError: () => this.setState({ error: null }),", "header vals")
+    t = replace_once(t, "    this._rs = () => { const w = window.innerWidth >= 920; if (w !== this.state.wide) this.setState({ wide: w }); }; window.addEventListener('resize', this._rs);",
+                     "    this._rs = () => { const w = window.innerWidth >= 920, h = window.innerWidth >= 1180; if (w !== this.state.wide || h !== this.state.hdWide) this.setState({ wide: w, hdWide: h }); }; window.addEventListener('resize', this._rs); this._rs();",
+                     "header resize")
+    t = replace_once(t, "    simOpen: false, busyAt: 0, tick: 0,", "    simOpen: false, busyAt: 0, tick: 0, hdWide: typeof window !== 'undefined' ? window.innerWidth >= 1180 : true,", "state hdWide")
+
+    # Escopo: link discreto que abre um painel
+    t = replace_once(t, '<details style="background:#fff;border:1px solid #E2E0DA;border-radius:10px">\n'
+                        '<summary style="padding:14px 20px;font:600 13.5px \'IBM Plex Sans\';cursor:pointer">Sobre esta demonstração · o que está dentro e fora do escopo</summary>\n'
+                        '<div style="padding:4px 20px 18px;display:grid;',
+                     '<details style="justify-self:start;max-width:100%">\n'
+                     '<summary style="font:500 12.5px \'IBM Plex Sans\';color:#5F6368;cursor:pointer;width:fit-content">Sobre esta demonstração e o escopo</summary>\n'
+                     '<div style="margin-top:8px;background:#fff;border:1px solid #E2E0DA;border-radius:10px;padding:14px 20px 16px;display:grid;', "escopo discreto")
+
+    # Prévia das regras ao lado de cada dado na etapa 2 (a avaliação completa continua na etapa 3)
+    t = replace_once(t, "      const notes = [f.reason, f.corrected_from ? 'Valor anterior: ' + f.corrected_from : null].filter(Boolean);",
+                     "      const notes = [f.reason, f.corrected_from ? 'Valor anterior: ' + f.corrected_from : null].filter(Boolean);\n"
+                     "      const pol = changed ? [] : (p.findings || []).filter(x => (x.affected_fields || []).includes(f.key) && x.rule_id !== 'RB16' && (x.severity === 'BLOCKER' || x.severity === 'WARNING'))\n"
+                     "        .map(x => ({ t: (x.severity === 'BLOCKER' ? 'Política · impede o cadastro: ' : 'Política · aviso: ') + x.message.replace(/\\.\\s[\\s\\S]*$/, '.'), fg: x.severity === 'BLOCKER' ? '#B42318' : '#8A4B00' }));", "prévia regras")
+    t = replace_once(t, "numHint: f.editor === 'percent' ? 'Ex.: 12,5' : 'Ex.: 8000,00', hasNote: notes.length > 0, note: notes.join(' · ') };",
+                     "numHint: f.editor === 'percent' ? 'Ex.: 12,5' : 'Ex.: 8000,00', hasNote: notes.length > 0, note: notes.join(' · '), policy: pol, hasPolicy: pol.length > 0 };", "vals prévia")
+    t = replace_once(t, '<sc-if value="{{ f.hasNote }}"><span style="font:400 12px/1.45 \'IBM Plex Sans\';color:#3F4347">{{ f.note }}</span></sc-if>',
+                     '<sc-if value="{{ f.hasNote }}"><span style="font:400 12px/1.45 \'IBM Plex Sans\';color:#3F4347">{{ f.note }}</span></sc-if>\n'
+                     '<sc-if value="{{ f.hasPolicy }}"><sc-for list="{{ f.policy }}" as="pl"><span style="font:500 12px/1.45 \'IBM Plex Sans\';color:{{ pl.fg }}">{{ pl.t }}</span></sc-for></sc-if>', "template prévia")
     return t
 
 

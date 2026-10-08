@@ -109,3 +109,33 @@ def test_quarter_is_not_seasonal_campaign():
     a.seasonal_campaign = q("corpo", "Campanha de Fim de Ano da linha de genéricos Alfa")
     out = to_fields(a, alfa, ERP)
     assert out["flags"]["seasonal"].startswith("Campanha de Fim de Ano") and "agente" in out["flag_sources"]["seasonal"]
+
+
+def _beta_with(body_old, body_new, **llm_over):
+    src = dict(BETA_SRC, body=BETA_SRC["body"].replace(body_old, body_new))
+    llm = beta_extraction(src["body"])
+    for k, v in llm_over.items():
+        setattr(llm, k, v)
+    return {f["key"]: f for f in to_fields(llm, src, ERP)["fields"]}
+
+
+def test_percent_must_match_cited_text():
+    # o modelo devolve 0.41 para "41%": o código ajusta ao trecho citado
+    comps = [LLMComponent(tipo="DESCONTO_PERCENTUAL", amount=F("0.41", "EXPLICIT", q("corpo", "41% de desconto")))]
+    f = _beta_with("13% de desconto", "41% de desconto", components=comps)["desconto"]
+    assert f["value"] == 41.0 and f["origin_kind"] == "NORMALIZED" and f["confirmation_status"] == "PENDING"
+
+
+def test_invalid_calendar_date_is_not_silently_fixed():
+    fim = F("2027-02-28", "EXPLICIT", q("corpo", "até 31/02/2027"))
+    f = _beta_with("até 31/03/2027", "até 31/02/2027", end_date=fim)["fim"]
+    assert f["value"] is None and f["origin_kind"] == "MISSING" and "31/02/2027" in f["reason"]
+
+
+def test_date_matching_cited_text_is_kept():
+    assert _beta_with("x", "x")["fim"]["value"] == "2027-03-31"
+
+
+def test_invalid_date_explained_even_if_model_returns_nothing():
+    f = _beta_with("até 31/03/2027", "até 31/02/2027", end_date=MISSING)["fim"]
+    assert f["value"] is None and "31/02/2027" in f["reason"]

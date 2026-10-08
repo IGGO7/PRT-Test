@@ -48,7 +48,37 @@ Data: 08/10/2026 · versão publicada verificada: commits `4541e60` e `424b15e` 
 - **RB05 período:** contrapartida de verba sem período de execução passa de aviso a **bloqueio**, conforme a Política §7 e o SSoT §23.
 - **Exceção sazonal (*):** só é considerada quando a fonte invoca campanha. Sem campanha, vale o RB02 (teto). Acima de 30% vale o RB02 + vedação. A mensagem distingue acima de 25% (precedência indefinida) de 25% ou menos (critérios de aprovação indefinidos).
 
-## 4. Limites conhecidos
+## 4. Revisão das regras (08/10, após teste com 41% e data inválida)
+
+Os dois casos relatados tinham a mesma raiz: a regra existia, mas o valor que chegava ao motor podia não ser o que estava escrito.
+
+- **41%:**
+  - o número proposto pelo modelo agora precisa aparecer no trecho citado. Se o modelo devolver 0,41 para "41%", o valor é ajustado ao texto e fica "A verificar";
+  - a etapa 2 passou a mostrar, ao lado de cada dado, a prévia da regra que ele dispara. Exemplo: "Política · impede o cadastro: 41% excede o teto…";
+  - 41% gera RB02 e RB03 (vedado) em todas as categorias, e RB03 mesmo sem categoria definida.
+- **Data inexistente (ex.: 31/02/2027):**
+  - o modelo não pode "corrigir" a data em silêncio. O campo fica ausente, com o motivo "data inexistente no calendário na fonte";
+  - o RB04 diz que a data é inválida.
+
+Regras acrescentadas (contrato do ERP e Política §10):
+
+| Regra | Severidade | Quando |
+|---|---|---|
+| RB08:FAIXA_DESCONTO | BLOCKER | Desconto ≤ 0, > 100% ou com mais de 2 casas decimais |
+| RB08:FAIXA_VERBA | BLOCKER | Verba ≤ 0 ou com fração de centavo |
+| RB09:REDE | BLOCKER | REDE combinada com lojas específicas |
+| RB09:LOJA_INEXISTENTE / LOJA_INATIVA | BLOCKER | Loja fora do cadastro ou sem status ativo |
+| RB09:CONTRAPARTIDA | BLOCKER | Contrapartida acima de 500 caracteres. Antes era cortada sem aviso. |
+| RB07:REMETENTE | WARNING | Remetente não corresponde ao fornecedor identificado. A política exige e-mail do próprio fornecedor. |
+
+Avaliadas e não acrescentadas, por não estarem nas fontes:
+- limite de antecedência do início;
+- vigência mínima;
+- teto de verba por categoria.
+
+Modelo padrão: `gpt-5-nano` (configurável por `OPENAI_MODEL`).
+
+## 5. Limites conhecidos
 
 - O modelo não é determinístico. Por isso todo dado incerto exige confirmação humana e as reservas acima cobrem as falhas observadas. O e2e de cada push detecta regressões. Cada rodada faz 13 chamadas ao modelo.
 - A caixa de entrada nasce com os 4 e-mails do dataset por pedido do responsável em 08/10/2026. Isso ajusta a orientação anterior do SSoT (§1138, D02) de não ter fila inicial. O formulário livre continua disponível em "Simular novo e-mail".

@@ -414,15 +414,16 @@ button:disabled{cursor:not-allowed}
 </div>
 </sc-if>
 
-<header style="background:#fff;border-bottom:1px solid #E2E0DA;padding:12px 24px;display:flex;align-items:center;gap:14px 28px;flex-wrap:wrap">
-<div style="display:flex;align-items:center;gap:12px">
+<header style="background:#fff;border-bottom:1px solid #E2E0DA">
+<div style="display:grid;grid-template-columns:{{ hdCols }};align-items:center;gap:12px 20px;padding:12px 24px 8px">
+<div style="grid-column:1;grid-row:1;justify-self:start;min-width:0"><div style="display:flex;align-items:center;gap:12px">
 <div style="width:34px;height:34px;border-radius:7px;background:#1F4D46;color:#fff;display:grid;place-items:center;font:700 17px 'IBM Plex Sans'">V</div>
 <div style="display:flex;flex-direction:column;gap:1px">
 <span style="font:700 17px/1.1 'IBM Plex Sans'">Vitalis</span>
 <span style="font:400 12.5px/1.2 'IBM Plex Sans';color:#5F6368">Central de condições comerciais · cadastro assistido</span>
 </div>
-</div>
-<nav style="display:flex;align-items:center;gap:6px;flex:1 1 auto;flex-wrap:wrap">
+</div></div>
+<nav aria-label="Etapas" style="grid-column:{{ navCol }};grid-row:{{ navRow }};justify-self:{{ navJustify }};display:flex;align-items:center;gap:6px;flex-wrap:{{ navWrap }}">
 <sc-for list="{{ steps }}" as="st" hint-placeholder-count="3">
 <div style="display:flex;align-items:center;gap:6px">
 <button sc-camel-on-click="{{ st.go }}" disabled="{{ st.disabled }}" style="display:flex;align-items:center;gap:8px;border:0;background:{{ st.bg }};padding:6px 10px 6px 6px;border-radius:999px;cursor:pointer;opacity:{{ st.opacity }}">
@@ -433,12 +434,12 @@ button:disabled{cursor:not-allowed}
 </div>
 </sc-for>
 </nav>
-<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center" title="{{ backendLabel }} · sessão {{ sessionShort }}">
-<span style="font:600 11.5px 'IBM Plex Mono';padding:5px 9px;border-radius:6px;background:#17191C;color:#fff;white-space:nowrap">Data de negócio 30/09/2026</span>
-<span style="font:500 11.5px 'IBM Plex Sans';padding:5px 9px;border-radius:6px;background:#ECEBE6;color:#3F4347">Demonstração · dados fictícios · ERP e aprovadores simulados</span>
+<div style="grid-column:{{ resetCol }};grid-row:1;justify-self:end"><button sc-camel-on-click="{{ onReset }}" style="border:1px solid #D6D3CB;background:#fff;color:#17191C;font:500 13px 'IBM Plex Sans';padding:8px 14px;white-space:nowrap;border-radius:7px;cursor:pointer" style-hover="background:#F4F3EF">{{ resetLabel }}</button></div>
 </div>
-<label title="Opcional, para avaliação técnica. Exibe os códigos das regras aplicadas, o modelo e o tempo da leitura por IA, chaves de idempotência e tentativas de envio ao ERP, a simulação de ERP indisponível e o estado bruto da sessão. Não altera o fluxo nem as decisões." style="display:flex;gap:6px;align-items:center;font:500 12px 'IBM Plex Sans';color:#5F6368;cursor:pointer;white-space:nowrap"><input type="checkbox" checked="{{ tech }}" sc-camel-on-change="{{ onToggleTech }}" style="width:14px;height:14px;accent-color:#5F6368">Detalhes técnicos</label>
-<button sc-camel-on-click="{{ onReset }}" style="border:1px solid #D6D3CB;background:#fff;color:#17191C;font:500 13px 'IBM Plex Sans';padding:8px 14px;border-radius:7px;cursor:pointer" style-hover="background:#F4F3EF">Reiniciar demonstração</button>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap;padding:0 24px 10px"><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center" title="{{ backendLabel }} · sessão {{ sessionShort }}">
+<span style="font:600 11px 'IBM Plex Mono';padding:3px 8px;border-radius:6px;background:#17191C;color:#fff;white-space:nowrap">Data de negócio 30/09/2026</span>
+<span style="font:500 11px 'IBM Plex Sans';padding:3px 8px;border-radius:6px;background:#ECEBE6;color:#3F4347">Demonstração · dados fictícios · ERP e aprovadores simulados</span>
+</div><label title="Opcional, para avaliação técnica. Exibe os códigos das regras aplicadas, o modelo e o tempo da leitura por IA, chaves de idempotência e tentativas de envio ao ERP, a simulação de ERP indisponível e o estado bruto da sessão. Não altera o fluxo nem as decisões." style="display:flex;gap:6px;align-items:center;font:500 12px 'IBM Plex Sans';color:#5F6368;cursor:pointer;white-space:nowrap"><input type="checkbox" checked="{{ tech }}" sc-camel-on-change="{{ onToggleTech }}" style="width:14px;height:14px;accent-color:#5F6368">Detalhes técnicos</label></div>
 </header>
 <sc-if value="{{ showBar }}" hint-placeholder-val="{{ false }}">
 <div style="background:#FCFBF9;border-bottom:1px solid #E2E0DA;padding:10px 24px;display:flex;gap:8px 18px;flex-wrap:wrap;align-items:center;font:500 12px 'IBM Plex Mono';color:#5F6368">
@@ -465,9 +466,9 @@ button:disabled{cursor:not-allowed}
 <div style="padding:12px 16px;border:1px solid #CBD7E2;background:#E8EEF3;color:#3D5A73;border-radius:8px;font:500 13.5px/1.45 'IBM Plex Sans'">{{ notice }}</div>
 </sc-if>
 <sc-if value="{{ isS1 }}" hint-placeholder-val="{{ true }}">
-<details style="background:#fff;border:1px solid #E2E0DA;border-radius:10px">
-<summary style="padding:14px 20px;font:600 13.5px 'IBM Plex Sans';cursor:pointer">Sobre esta demonstração · o que está dentro e fora do escopo</summary>
-<div style="padding:4px 20px 18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:16px 28px">
+<details style="justify-self:start;max-width:100%">
+<summary style="font:500 12.5px 'IBM Plex Sans';color:#5F6368;cursor:pointer;width:fit-content">Sobre esta demonstração e o escopo</summary>
+<div style="margin-top:8px;background:#fff;border:1px solid #E2E0DA;border-radius:10px;padding:14px 20px 16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:16px 28px">
 <div style="display:grid;gap:8px;align-content:start"><span style="font:600 11px 'IBM Plex Mono';letter-spacing:.08em;color:#5F6368">DENTRO DO ESCOPO</span>
 <ul style="margin:0;padding-left:18px;display:grid;gap:4px;font:400 13px/1.5 'IBM Plex Sans';color:#17191C"><li>E-mail em texto livre, com ou sem planilha anexa, como entrada</li><li>Leitura do e-mail por agente de IA, com evidência do trecho de origem de cada dado</li><li>Dados extraídos com indicação do que é explícito, normalizado, inferido ou ausente</li><li>Conferência com a política comercial POL-COM-004 v3.2 e com o estado do ERP simulado</li><li>Correção humana, ciência de avisos, encaminhamento, rejeição e aprovação por alçada</li><li>Gravação no ERP simulado no formato do contrato, com chave de idempotência e reenvio automático quando o ERP está em manutenção</li></ul></div>
 <div style="display:grid;gap:8px;align-content:start"><span style="font:600 11px 'IBM Plex Mono';letter-spacing:.08em;color:#5F6368">FORA DO ESCOPO</span>
@@ -682,6 +683,7 @@ button:disabled{cursor:not-allowed}
 </sc-if>
 <span style="font:400 12px/1.45 'IBM Plex Sans';color:#5F6368;overflow-wrap:anywhere">“{{ f.raw_value }}” · {{ f.source_location }}</span>
 <sc-if value="{{ f.hasNote }}"><span style="font:400 12px/1.45 'IBM Plex Sans';color:#3F4347">{{ f.note }}</span></sc-if>
+<sc-if value="{{ f.hasPolicy }}"><sc-for list="{{ f.policy }}" as="pl"><span style="font:500 12px/1.45 'IBM Plex Sans';color:{{ pl.fg }}">{{ pl.t }}</span></sc-for></sc-if>
 </div>
 </sc-for>
 </sc-for>
@@ -900,11 +902,11 @@ class Component extends DCLogic {
   static SRC = { DATASET_EMAIL: 'Fixture original do dataset', MANUAL_SIMULATION: 'Entrada manual · origem não verificada', EDITED_EXAMPLE: 'Exemplo editado pelo operador' };
 
   state = { step: 1, v: null, fixtures: null, form: { from: '', subject: '', body: '', csvName: '', csv: '' }, exampleId: null, edited: false, busy: null, error: null, notice: null,
-    simOpen: false, busyAt: 0, tick: 0,
+    simOpen: false, busyAt: 0, tick: 0, hdWide: typeof window !== 'undefined' ? window.innerWidth >= 1180 : true,
     draft: { changes: {}, confirms: {}, acks: null }, editKey: null, editVal: null, storeFilter: '', approverId: '', modal: null, reason: '', note: '', selOpt: null, rejectCode: '', dlg: null, tech: (() => { try { return localStorage.getItem('cc-tech') === '1' || /[?&]dev=1/.test(location.search); } catch (e) { return false; } })(), wide: typeof window !== 'undefined' ? window.innerWidth >= 920 : true };
 
   async componentDidMount() {
-    this._rs = () => { const w = window.innerWidth >= 920; if (w !== this.state.wide) this.setState({ wide: w }); }; window.addEventListener('resize', this._rs);
+    this._rs = () => { const w = window.innerWidth >= 920, h = window.innerWidth >= 1180; if (w !== this.state.wide || h !== this.state.hdWide) this.setState({ wide: w, hdWide: h }); }; window.addEventListener('resize', this._rs); this._rs();
     window.scrollTo(0, 0);
     if (window.CC_DATASET) this.setState({ fixtures: window.CC_DATASET.fixtures });
     else try { const fx = await fetch('/api/examples', { credentials: 'include' }).then(r => r.json()); this.setState({ fixtures: fx }); } catch (e) {}
@@ -1088,6 +1090,8 @@ class Component extends DCLogic {
       showBar: !!p && s.step > 1, p: p || { required: {}, source: {} }, srcKindLabel: p ? C.SRC[p.source.kind] : '',
       dirty: dirtyN > 0, dirtyLabel: dirtyN + ' alteração(ões) não salva(s)', stLabel: st[0], stFg: st[1], stBg: st[2], stCode: interp ? 'regras ainda não avaliadas' : p ? p.state : '',
       hasError: !!s.error, error: err, errorMeta: [err.status, err.code, err.correlation_id].filter(Boolean).join(' · '), errorFindings: err.findings || [],
+      hdCols: s.hdWide ? 'minmax(0,1fr) auto minmax(0,1fr)' : 'minmax(0,1fr) auto', navCol: s.hdWide ? '2' : '1 / -1', navRow: s.hdWide ? '1' : '2',
+      navJustify: s.hdWide ? 'center' : 'start', navWrap: s.hdWide ? 'nowrap' : 'wrap', resetCol: s.hdWide ? '3' : '2', resetLabel: s.wide ? 'Reiniciar demonstração' : 'Reiniciar',
       onDismissError: () => this.setState({ error: null }), hasNotice: !!s.notice, notice: s.notice, ...this.overlayVals(), errorDetail: err.detail || '', hasErrorDetail: tech && !!err.detail,
       isS1: s.step === 1, isS2: s.step === 2 && !!p, isS3: s.step === 3 && !!p, isS4: s.step === 4 && !!p, isS5: s.step === 4 && hasResult
     };
@@ -1220,10 +1224,12 @@ class Component extends DCLogic {
         else btns = [{ ...BT(empty ? 'Informar' : 'Corrigir', () => this.startEdit(f)), bd: 'transparent', bg: 'transparent', fg: '#1F4D46' }];
       }
       const notes = [f.reason, f.corrected_from ? 'Valor anterior: ' + f.corrected_from : null].filter(Boolean);
+      const pol = changed ? [] : (p.findings || []).filter(x => (x.affected_fields || []).includes(f.key) && x.rule_id !== 'RB16' && (x.severity === 'BLOCKER' || x.severity === 'WARNING'))
+        .map(x => ({ t: (x.severity === 'BLOCKER' ? 'Política · impede o cadastro: ' : 'Política · aviso: ') + x.message.replace(/\.\s[\s\S]*$/, '.'), fg: x.severity === 'BLOCKER' ? '#B42318' : '#8A4B00' }));
       return { ...f, editing, notEditing: !editing, shown: shown || (abs || f.confirmation_status === 'ABSENT' ? '— ausente na fonte —' : '— não identificado —'), valueFg: shown ? '#17191C' : '#B42318', rowBg: needs && !local ? '#FFFBF5' : '#fff',
         oLabel: origin[0], oFg: origin[1], oBg: origin[2], hasStatus: !!status, statusLabel: status ? status[0] : '', sFg: status ? status[1] : '', sBg: status ? status[2] : '', btns, apply: () => this.applyEdit(f),
         isSupplier: f.editor === 'supplier', isCategory: f.editor === 'category', isStores: f.editor === 'stores', isNumber: f.editor === 'percent' || f.editor === 'money', isDate: f.editor === 'date', isText: f.editor === 'text',
-        numHint: f.editor === 'percent' ? 'Ex.: 12,5' : 'Ex.: 8000,00', hasNote: notes.length > 0, note: notes.join(' · ') };
+        numHint: f.editor === 'percent' ? 'Ex.: 12,5' : 'Ex.: 8000,00', hasNote: notes.length > 0, note: notes.join(' · '), policy: pol, hasPolicy: pol.length > 0 };
     };
     const G = keys => keys.map(k => p.fields.find(f => f.key === k)).filter(Boolean).map(fieldVM);
     const fieldGroups = [{ title: 'CONDIÇÃO', fields: G(['fornecedor', 'categoria', 'lojas', 'inicio', 'fim', 'contrapartida']) }, { title: 'COMPONENTES COMERCIAIS', fields: G(['desconto', 'verba']) }].filter(g => g.fields.length);

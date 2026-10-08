@@ -118,6 +118,27 @@ def overlap(i1: str, f1: str | None, i2: str, f2: str | None) -> bool:
     return i1 <= (f2 or "9999-12-31") and (f1 or "9999-12-31") >= i2
 
 
+GENERIC_NAME_WORDS = {"ltda", "industria", "farmaceutica", "distribuidora", "produtos", "higiene", "laboratorios", "laboratorio", "farma",
+                      "pharma", "cosmeticos", "dermocosmeticos", "suplementos", "alimentares", "genericos", "comercio", "importacao"}
+
+
+def name_words(text: str) -> set[str]:
+    import unicodedata
+
+    t = "".join(c for c in unicodedata.normalize("NFKD", text or "") if not unicodedata.combining(c)).casefold()
+    return {w for w in re.split(r"[^a-z0-9]+", t) if len(w) >= 4}
+
+
+def sender_matches_supplier(sender: str, supplier: dict, suppliers: list[dict]) -> bool | None:
+    """True/False quando há palavra exclusiva da razão social para comparar com o remetente; None se não houver."""
+    others = set().union(*(name_words(s["razao_social"]) for s in suppliers if s is not supplier))
+    own = name_words(supplier["razao_social"]) - GENERIC_NAME_WORDS - others
+    if not own or not sender:
+        return None
+    hay = sender.casefold()
+    return any(w in hay for w in own)
+
+
 # ---------------------------------------------------------------- regras
 def validate(p: dict, erp: dict, business_date: str) -> dict:
     fields = p["fields"]
@@ -154,6 +175,23 @@ def validate(p: dict, erp: dict, business_date: str) -> dict:
         else:
             add("RB16:" + f["key"], "RB16", "REQUIRES_CONFIRMATION", f"{f['label']}: {f.get('reason') or 'valor proposto pela interpretação'}. Confirme ou corrija.", [f["key"]])
 
+    if pct is not None and not (0 < pct <= 100 and round(pct, 2) == pct):
+        add("RB08:FAIXA_DESCONTO", "RB08", "BLOCKER", f"Desconto {pct_txt(pct)} fora do domínio aceito pelo ERP (maior que 0 e até 100%, com até 2 casas decimais).", ["desconto"])
+    if verba is not None and not (verba > 0 and round(verba, 2) == verba):
+        add("RB08:FAIXA_VERBA", "RB08", "BLOCKER", f"Verba {brl(verba)} fora do domínio aceito pelo ERP (maior que zero, em centavos).", ["verba"])
+    if lojas:
+        known = {l["cod_loja"]: l for l in erp["lojas"]["itens"]}
+        if "REDE" in lojas and len(lojas) > 1:
+            add("RB09:REDE", "RB09", "BLOCKER", "REDE deve ser usada isoladamente: ela já abrange todas as lojas ativas. Escolha REDE ou lojas específicas.", ["lojas"])
+        unknown = [c for c in lojas if c != "REDE" and c not in known]
+        if unknown:
+            add("RB09:LOJA_INEXISTENTE", "RB09", "BLOCKER", f"Loja(s) inexistente(s) no cadastro do ERP: {', '.join(unknown)}.", ["lojas"])
+        inactive = [c for c in lojas if c in known and known[c].get("status") != "ATIVA"]
+        if inactive:
+            add("RB09:LOJA_INATIVA", "RB09", "BLOCKER", f"Loja(s) sem status ativo no ERP: {', '.join(inactive)}. A condição só pode valer para lojas ativas.", ["lojas"], "EXTERNO")
+    if contra and len(contra) > 500:
+        add("RB09:CONTRAPARTIDA", "RB09", "BLOCKER", f"Contrapartida com {len(contra)} caracteres; o ERP aceita até 500. Resuma o texto mantendo obrigação, período e lojas.", ["contrapartida"])
+
     suppliers = erp["fornecedores"]["itens"]
     if forn:
         s = next((x for x in suppliers if x["cod_fornecedor"] == forn), None)
@@ -165,10 +203,15 @@ def validate(p: dict, erp: dict, business_date: str) -> dict:
                 "Política §8: somente fornecedores ativos podem ter condições cadastradas; a regularização ocorre junto à área de Cadastro.",
                 ["fornecedor"], "EXTERNO")
 
+    def why_date(k):
+        r = (F(k) or {}).get("reason") or ""
+        return f" ({r})" if "inexistente" in r else ""
+
     if not ini:
-        add("RB04:INICIO", "RB04", "BLOCKER", "Data de início não definida. Política §6: início e fim obrigatórios.", ["inicio"])
+        add("RB04:INICIO", "RB04", "BLOCKER", f"Data de início não definida{why_date('inicio')}. Política §6: início e fim obrigatórios.", ["inicio"])
     if not fim:
-        add("RB04:FIM", "RB04", "BLOCKER", "Data de fim não informada em nenhuma fonte. Política §6: toda condição deve ter início e fim definidos no cadastro.", ["fim"])
+        add("RB04:FIM", "RB04", "BLOCKER", (f"Data de fim inválida{why_date('fim')}" if why_date("fim") else "Data de fim não informada em nenhuma fonte")
+            + ". Política §6: toda condição deve ter início e fim definidos no cadastro.", ["fim"])
     if ini and ini < business_date:
         add("RB04:RETRO", "RB04", "BLOCKER", f"Início ({br(ini)}) anterior à data de negócio {br(business_date)}. Política §6 veda início retroativo.", ["inicio"])
     if ini and fim and fim < ini:
@@ -287,6 +330,12 @@ def validate(p: dict, erp: dict, business_date: str) -> dict:
     if flags.get("approval_claim"):
         add("RB13:ALEGACAO", "RB13", "WARNING", f"A fonte afirma aprovação prévia da empresa (“{flags['approval_claim']}”). Afirmação do fornecedor não constitui evidência de aprovação.")
     src = p["source"]
+    if forn and src.get("from"):
+        s = next((x for x in suppliers if x["cod_fornecedor"] == forn), None)
+        if s and sender_matches_supplier(src["from"], s, suppliers) is False:
+            add("RB07:REMETENTE", "RB07", "WARNING",
+                f"O remetente ({src['from']}) não parece ser do fornecedor {forn} · {s['razao_social']}. Política §10: a condição deve ser formalizada "
+                "por e-mail enviado pelo próprio fornecedor — confirme a origem antes de aprovar.", ["fornecedor"])
     if src["kind"] != "DATASET_EMAIL":
         who = f"Exemplo editado pelo operador (derivado de {src.get('derived_from')})" if src["kind"] == "EDITED_EXAMPLE" else "Entrada manual"
         add("RB07:ORIGEM", "RB07", "WARNING", f"{who}: origem comercial não verificada; referência técnica {src['ref']}. Política §10 exige formalização por e-mail do fornecedor.")

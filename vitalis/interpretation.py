@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
+from datetime import date
 from typing import Any
 
 from .engine import EDITORS, LABELS, brl, pct_txt
@@ -127,13 +128,52 @@ def match_supplier(texts: list[str], fornecedores: list[dict]) -> str | None:
     return next(iter(hits)) if len(hits) == 1 else None
 
 
-_PCT = re.compile(r"(\d{1,2}(?:[.,]\d{1,2})?)\s*%")
+_PCT = re.compile(r"(\d{1,3}(?:[.,]\d{1,2})?)\s*%")
 _COMP_HINT = {"VERBA_EXPOSICAO": re.compile(r"verba|R\$|reais|valor", re.I), "DESCONTO_PERCENTUAL": re.compile(r"%|desconto|por ?cento", re.I)}
 
 
 def _field(key: str, value: Any, raw: str | None, location: str, origin: str, status: str, reason: str | None) -> dict:
     return {"key": key, "label": LABELS[key], "editor": EDITORS[key], "value": value, "raw_value": raw or "não informado",
             "source_location": location, "origin_kind": origin, "confirmation_status": status, "reason": reason}
+
+
+_DATE = re.compile(r"(?<![\d/])(\d{1,2})/(\d{1,2})(?:/(\d{4}|\d{2}))?(?![\d/])")
+_MONEY = re.compile(r"R\$\s*(\d{1,3}(?:\.\d{3})*(?:,\d{1,2})?|\d+(?:,\d{1,2})?)")
+
+
+def _check_number(pattern):
+    """O número proposto pelo modelo precisa aparecer no trecho que ele citou (ex.: '41%' → 41, não 0,41)."""
+    def run(value, origin, reason, spans):
+        cands = {parse_number(m) for sp in spans for m in pattern.findall(sp)}
+        cands.discard(None)
+        if not cands or value in cands:
+            return value, origin, reason
+        if len(cands) == 1:
+            fixed = next(iter(cands))
+            return fixed, "NORMALIZED", f"Valor ajustado ao trecho citado (o modelo havia proposto {str(value).replace('.', ',')})"
+        return None, "MISSING", f"O valor proposto ({str(value).replace('.', ',')}) não aparece no trecho citado"
+    return run
+
+
+def _check_date(value, origin, reason, spans):
+    """Datas citadas precisam existir no calendário; o modelo não pode 'corrigir' 31/02 em silêncio."""
+    year = int(value[:4])
+    valid, invalid = set(), []
+    for sp in spans:
+        for d, m, y in _DATE.findall(sp):
+            yy = int(y) + (2000 if y and len(y) == 2 else 0) if y else year
+            try:
+                valid.add(date(yy, int(m), int(d)).isoformat())
+            except ValueError:
+                invalid.append(f"{d}/{m}" + (f"/{y}" if y else ""))
+    if value in valid or (not valid and not invalid):
+        return value, origin, reason
+    if invalid:
+        return None, "MISSING", f"data inexistente no calendário na fonte: {', '.join(invalid)}"
+    return value, "INFERRED", "A data proposta não coincide com as datas do trecho citado; confira"
+
+
+_CROSS = {"desconto": _check_number(_PCT), "verba": _check_number(_MONEY), "inicio": _check_date, "fim": _check_date}
 
 
 def _simple(ctx: _Ctx, key: str, f: LLMField, parser, always_confirm: bool, validator=None) -> dict:
@@ -152,6 +192,8 @@ def _simple(ctx: _Ctx, key: str, f: LLMField, parser, always_confirm: bool, vali
         ok, why = validator(value)
         if not ok:
             value, origin, reason = None, "MISSING", why
+    if value is not None and key in _CROSS and spans:
+        value, origin, reason = _CROSS[key](value, origin, reason, spans)
     if value is None and origin not in ("CONFLICT", "MISSING"):
         origin, reason = "MISSING", reason or "Valor não pôde ser normalizado."
     if origin == "EXPLICIT" and not spans:
@@ -214,11 +256,23 @@ def to_fields(llm: LLMExtraction, source: dict, erp: dict) -> dict:
         f_lojas = _field("lojas", None, ", ".join(mentions) or "não identificadas", ctx.location(sources), "MISSING", "PENDING", "Nenhuma loja identificada")
     fields.append(f_lojas)
 
-    fields.append(_simple(ctx, "inicio", llm.start_date, parse_date, False))
-    fields.append(_simple(ctx, "fim", llm.end_date, parse_date, False))
+    f_ini = _simple(ctx, "inicio", llm.start_date, parse_date, False)
+    f_fim = _simple(ctx, "fim", llm.end_date, parse_date, False)
+    # Data inexistente escrita na fonte (ex.: 31/02/2027) explica a data ausente, mesmo que o modelo não a tenha citado.
+    bad = []
+    for d, m, y in _DATE.findall(ctx.body):
+        try:
+            date(int(y) + (2000 if len(y) == 2 else 0) if y else 2026, int(m), int(d))
+        except ValueError:
+            bad.append(f"{d}/{m}" + (f"/{y}" if y else ""))
+    for f in (f_ini, f_fim):
+        if bad and f["value"] is None and "inexistente" not in (f.get("reason") or ""):
+            f["reason"] = "data inexistente no calendário na fonte: " + ", ".join(bad)
+            f["confirmation_status"] = "PENDING"
+    fields += [f_ini, f_fim]
 
     has_verba = any(c.tipo == "VERBA_EXPOSICAO" for c in llm.components)
-    contra = _simple(ctx, "contrapartida", llm.counterpart, lambda v: v.strip()[:500], False)
+    contra = _simple(ctx, "contrapartida", llm.counterpart, lambda v: v.strip(), False)  # sem cortar: RB09 aponta excesso
     if contra["origin_kind"] in ("NORMALIZED",) or (contra["origin_kind"] == "MISSING" and not has_verba):
         contra["confirmation_status"] = "NOT_REQUIRED"
         if contra["origin_kind"] == "MISSING":

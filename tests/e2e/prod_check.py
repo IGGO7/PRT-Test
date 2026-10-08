@@ -241,6 +241,25 @@ def sc_beta_22(t: Flow):
     t.check("bloqueio automático por política (AUTO-03)", ((t.p["conclusion"] or {}).get("auto") or {}).get("rule") == "AUTO-03", t.p["conclusion"].get("auto"))
 
 
+def sc_beta_41(t: Flow):
+    edited(t, BETA, "13% de desconto", "41% de desconto")
+    t.check("desconto lido = 41%", t.val("desconto") == 41.0, t.f("desconto"))
+    t.check("prévia de regra já na interpretação (teto e vedação)", {"RB02:TETO", "RB03:VEDADO"} <= t.ids(), sorted(t.ids()))
+    t.close_interp(absent=t.missing_empty())
+    t.close_rules()
+    t.check("bloqueada automaticamente (AUTO-03)", ((t.p["conclusion"] or {}).get("auto") or {}).get("rule") == "AUTO-03" and t.p["state"] == "BLOQUEADA",
+            (t.p["state"], (t.p["conclusion"] or {}).get("auto")))
+
+
+def sc_beta_data_invalida(t: Flow):
+    edited(t, BETA, "até 31/03/2027", "até 31/02/2027")
+    f = t.f("fim")
+    t.check("31/02/2027 não é corrigida em silêncio", f["value"] is None and "31/02" in (f.get("reason") or ""), f)
+    t.close_interp(absent=t.missing_empty())
+    msg = next((x["message"] for x in t.p["findings"] if x["id"] == "RB04:FIM"), "")
+    t.check("RB04 aponta data de fim inválida", "inválida" in msg and "31/02" in msg, msg)
+
+
 def sc_beta_retro(t: Flow):
     edited(t, BETA, "valendo de 01/10/2026", "valendo de 01/09/2026")
     t.check("início lido = 01/09/2026", t.val("inicio") == "2026-09-01", t.val("inicio"))
@@ -318,7 +337,8 @@ def sc_nao_proposta(t: Flow):
 
 SCENARIOS = {
     "Dataset · Beta": sc_beta, "Dataset · Gama": sc_gama, "Dataset · Alfa": sc_alfa, "Dataset · Nutrivida": sc_nutrivida,
-    "Variação · Beta com 9%": sc_beta_9, "Variação · Beta com 22%": sc_beta_22, "Variação · Beta início retroativo": sc_beta_retro,
+    "Variação · Beta com 9%": sc_beta_9, "Variação · Beta com 22%": sc_beta_22, "Variação · Beta com 41%": sc_beta_41,
+    "Variação · Beta fim em 31/02/2027": sc_beta_data_invalida, "Variação · Beta início retroativo": sc_beta_retro,
     "Variação · Beta vigência de 15 meses": sc_beta_long, "Variação · Alfa sem campanha (22%)": sc_alfa_sem_campanha,
     "Variação · Nutrivida sem a nota": sc_nutrivida_sem_nota, "Inédito · Delta MIP 8%": sc_inedito_delta,
     "Inédito · Epsilon verba R$ 25 mil": sc_verba_comite, "Inédito · e-mail sem proposta": sc_nao_proposta,

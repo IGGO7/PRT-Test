@@ -224,3 +224,52 @@ def test_pending_confirmation_blocks_progress():
     p["fields"][1]["confirmation_status"] = "PENDING"
     assert sev(p, "RB16:categoria") == "REQUIRES_CONFIRMATION"
     assert run(p)["state"] == "PENDENTE_REVISAO"
+
+
+# ---------------------------------------------------------------- domínio do ERP (RB08/RB09)
+@pytest.mark.parametrize("pct,ok", [(0.01, True), (41, True), (100, True), (100.5, False), (0, False), (-3, False), (12.345, False)])
+def test_discount_domain(pct, ok):
+    assert ("RB08:FAIXA_DESCONTO" not in ids(proposal(desconto=pct))) is ok
+
+
+def test_41_percent_is_always_blocked():
+    for cat in DISCOUNT_CEILING:
+        found = ids(proposal(categoria=cat, desconto=41))
+        assert {"RB02:TETO", "RB03:VEDADO"} <= found, cat
+    assert "RB03:VEDADO" in ids(proposal(categoria=None, desconto=41))      # mesmo sem categoria definida
+
+
+@pytest.mark.parametrize("valor,ok", [(0.01, True), (0, False), (-10, False), (10.001, False)])
+def test_verba_domain(valor, ok):
+    p = proposal(desconto=..., verba=valor, contrapartida="Ilha durante a vigência")
+    assert ("RB08:FAIXA_VERBA" not in ids(p)) is ok
+
+
+def test_store_rules():
+    assert "RB09:REDE" in ids(proposal(lojas=["REDE", "LOJA-101"]))
+    assert "RB09:LOJA_INEXISTENTE" in ids(proposal(lojas=["LOJA-999"]))
+    erp = copy.deepcopy(ERP)
+    erp["lojas"]["itens"][0]["status"] = "INATIVA"
+    assert "RB09:LOJA_INATIVA" in {f["id"] for f in validate(proposal(lojas=["LOJA-101"]), erp, BD)["findings"]}
+
+
+def test_counterpart_length():
+    assert "RB09:CONTRAPARTIDA" in ids(proposal(contrapartida="x" * 501))
+    assert "RB09:CONTRAPARTIDA" not in ids(proposal(contrapartida="x" * 500))
+
+
+def test_invalid_date_reason_in_message():
+    p = proposal(fim=None)
+    p["fields"][4]["reason"] = "data inexistente no calendário na fonte: 31/02/2027"
+    msg = next(f["message"] for f in validate(p, ERP, BD)["findings"] if f["id"] == "RB04:FIM")
+    assert "inválida" in msg and "31/02/2027" in msg
+
+
+def test_sender_must_match_supplier():
+    def with_sender(sender, forn="FORN-003"):
+        pr = proposal(fornecedor=forn)
+        pr["source"]["from"] = sender
+        return ids(pr)
+    assert "RB07:REMETENTE" not in with_sender("Carla <carla@gamadermo.com.br>")
+    assert "RB07:REMETENTE" in with_sender("Rodrigo <rodrigo@distribuidorabeta.com.br>")      # Beta propondo pela Gama
+    assert "RB07:REMETENTE" not in with_sender("Luciana <luciana.prado@nutrivida.com.br>", "FORN-005")
