@@ -305,9 +305,11 @@ def to_fields(llm: LLMExtraction, source: dict, erp: dict) -> dict:
                 e["kind"], e["field"] = "risk", None
     if flags.get("seasonal") and flags["seasonal"] != "sazonal" and flags["seasonal"] in ctx.body and not any(e["text"] == flags["seasonal"] for e in ctx.evidence):
         ctx.evidence.append({"text": flags["seasonal"], "field": None, "kind": "risk"})
-    if not llm.is_commercial_proposal:
+    no_terms = not any(f["key"] in ("desconto", "verba") for f in fields)
+    if not llm.is_commercial_proposal or no_terms:
+        # O agente declara que não é proposta, ou nenhum desconto/verba foi encontrado na fonte.
         flags["not_a_proposal"] = True
-        sources_by_flag["not_a_proposal"] = "agente"
+        sources_by_flag["not_a_proposal"] = ("agente+regra" if no_terms else "agente") if not llm.is_commercial_proposal else "regra"
 
     # evidências não podem se sobrepor parcialmente para o destaque da fonte: mantém as mais longas
     ev, kept = sorted(ctx.evidence, key=lambda e: -len(e["text"])), []

@@ -159,7 +159,7 @@ def apply_ux(t: str) -> str:
                         "    if (fl.seasonal) ins.push(['CONTEXTO', 'Menção a campanha sazonal', 'Pode envolver a exceção de teto da política; a validação de regras avalia.', fl.seasonal === 'sazonal' ? '' : fl.seasonal]);\n"
                         "    if (fl.quoted_thread) ins.push(['CONTEXTO', 'Mensagem com histórico citado', 'Confira se os valores vêm da mensagem atual e não do histórico.', '']);\n",
                      "    const fl = p.flags || {}, fs = p.flag_sources || {}, ins = [];\n"
-                     "    if (fl.not_a_proposal) ins.push(['RISCO', 'A IA não identificou proposta comercial', 'O conteúdo não parece propor desconto ou verba. Confira a mensagem antes de seguir.', '', 'not_a_proposal']);\n"
+                     "    if (fl.not_a_proposal) ins.push(['RISCO', 'Sem proposta comercial identificada', 'Nenhum desconto ou verba foi encontrado na mensagem. Confira antes de seguir.', '', 'not_a_proposal']);\n"
                      "    if (fl.injection) ins.push(['RISCO', 'Instrução dirigida a processamento automático', 'Tratada como dado não confiável: não altera regras, aprovação nem cadastro.', fl.injection, 'injection']);\n"
                      "    if (fl.approval_claim) ins.push(['RISCO', 'Alegação de aprovação prévia', 'Afirmação do fornecedor não é evidência de aprovação da empresa.', fl.approval_claim, 'approval_claim']);\n"
                      "    if (fl.seasonal) ins.push(['CONTEXTO', 'Menção a campanha sazonal', 'Pode envolver a exceção de teto da política; a validação de regras avalia.', fl.seasonal === 'sazonal' ? '' : fl.seasonal, 'seasonal']);\n"

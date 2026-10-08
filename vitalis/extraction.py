@@ -63,7 +63,8 @@ class LLMComponent(BaseModel):
 
 
 class LLMExtraction(BaseModel):
-    is_commercial_proposal: bool = Field(description="Se o conteúdo propõe uma condição comercial.")
+    is_commercial_proposal: bool = Field(description="True somente se a mensagem PROPÕE termos concretos (percentual de desconto e/ou valor de verba). "
+                                                     "Agradecimentos, avisos de que a proposta virá depois e conversas sem números são false.")
     supplier_name: LLMField
     supplier_code: LLMField = Field(description="Código FORN-### sugerido após consultar o cadastro; nulo se não houver correspondência segura.")
     category_code: LLMField = Field(description="Uma das categorias do ERP; nulo se não for possível mapear com segurança.")
@@ -113,7 +114,9 @@ Regras obrigatórias:
    na mesma frase) e consulte `buscar_lojas` para o código.
    `applies_to_all_stores` só é true se a fonte disser explicitamente "toda a rede"/"todas as lojas".
    Referências vagas (ex.: "as 10 lojas de maior giro") não são lista de lojas: registre em `ambiguities`.
-10. Data de negócio da simulação: {business_date}. Categorias válidas: {categories}.
+10. `is_commercial_proposal` é false quando a mensagem não traz termos concretos (ex.: "semana que vem envio a proposta").
+    Nesse caso não invente componentes, fornecedor-código, lojas ou datas.
+11. Data de negócio da simulação: {business_date}. Categorias válidas: {categories}.
 """
 
 

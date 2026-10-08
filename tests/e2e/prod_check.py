@@ -307,7 +307,8 @@ def sc_verba_comite(t: Flow):
 def sc_nao_proposta(t: Flow):
     body = "Oi Renata, obrigado pela reunião de hoje. Semana que vem envio a proposta formal com os números.\n\nAbs,\nCarlos"
     t.analyze(t.receive_text("Carlos Melo <carlos@fornecedorx.com.br>", "Obrigado pela reunião", body))
-    t.check("agente indica que não é proposta comercial", (t.p.get("flags") or {}).get("not_a_proposal") is True, t.p.get("flags"))
+    t.check("sinalizado como não-proposta", (t.p.get("flags") or {}).get("not_a_proposal") is True, (t.p.get("flags"), t.p.get("flag_sources")))
+    t.check("o próprio agente declarou que não é proposta", "agente" in ((t.p.get("flag_sources") or {}).get("not_a_proposal") or ""), t.p.get("flag_sources"))
     t.check("nenhum componente inventado", t.f("desconto") is None and t.f("verba") is None, [f["key"] for f in t.p["fields"]])
     t.close_interp(absent=t.missing_empty())
     t.check("RB08 sem componente", "RB08:SEM_COMPONENTE" in t.ids(), sorted(t.ids()))

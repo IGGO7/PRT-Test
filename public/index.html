@@ -1132,7 +1132,7 @@ class Component extends DCLogic {
     else ctaLabel = 'Concluir interpretação →';
     const hint = locked ? 'Análise encerrada; os dados ficam só para consulta.' : left ? 'Falta verificar ' + left + ' dado(s) marcados “A verificar”. Os demais foram lidos explicitamente da fonte — corrija se discordar.' : x.dirtyN && closed ? x.dirtyN + ' correção(ões) a enviar. Enviar gera nova revisão e descarta ciências e encaminhamentos.' : x.dirtyN ? x.dirtyN + ' verificação(ões) prontas. Ao concluir, o motor de regras valida os dados.' : closed ? 'Corrigir um dado agora gera nova revisão e refaz as regras.' : 'Nenhum dado pendente de verificação.';
     const fl = p.flags || {}, fs = p.flag_sources || {}, ins = [];
-    if (fl.not_a_proposal) ins.push(['RISCO', 'A IA não identificou proposta comercial', 'O conteúdo não parece propor desconto ou verba. Confira a mensagem antes de seguir.', '', 'not_a_proposal']);
+    if (fl.not_a_proposal) ins.push(['RISCO', 'Sem proposta comercial identificada', 'Nenhum desconto ou verba foi encontrado na mensagem. Confira antes de seguir.', '', 'not_a_proposal']);
     if (fl.injection) ins.push(['RISCO', 'Instrução dirigida a processamento automático', 'Tratada como dado não confiável: não altera regras, aprovação nem cadastro.', fl.injection, 'injection']);
     if (fl.approval_claim) ins.push(['RISCO', 'Alegação de aprovação prévia', 'Afirmação do fornecedor não é evidência de aprovação da empresa.', fl.approval_claim, 'approval_claim']);
     if (fl.seasonal) ins.push(['CONTEXTO', 'Menção a campanha sazonal', 'Pode envolver a exceção de teto da política; a validação de regras avalia.', fl.seasonal === 'sazonal' ? '' : fl.seasonal, 'seasonal']);
