@@ -20,6 +20,8 @@ _INJECTION = [re.compile(r"\[[^\]]*(processamento|sistema|automat)[^\]]*\]", re.
               re.compile(r"(desconsidere|ignore|ignorar)[^.]{0,80}(regras|valida)[^.]*\.", re.I | re.S)]
 _CLAIM = re.compile(r"[^.\n\[]*(pr[eé]-?aprovad|j[aá] (foi )?aprovad)[^.\n]*", re.I)
 _CAMPAIGN = re.compile(r"campanha [^\n.,]*", re.I)
+_DIRECTIVE = re.compile(r"sistema|automat|processamento|\bIA\b|intelig[eê]ncia|rob[oô]|\bbot\b|agente|ignor|desconsider|regras?|valida|"
+                        r"aprovad|aprove|status|registre|cadastre|sem (necessidade de )?revis", re.I)
 _THREAD = re.compile(r"-{3,}\s*mensagem original", re.I)
 
 
@@ -85,6 +87,29 @@ class _Ctx:
         return " × ".join(names)
 
 
+_STOP = {"de", "da", "do", "das", "dos", "e", "a", "o", "na", "no", "em", "loja", "lojas", "unidade", "unidades", "drog", "vitalis"}
+
+
+def _tokens(text: str) -> set[str]:
+    return {w for w in re.split(r"[^a-z0-9]+", _norm(text)) if len(w) > 2 and w not in _STOP}
+
+
+def match_stores(mention: str, lojas: list[dict]) -> list[str]:
+    """Lojas cujo nome (sem o prefixo da rede) aparece inteiro na menção: 'Tijuca' → LOJA-104,
+    'Barra (shopping)' → LOJA-109, 'lojas do Leblon e da Gávea' → LOJA-103 + LOJA-132.
+    Nome com várias palavras exige todas ('Centro' sozinho não identifica loja)."""
+    words = _tokens(mention)
+    out = []
+    for l in lojas:
+        key = _tokens(re.sub(r"^DROG\s+(VITALIS\s+)?", "", l["nome"]))
+        if key and key <= words:
+            out.append(l["cod_loja"])
+    return out
+
+
+_COMP_HINT = {"VERBA_EXPOSICAO": re.compile(r"verba|R\$|reais|valor", re.I), "DESCONTO_PERCENTUAL": re.compile(r"%|desconto|por ?cento", re.I)}
+
+
 def _field(key: str, value: Any, raw: str | None, location: str, origin: str, status: str, reason: str | None) -> dict:
     return {"key": key, "label": LABELS[key], "editor": EDITORS[key], "value": value, "raw_value": raw or "não informado",
             "source_location": location, "origin_kind": origin, "confirmation_status": status, "reason": reason}
@@ -139,12 +164,17 @@ def to_fields(llm: LLMExtraction, source: dict, erp: dict) -> dict:
 
     # Lojas
     mentions, codes, missing, sources = [], [], [], set()
+    store_rows = erp["lojas"]["itens"]
     for s in llm.stores:
         spans, src = ctx.register(s.evidence, "lojas")
         sources |= src
         mentions.append(s.mention)
+        # O código sugerido pelo modelo só é aceito se existir; o nome citado na fonte prevalece quando identifica a loja.
+        by_name = match_stores(s.mention, store_rows) or [c for sp in spans for c in match_stores(sp, store_rows)]
         code = (s.cod_loja or "").strip().upper() or None
-        if code and code in lojas:
+        if by_name:
+            codes.extend(by_name)
+        elif code and code in lojas:
             codes.append(code)
         elif not llm.applies_to_all_stores:
             missing.append(s.mention)
@@ -173,6 +203,12 @@ def to_fields(llm: LLMExtraction, source: dict, erp: dict) -> dict:
         key = "desconto" if c.tipo == "DESCONTO_PERCENTUAL" else "verba"
         if key in seen:
             continue
+        if c.amount.value is None and c.amount.kind != "CONFLICT":
+            # Sem valor: só é componente se a fonte de fato o menciona (ex.: "verba a definir").
+            # O modelo às vezes lista "verba: ausente" em e-mails só de desconto — isso não é proposta de verba.
+            cited = [ctx.locate(q)[0] for q in c.amount.evidence]
+            if not any(sp and _COMP_HINT[c.tipo].search(sp) for sp in cited):
+                continue
         seen.add(key)
         f = _simple(ctx, key, c.amount, parse_number, False, lambda v: (v > 0, "Valor deve ser positivo"))
         if f["origin_kind"] == "CONFLICT":
@@ -209,7 +245,10 @@ def to_fields(llm: LLMExtraction, source: dict, erp: dict) -> dict:
             sources_by_flag[key] = "agente+regra" if ai and rule else "agente" if ai else "regra"
 
     rx_inj = next((m.group(0) for rx in _INJECTION if (m := rx.search(ctx.body))), None)
-    merge("injection", ai_span(llm.embedded_instructions), rx_inj)
+    ai_inj = ai_span(llm.embedded_instructions)
+    if ai_inj and not _DIRECTIVE.search(ai_inj):
+        ai_inj = None  # pedido comum ao destinatário humano (ex.: "confirme assim que possível") não é instrução ao sistema
+    merge("injection", ai_inj, rx_inj)
     m = _CLAIM.search(ctx.body)
     merge("approval_claim", ai_span(llm.claimed_approvals), m.group(0).split(":")[-1].strip() if m else None)
     ai_season = None

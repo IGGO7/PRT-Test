@@ -232,6 +232,7 @@ def sc_beta_9(t: Flow):
 def sc_beta_22(t: Flow):
     edited(t, BETA, "13% de desconto", "22% de desconto")
     t.check("desconto lido = 22%", t.val("desconto") == 22.0, t.val("desconto"))
+    t.check("as três lojas mantidas", sorted(t.val("lojas") or []) == ["LOJA-104", "LOJA-107", "LOJA-112"], t.val("lojas"))
     t.close_interp(absent=t.missing_empty())
     t.check("RB02 teto de HIGIENE_BELEZA (20%)", "RB02:TETO" in t.ids(), sorted(t.ids()))
     t.close_rules()
@@ -298,6 +299,7 @@ def sc_verba_comite(t: Flow):
             "Contrapartida: ilha promocional na entrada das duas lojas durante toda a vigência.\n\nAtt,\nPaulo Reis\nEpsilon Farma")
     t.analyze(t.receive_text("Paulo Reis <paulo.reis@epsilonfarma.com.br>", "Verba de exposição - Suplementos Epsilon", body))
     t.check("verba lida = R$ 25.000 e sem desconto", t.val("verba") == 25000.0 and t.f("desconto") is None, (t.val("verba"), t.f("desconto")))
+    t.check("lojas Leblon e Gávea", sorted(t.val("lojas") or []) == ["LOJA-103", "LOJA-132"], t.val("lojas"))
     t.close_interp(absent=t.missing_empty())
     t.check("acima de R$ 20.000 exige Comitê (RB03)", "RB03:COMITE" in t.ids(), sorted(t.ids()))
 
