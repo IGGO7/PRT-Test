@@ -5,7 +5,7 @@ em uma decisão estruturada, verificável e pronta para cadastro, sem retirar a 
 
 > Fontes: briefing Pareto (`docs/BRIEFING.md`), *Fonte Única de Verdade v0.3.2* e o dataset original (`data/dataset`).
 > A interface é o protótipo do Claude Design (`frontend/prototype.html`), ligado à API real por `scripts/build_frontend.py`.
-> Alinhamento verificado em `docs/AUDITORIA_PROTOTIPO.md`.
+> Alinhamento verificado em `docs/AUDITORIA_PROTOTIPO.md`; origem de cada dado (IA × regra) e provas em `docs/VERIFICACAO.md`.
 
 ## O que é real e o que é simulado
 
@@ -46,7 +46,8 @@ tests/                     fluxos dos 4 cenários pela API + contrato do ERP (se
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
 cp .env.example .env              # preencha OPENAI_API_KEY e SUPABASE_SECRET_KEY
-pytest                            # 26 testes, sem rede
+pytest                            # 89 testes, sem rede
+BASE_URL=https://... python tests/e2e/prod_check.py   # 13 cenários com o agente real no site publicado
 python scripts/build_frontend.py  # regenera public/ a partir de frontend/prototype.html
 SERVE_PUBLIC=1 uvicorn app:app --reload   # http://localhost:8000 (exige OPENAI_API_KEY)
 SERVE_PUBLIC=1 uvicorn tests.ui_harness:app --port 8020   # interface sem OpenAI (extração de teste)
