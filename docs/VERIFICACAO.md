@@ -6,7 +6,7 @@ Data: 08/10/2026 · versão publicada verificada: commits `4541e60` e `424b15e` 
 
 | Elemento | Origem | Como é controlado |
 |---|---|---|
-| Valores em **Dados propostos** (fornecedor, categoria, lojas, datas, contrapartida, desconto, verba) | **Agente de IA** (`create_agent` + modelo de `OPENAI_MODEL`, hoje `gpt-6-luna`; chamada real a cada análise. As rodadas 1–8 usaram `gpt-5-mini`) | Código valida: código existe no cadastro, número/data normalizados, citação precisa existir literalmente na fonte. O que não passa vira *Ausente* ou *Inferido* e fica "A verificar". |
+| Valores em **Dados propostos** (fornecedor, categoria, lojas, datas, contrapartida, desconto, verba) | **Agente de IA** (`create_agent` + `gpt-5-mini`, chamada real a cada análise) | Código valida: código existe no cadastro, número/data normalizados, citação precisa existir literalmente na fonte. O que não passa vira *Ausente* ou *Inferido* e fica "A verificar". |
 | Marcações amarelas na mensagem e células destacadas no CSV | Trechos **citados pelo agente** | Só é marcado o que foi encontrado literalmente no texto; nada é sintetizado. |
 | Card **Leitura do agente de IA** (resumo, ambiguidades, dados não encontrados) | **Texto do modelo**, sem edição | Exibe o modelo e o tempo da leitura. |
 | Cards de **sinais** (instrução embutida, alegação de aprovação, campanha sazonal, não-proposta) | **Agente primeiro**; verificação fixa de texto como rede de proteção | Cada card mostra a origem: agente, verificação fixa ou ambos. "Histórico citado" é só verificação fixa. |
@@ -76,14 +76,9 @@ Avaliadas e não acrescentadas, por não estarem nas fontes:
 - vigência mínima;
 - teto de verba por categoria.
 
-Modelo padrão: `gpt-6-luna` (configurável por `OPENAI_MODEL`).
-
-- **gpt-5-nano:** testado e descartado. Teve 25 de 43 verificações, com leituras em laço de ferramentas e campos perdidos.
-- **Ajustes de robustez para qualquer modelo:**
-  - o cadastro vai no prompt;
-  - o agente tem limite de 12 passos;
-  - há uma segunda tentativa sem ferramentas, com saída estruturada, registrada nos metadados.
-- **E2E:** passou a rodar só sob pedido, com `[e2e]` na mensagem do commit ou execução manual.
+Modelo: `gpt-5-mini`, o mesmo agente validado nas rodadas 1–8.
+- `gpt-5-nano` e `gpt-6-luna` foram testados e revertidos em 08/10. O nano teve 25 de 43 verificações; com o luna, as requisições ficavam abertas tempo demais.
+- O E2E roda só sob pedido: `[e2e]` na mensagem do commit ou execução manual.
 
 ## 5. Limites conhecidos
 

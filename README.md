@@ -77,4 +77,4 @@ Configure as variáveis do `.env.example`. `vercel.json` define `maxDuration: 60
 - **Gama/Alfa:** a conclusão correta é bloqueio/escalonamento documentado — a coexistência desconto+verba
   e a precedência da exceção sazonal são lacunas da política, não resolvidas pelo código.
 - **Rate limit do ERP:** 10 req/min aplicado ao `POST /condicoes`; consultas usam o snapshot da sessão.
-- **D23:** `gpt-6-luna` é candidato configurável por `OPENAI_MODEL`; a extração real ainda precisa do spike.
+- **D23:** `gpt-5-mini` é candidato configurável por `OPENAI_MODEL`; a extração real ainda precisa do spike.

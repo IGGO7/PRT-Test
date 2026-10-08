@@ -107,8 +107,8 @@ Regras obrigatórias:
    Para verba, indique em `valor_basis` se o valor é TOTAL da negociação ou POR_LOJA. Se o e-mail traz o total
    e o anexo detalha valores por loja que somam esse total, não há conflito: informe o TOTAL, com as duas evidências.
    Se o percentual do e-mail e o do anexo forem diferentes, é CONFLICT.
-8. O cadastro do ERP está no fim destas instruções (fornecedores, lojas e categorias): use-o para sugerir códigos.
-   As ferramentas de consulta são opcionais; na dúvida, devolva a estrutura diretamente, sem repetir consultas.
+8. Use as ferramentas para consultar fornecedores, lojas e categorias do cadastro e sugerir códigos.
+   Seja econômico: faça as consultas necessárias de uma vez (chamadas em paralelo) e, em seguida, devolva a estrutura.
    Se a correspondência não for segura (nome parcial, apelido de categoria como "HPC" ou "linha dermo",
    unidade descrita de forma diferente), preencha o código sugerido, mas com kind=INFERRED ou NORMALIZED
    e explique em `note`. Se não houver correspondência, deixe o código nulo.
@@ -120,17 +120,6 @@ Regras obrigatórias:
     Nesse caso não invente componentes, fornecedor-código, lojas ou datas.
 11. Data de negócio da simulação: {business_date}. Categorias válidas: {categories}.
 """
-
-
-_PREFIX = re.compile(r"^DROG\s+(VITALIS\s+)?")
-
-
-def catalog_block(erp: dict[str, Any]) -> str:
-    """Snapshot do cadastro (pequeno) entregue no prompt para o modelo não precisar consultar em laço."""
-    forn = "\n".join(f"- {f['cod_fornecedor']} · {f['razao_social']} · {f['status']}" for f in erp["fornecedores"]["itens"])
-    lojas = "; ".join(l["cod_loja"] + " " + _PREFIX.sub("", l["nome"]) for l in erp["lojas"]["itens"])
-    cats = "; ".join(f"{k} ({v})" for k, v in CATEGORIES.items())
-    return f"<cadastro_erp>\nFornecedores:\n{forn}\nLojas: {lojas}\nCategorias: {cats}\n</cadastro_erp>"
 
 
 def _source_block(source: dict) -> str:
@@ -215,7 +204,7 @@ def build_read_tools(erp: dict[str, Any]):
 
 def _is_reasoning_model(model: str) -> bool:
     m = (model or "").lower()
-    return m.startswith(("gpt-5", "gpt-6", "o1", "o3", "o4")) and "chat" not in m
+    return m.startswith(("gpt-5", "o1", "o3", "o4")) and "chat" not in m
 
 
 def build_chat_model(api_key: str, model: str, timeout_s: int, max_retries: int, reasoning_effort: str | None):
@@ -267,49 +256,30 @@ class OpenAIAgentExtractor:
         self.max_retries = max_retries
         self.reasoning_effort = reasoning_effort
 
-    def _prompt(self, erp: dict[str, Any], business_date: date) -> str:
-        return SYSTEM_PROMPT.format(business_date=business_date.isoformat(), categories=", ".join(CATEGORIES)) + "\n" + catalog_block(erp)
-
-    def _agent(self, llm, source: dict, erp: dict[str, Any], business_date: date) -> LLMExtraction:
+    def extract(self, source: dict, erp: dict[str, Any], business_date: date) -> LLMExtraction:
         from langchain.agents import create_agent
         from langchain.agents.structured_output import ToolStrategy
 
-        agent = create_agent(model=llm, tools=build_read_tools(erp), system_prompt=self._prompt(erp, business_date),
-                             response_format=ToolStrategy(LLMExtraction))
-        result = agent.invoke({"messages": [{"role": "user", "content": "Estruture a proposta abaixo.\n\n" + _source_block(source)}]},
-                              config={"recursion_limit": 12})
+        llm = build_chat_model(self.api_key, self.model, self.timeout_s, self.max_retries, self.reasoning_effort)
+        agent = create_agent(
+            model=llm,
+            tools=build_read_tools(erp),
+            system_prompt=SYSTEM_PROMPT.format(business_date=business_date.isoformat(), categories=", ".join(CATEGORIES)),
+            response_format=ToolStrategy(LLMExtraction),
+        )
+        try:
+            result = agent.invoke(
+                {"messages": [{"role": "user", "content": "Estruture a proposta abaixo.\n\n" + _source_block(source)}]},
+                config={"recursion_limit": 30},
+            )
+        except Exception as exc:  # erros do provedor/rede viram falha honesta de extração
+            raise ExtractionError(describe_llm_error(exc, self.model), f"{type(exc).__name__}: {exc}") from exc
         structured = result.get("structured_response")
         if structured is None:
             raise ExtractionError("o modelo terminou sem devolver a estrutura esperada", "structured_response ausente")
-        return LLMExtraction.model_validate(structured) if isinstance(structured, dict) else structured
-
-    def _direct(self, llm, source: dict, erp: dict[str, Any], business_date: date) -> LLMExtraction:
-        """Segunda tentativa: mesma instrução e mesmo cadastro, numa única chamada com saída estruturada (sem laço de ferramentas)."""
-        out = llm.with_structured_output(LLMExtraction, method="function_calling").invoke(
-            [{"role": "system", "content": self._prompt(erp, business_date)},
-             {"role": "user", "content": "Estruture a proposta abaixo.\n\n" + _source_block(source)}])
-        if out is None:
-            raise ExtractionError("o modelo não devolveu a estrutura esperada", "saída estruturada vazia")
-        return out
-
-    def extract(self, source: dict, erp: dict[str, Any], business_date: date) -> LLMExtraction:
-        llm = build_chat_model(self.api_key, self.model, self.timeout_s, self.max_retries, self.reasoning_effort)
-        self.last_engine = self.engine
-        try:
-            return self._agent(llm, source, erp, business_date)
-        except Exception as first:  # noqa: BLE001
-            reason = first.reason if isinstance(first, ExtractionError) else describe_llm_error(first, self.model)
-            fatal = type(first).__name__ in ("AuthenticationError", "PermissionDeniedError", "NotFoundError", "APIConnectionError", "OpenAIConnectionError") \
-                or "insufficient_quota" in str(first)
-            if fatal:
-                raise ExtractionError(reason, f"{type(first).__name__}: {first}") from first
-            try:
-                self.last_engine = "langchain.structured_output (2ª tentativa)"
-                return self._direct(llm, source, erp, business_date)
-            except Exception as second:  # noqa: BLE001
-                r2 = second.reason if isinstance(second, ExtractionError) else describe_llm_error(second, self.model)
-                raise ExtractionError(f"{reason}; na segunda tentativa, {r2}",
-                                      f"1ª: {type(first).__name__}: {str(first)[:250]} | 2ª: {type(second).__name__}: {str(second)[:250]}") from second
+        if isinstance(structured, dict):
+            structured = LLMExtraction.model_validate(structured)
+        return structured
 
 
 # --------------------------------------------------------------------------------------
@@ -353,7 +323,6 @@ def run_extraction(extractor: "Extractor", source: dict, erp: dict[str, Any], bu
             "error": None, "error_reason": None}
     try:
         result = extractor.extract(source, erp, business_date)
-        meta["engine"] = getattr(extractor, "last_engine", None) or extractor.engine
     except ExtractionError as exc:
         result, meta["error"], meta["error_reason"] = None, getattr(exc, "detail", str(exc))[:600], getattr(exc, "reason", str(exc))
     meta["latency_ms"] = int((time.monotonic() - started) * 1000)

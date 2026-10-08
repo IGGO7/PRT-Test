@@ -24,7 +24,7 @@ A tabela `demo_sessions` ainda não existe no projeto PRT-CASE. Sem ela, todas a
 | Variável | Valor |
 |---|---|
 | `OPENAI_API_KEY` | sua chave da OpenAI |
-| `OPENAI_MODEL` | `gpt-6-luna` (ou o modelo que você validar) |
+| `OPENAI_MODEL` | `gpt-5-mini` (ou o modelo que você validar) |
 | `SUPABASE_URL` | `https://gjmiwygmnqkampsxzquf.supabase.co` |
 | `SUPABASE_SECRET_KEY` | a **secret key** (`sb_secret_...`), nunca a publishable |
 | `STORAGE_BACKEND` | `supabase` |
