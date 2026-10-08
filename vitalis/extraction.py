@@ -100,6 +100,7 @@ Regras obrigatórias:
    e o anexo detalha valores por loja que somam esse total, não há conflito: informe o TOTAL, com as duas evidências.
    Se o percentual do e-mail e o do anexo forem diferentes, é CONFLICT.
 8. Use as ferramentas para consultar fornecedores, lojas e categorias do cadastro e sugerir códigos.
+   Seja econômico: faça as consultas necessárias de uma vez (chamadas em paralelo) e, em seguida, devolva a estrutura.
    Se a correspondência não for segura (nome parcial, apelido de categoria como "HPC" ou "linha dermo",
    unidade descrita de forma diferente), preencha o código sugerido, mas com kind=INFERRED ou NORMALIZED
    e explique em `note`. Se não houver correspondência, deixe o código nulo.
@@ -129,7 +130,12 @@ def _source_block(source: dict) -> str:
 
 
 class ExtractionError(RuntimeError):
-    pass
+    """`reason` é exibível ao usuário; `detail` é técnico (classe e mensagem do provedor)."""
+
+    def __init__(self, reason: str, detail: str | None = None):
+        super().__init__(reason)
+        self.reason = reason
+        self.detail = (detail or reason)[:600]
 
 
 class Extractor(Protocol):
@@ -183,23 +189,65 @@ def build_read_tools(erp: dict[str, Any]):
     return [buscar_fornecedores, buscar_lojas, listar_categorias, consultar_condicoes_vigentes]
 
 
+def _is_reasoning_model(model: str) -> bool:
+    m = (model or "").lower()
+    return m.startswith(("gpt-5", "o1", "o3", "o4")) and "chat" not in m
+
+
+def build_chat_model(api_key: str, model: str, timeout_s: int, max_retries: int, reasoning_effort: str | None):
+    from langchain_openai import ChatOpenAI
+
+    kwargs: dict[str, Any] = {"model": model, "api_key": api_key, "timeout": timeout_s, "max_retries": max_retries}
+    if reasoning_effort and reasoning_effort != "default" and _is_reasoning_model(model):
+        kwargs["reasoning_effort"] = reasoning_effort
+    return ChatOpenAI(**kwargs)
+
+
+def describe_llm_error(exc: BaseException, model: str) -> str:
+    """Traduz a falha do provedor em causa compreensível (sem expor chave nem conteúdo do e-mail)."""
+    name = type(exc).__name__
+    text = str(exc)
+    low = text.lower()
+    if name == "AuthenticationError" or "incorrect api key" in low or "invalid_api_key" in low:
+        return "a chave da OpenAI (OPENAI_API_KEY) foi recusada — confira o valor configurado no servidor"
+    if name == "PermissionDeniedError":
+        return f"a chave da OpenAI não tem permissão para usar o modelo {model} (projeto/organização restritos)"
+    if name == "NotFoundError" or "model_not_found" in low or "does not exist" in low:
+        return f"o modelo {model} não está disponível nesta conta da OpenAI — troque OPENAI_MODEL"
+    if "insufficient_quota" in low or "exceeded your current quota" in low:
+        return "a conta da OpenAI está sem créditos ou atingiu o limite de gasto"
+    if name == "RateLimitError":
+        return "limite de requisições da OpenAI atingido — aguarde alguns segundos"
+    if name in ("APITimeoutError", "Timeout", "ReadTimeout", "TimeoutError"):
+        return "a OpenAI demorou mais que o limite para responder"
+    if name in ("APIConnectionError", "ConnectError"):
+        return "o servidor não conseguiu se conectar à OpenAI"
+    if name == "GraphRecursionError":
+        return "o agente não concluiu a leitura dentro do número máximo de passos"
+    if name == "BadRequestError":
+        return "a OpenAI recusou a requisição (400) — veja o detalhe técnico"
+    if name == "ValidationError":
+        return "a resposta do modelo não seguiu o formato esperado"
+    return f"erro inesperado na chamada ao modelo ({name})"
+
+
 class OpenAIAgentExtractor:
     """Agente único (ADR-01) com `create_agent` + saída estruturada via ToolStrategy."""
 
     engine = "langchain.create_agent"
 
-    def __init__(self, api_key: str, model: str, timeout_s: int = 60, max_retries: int = 1):
+    def __init__(self, api_key: str, model: str, timeout_s: int = 90, max_retries: int = 1, reasoning_effort: str | None = "low"):
         self.api_key = api_key
         self.model = model
         self.timeout_s = timeout_s
         self.max_retries = max_retries
+        self.reasoning_effort = reasoning_effort
 
     def extract(self, source: dict, erp: dict[str, Any], business_date: date) -> LLMExtraction:
         from langchain.agents import create_agent
         from langchain.agents.structured_output import ToolStrategy
-        from langchain_openai import ChatOpenAI
 
-        llm = ChatOpenAI(model=self.model, api_key=self.api_key, timeout=self.timeout_s, max_retries=self.max_retries)
+        llm = build_chat_model(self.api_key, self.model, self.timeout_s, self.max_retries, self.reasoning_effort)
         agent = create_agent(
             model=llm,
             tools=build_read_tools(erp),
@@ -209,13 +257,13 @@ class OpenAIAgentExtractor:
         try:
             result = agent.invoke(
                 {"messages": [{"role": "user", "content": "Estruture a proposta abaixo.\n\n" + _source_block(source)}]},
-                config={"recursion_limit": 16},
+                config={"recursion_limit": 30},
             )
         except Exception as exc:  # erros do provedor/rede viram falha honesta de extração
-            raise ExtractionError(f"{type(exc).__name__}: {exc}") from exc
+            raise ExtractionError(describe_llm_error(exc, self.model), f"{type(exc).__name__}: {exc}") from exc
         structured = result.get("structured_response")
         if structured is None:
-            raise ExtractionError("O modelo não retornou a estrutura esperada.")
+            raise ExtractionError("o modelo terminou sem devolver a estrutura esperada", "structured_response ausente")
         if isinstance(structured, dict):
             structured = LLMExtraction.model_validate(structured)
         return structured
@@ -258,11 +306,12 @@ def parse_date(raw: str | None) -> str | None:
 
 def run_extraction(extractor: "Extractor", source: dict, erp: dict[str, Any], business_date: date) -> tuple["LLMExtraction | None", dict]:
     started = time.monotonic()
-    meta = {"engine": extractor.engine, "model": extractor.model, "executed_at_real": datetime.now(timezone.utc).isoformat(), "error": None}
+    meta = {"engine": extractor.engine, "model": extractor.model, "executed_at_real": datetime.now(timezone.utc).isoformat(),
+            "error": None, "error_reason": None}
     try:
         result = extractor.extract(source, erp, business_date)
     except ExtractionError as exc:
-        result, meta["error"] = None, str(exc)[:500]
+        result, meta["error"], meta["error_reason"] = None, getattr(exc, "detail", str(exc))[:600], getattr(exc, "reason", str(exc))
     meta["latency_ms"] = int((time.monotonic() - started) * 1000)
     return result, meta
 

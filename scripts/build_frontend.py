@@ -40,6 +40,105 @@ def replace_once(text: str, old: str, new: str, label: str) -> str:
     return text.replace(old, new)
 
 
+OVERLAY = """<sc-if value="{{ overlay }}" hint-placeholder-val="{{ false }}">
+<div role="alertdialog" aria-busy="true" aria-live="polite" aria-label="{{ overlayTitle }}" style="position:fixed;inset:0;z-index:1000;background:rgba(244,243,239,.82);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);display:grid;place-items:center;padding:16px;cursor:wait">
+<div style="background:#fff;border:1px solid #E2E0DA;border-radius:12px;box-shadow:0 16px 48px rgba(23,25,28,.14);padding:28px 30px 24px;display:grid;justify-items:center;gap:12px;width:min(400px,100%);text-align:center">
+<div style="width:42px;height:42px;border-radius:50%;border:3px solid #E3EEEB;border-top-color:#1F4D46;animation:vt-spin .9s linear infinite"></div>
+<span style="font:600 16px/1.3 'IBM Plex Sans';color:#17191C">{{ overlayTitle }}</span>
+<span style="font:400 13px/1.55 'IBM Plex Sans';color:#5F6368;text-wrap:pretty">{{ overlayText }}</span>
+<span style="font:500 12px 'IBM Plex Mono';color:#3F4347;padding:3px 10px;border-radius:999px;background:#F4F3EF">{{ overlayElapsed }}</span>
+</div>
+</div>
+</sc-if>
+"""
+
+
+def apply_ux(t: str) -> str:
+    # Nome do produto: Vitalis (logo, título)
+    t = replace_once(t, "font:700 14px 'IBM Plex Sans'\">CC</div>", "font:700 17px 'IBM Plex Sans'\">V</div>", "logo")
+    t = replace_once(t, "<span style=\"font:700 16px/1.1 'IBM Plex Sans'\">Central de Condições Comerciais</span>",
+                     "<span style=\"font:700 17px/1.1 'IBM Plex Sans'\">Vitalis</span>", "nome")
+    t = replace_once(t, ">Cadastro assistido de condições com fornecedores</span>",
+                     ">Central de condições comerciais · cadastro assistido</span>", "subtítulo")
+
+    # Modo técnico → rótulo e explicação claros
+    t = replace_once(t, 'title="Mostra códigos de regra, controles de teste e o estado bruto da sessão. Referência de desenvolvimento."',
+                     'title="Opcional, para avaliação técnica. Exibe os códigos das regras aplicadas, o modelo e o tempo da leitura por IA, '
+                     'chaves de idempotência e tentativas de envio ao ERP, a simulação de ERP indisponível e o estado bruto da sessão. '
+                     'Não altera o fluxo nem as decisões."', "tech: dica")
+    t = replace_once(t, 'style="width:14px;height:14px;accent-color:#5F6368">Modo técnico</label>',
+                     'style="width:14px;height:14px;accent-color:#5F6368">Detalhes técnicos</label>', "tech: rótulo")
+
+    # Tela bloqueada com indicador enquanto a IA lê (e em outras operações demoradas)
+    t = replace_once(t, "button:disabled{cursor:not-allowed}",
+                     "button:disabled{cursor:not-allowed}\n@keyframes vt-spin{to{transform:rotate(360deg)}}\n"
+                     "@keyframes vt-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}", "keyframes")
+    t = replace_once(t, '<div style="min-height:100vh;display:flex;flex-direction:column">',
+                     '<div style="min-height:100vh;display:flex;flex-direction:column">\n' + OVERLAY, "overlay")
+    t = replace_once(t, "onDismissError: () => this.setState({ error: null }), hasNotice: !!s.notice, notice: s.notice,",
+                     "onDismissError: () => this.setState({ error: null }), hasNotice: !!s.notice, notice: s.notice, ...this.overlayVals(), "
+                     "errorDetail: err.detail || '', hasErrorDetail: tech && !!err.detail,", "overlay vals")
+    t = replace_once(t, "  async call(kind, method, path, body, after) {\n    this.setState({ busy: kind, error: null, notice: null });\n"
+                        "    try { const v = await this.api(method, path, body); this.setState({ v, busy: null, notice: v.notice || null }); if (after) after(v); return v; }\n"
+                        "    catch (e) { this.setState({ busy: null, error: this.envelope(e) }); return null; }\n  }",
+                     "  async call(kind, method, path, body, after) {\n"
+                     "    this.setState({ busy: kind, busyAt: Date.now(), error: null, notice: null });\n"
+                     "    clearInterval(this._tick); this._tick = setInterval(() => this.setState({ tick: Date.now() }), 250);\n"
+                     "    try { const v = await this.api(method, path, body); clearInterval(this._tick); this.setState({ v, busy: null, notice: v.notice || null }); if (after) after(v); return v; }\n"
+                     "    catch (e) { clearInterval(this._tick); this.setState({ busy: null, error: this.envelope(e) }); return null; }\n  }\n"
+                     "  overlayVals() {\n"
+                     "    const s = this.state, ms = s.busy ? Date.now() - (s.busyAt || Date.now()) : 0, secs = Math.floor(ms / 1000);\n"
+                     "    const T = { analyze: ['Lendo o e-mail com IA', 'O agente está extraindo fornecedor, condições, lojas e prazos da mensagem e do anexo. Costuma levar de 15 a 60 segundos. Nada é gravado sem a sua revisão.'],\n"
+                     "      open: ['Abrindo a análise', 'Carregando a análise salva desta mensagem.'],\n"
+                     "      register: ['Registrando no ERP', 'Enviando a condição aprovada ao ERP simulado. Se ele estiver em manutenção, o envio é repetido automaticamente com a mesma chave.'] };\n"
+                     "    const k = T[s.busy] ? s.busy : 'other', show = !!s.busy && (k !== 'other' ? ms >= 200 : ms >= 700);\n"
+                     "    const tx = T[k] || ['Processando', 'Aguarde a resposta do servidor.'];\n"
+                     "    return { overlay: show, overlayTitle: tx[0], overlayText: secs >= 75 && k === 'analyze' ? 'Está demorando mais que o normal — a tela continua bloqueada até a IA responder ou o servidor encerrar a tentativa.' : tx[1],\n"
+                     "      overlayElapsed: secs + ' s' };\n  }", "call/overlay")
+    t = replace_once(t, "    this.call('analyze', 'POST', '/api/analyze', { item_id: id }, ",
+                     "    const it = ((this.state.v && this.state.v.inbox) || []).find(x => x.id === id);\n"
+                     "    this.call(it && it.state ? 'open' : 'analyze', 'POST', '/api/analyze', { item_id: id }, ", "openItem kind")
+    # Respostas que não são JSON (ex.: limite de tempo da hospedagem) e falha de rede viram mensagem compreensível
+    t = replace_once(t, "    const r = await fetch(path, { method, credentials: 'include', headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });\n"
+                        "    const j = await r.json().catch(() => ({}));\n    if (!r.ok) throw Object.assign({ status: r.status }, j);",
+                     "    let r;\n    try { r = await fetch(path, { method, credentials: 'include', headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined }); }\n"
+                     "    catch (e) { throw { code: 'NETWORK', message: 'Sem conexão com o servidor. Verifique a internet e tente de novo.' }; }\n"
+                     "    const j = await r.json().catch(() => null);\n"
+                     "    if (!r.ok) throw Object.assign({ status: r.status }, j && j.code ? j : { code: 'HTTP_' + r.status, message: r.status === 504 ? 'O servidor excedeu o tempo limite da hospedagem antes de concluir. Nada foi gravado; tente de novo.' : 'O servidor respondeu com erro ' + r.status + ' sem detalhes. Nada foi gravado; tente de novo.' });\n"
+                     "    if (!j) throw { code: 'INVALID_RESPONSE', message: 'Resposta inesperada do servidor.' };", "api errors")
+    t = replace_once(t, "  envelope(e) { return { status: e.status || null, code: e.code || 'ERRO', message: e.message || String(e), correlation_id: e.correlation_id || null, findings: e.findings || [] }; }",
+                     "  envelope(e) { return { status: e.status || null, code: e.code || 'ERRO', message: e.message || String(e), correlation_id: e.correlation_id || null, findings: e.findings || [], detail: e.detail || null }; }", "envelope detail")
+    t = replace_once(t, '<sc-for list="{{ errorFindings }}" as="ef">',
+                     '<sc-if value="{{ hasErrorDetail }}" hint-placeholder-val="{{ false }}"><span style="font:400 11.5px/1.45 \'IBM Plex Mono\';color:#7A271A;word-break:break-word">{{ errorDetail }}</span></sc-if>\n'
+                     '<sc-for list="{{ errorFindings }}" as="ef">', "error detail")
+
+    # Caixa de entrada primeiro; simulação de e-mail recolhida atrás de um botão
+    t = replace_once(t, "    draft: { changes: {}, confirms: {}, acks: null }, editKey: null,",
+                     "    simOpen: false, busyAt: 0, tick: 0,\n    draft: { changes: {}, confirms: {}, acks: null }, editKey: null,", "state simOpen")
+    t = replace_once(t, '<span style="font:500 11.5px \'IBM Plex Sans\';color:#5F6368">Mensagens recebidas nesta sessão</span>',
+                     '<sc-if value="{{ simClosed }}" hint-placeholder-val="{{ true }}"><button sc-camel-on-click="{{ onOpenSim }}" style="border:1px solid #1F4D46;background:#fff;color:#1F4D46;font:600 13.5px \'IBM Plex Sans\';padding:9px 16px;border-radius:7px;cursor:pointer;display:flex;gap:8px;align-items:center" style-hover="background:#E3EEEB"><span style="font:600 16px/1 \'IBM Plex Sans\'">+</span>Simular novo e-mail</button></sc-if>\n'
+                     '<sc-if value="{{ simOpen }}" hint-placeholder-val="{{ false }}"><span style="font:500 11.5px \'IBM Plex Sans\';color:#5F6368">Mensagens recebidas nesta sessão</span></sc-if>', "botão simular")
+    t = replace_once(t, '<div style="flex:1 1 520px;min-width:0;background:#fff;border:1px solid #E2E0DA;border-radius:10px">',
+                     '<sc-if value="{{ simOpen }}" hint-placeholder-val="{{ false }}">\n'
+                     '<div id="sim-panel" style="flex:1 1 520px;min-width:0;background:#fff;border:1px solid #E2E0DA;border-radius:10px;animation:vt-in .22s ease-out">', "painel simular abre")
+    t = replace_once(t, "{{ receiveLabel }}</button>\n</div>\n</div>\n</section>",
+                     "{{ receiveLabel }}</button>\n</div>\n</div>\n</sc-if>\n</section>", "painel simular fecha")
+    t = replace_once(t, '<span style="font:500 11.5px \'IBM Plex Mono\';padding:4px 9px;border-radius:999px;color:{{ srcFg }};background:{{ srcBg }}">{{ srcLabel }}</span>\n</div>',
+                     '<div style="display:flex;gap:10px;align-items:center"><span style="font:500 11.5px \'IBM Plex Mono\';padding:4px 9px;border-radius:999px;color:{{ srcFg }};background:{{ srcBg }}">{{ srcLabel }}</span>'
+                     '<button sc-camel-on-click="{{ onCloseSim }}" title="Recolher" aria-label="Recolher simulação" style="width:30px;height:30px;border:1px solid #D6D3CB;background:#fff;border-radius:7px;color:#3F4347;font:500 17px/1 \'IBM Plex Sans\';cursor:pointer" style-hover="background:#F4F3EF">×</button></div>\n</div>', "fechar simular")
+    t = replace_once(t, "Simule o recebimento de um e-mail ao lado — escrito livremente ou a partir de um exemplo do dataset.",
+                     "Use “Simular novo e-mail” para criar uma mensagem — escrita livremente ou a partir de um exemplo do dataset.", "texto vazio")
+    t = replace_once(t, "      onReceive: () => this.receive(),",
+                     "      simOpen: !!s.simOpen, simClosed: !s.simOpen, onOpenSim: () => { this.setState({ simOpen: true }); this.scrollToId('sim-panel'); }, onCloseSim: () => this.setState({ simOpen: false }),\n"
+                     "      onReceive: () => this.receive(),", "vals simular")
+    t = replace_once(t, "    this.call('receive', 'POST', '/api/inbox', body, () => this.setState({ form: { from: '', subject: '', body: '', csvName: '', csv: '' }, exampleId: null, edited: false, notice:",
+                     "    this.call('receive', 'POST', '/api/inbox', body, () => this.setState({ simOpen: false, form: { from: '', subject: '', body: '', csvName: '', csv: '' }, exampleId: null, edited: false, notice:", "receive fecha")
+    t = replace_once(t, "  reset() { this.call('reset', 'POST', '/api/reset', {}, () => this.setState({ step: 1,",
+                     "  reset() { this.call('reset', 'POST', '/api/reset', {}, () => this.setState({ simOpen: false, step: 1,", "reset fecha")
+    t = replace_once(t, "  componentWillUnmount() {", "  componentWillUnmount() { clearInterval(this._tick);", "unmount") if "  componentWillUnmount() {" in t else t
+    return t
+
+
 def main() -> None:
     html = SRC.read_text(encoding="utf-8")
     manifest = json.loads(section(html, "__bundler/manifest"))
@@ -79,8 +178,8 @@ def main() -> None:
     # 1) runtime local + React servido pelo próprio site (mapa de recursos lido pelo runtime)
     resources = {url: "/" + names[uid] for uid, url in ext.items()}
     t = replace_once(t, f'<script src="{runtime_uuid}"></script>',
-                     "<title>Central de Condições Comerciais</title>\n"
-                     '<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%231F4D46%22/%3E%3Ctext x=%2216%22 y=%2221%22 font-family=%22monospace%22 font-size=%2213%22 font-weight=%22700%22 text-anchor=%22middle%22 fill=%22white%22%3ECC%3C/text%3E%3C/svg%3E">\n'
+                     "<title>Vitalis</title>\n"
+                     '<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%231F4D46%22/%3E%3Ctext x=%2216%22 y=%2221%22 font-family=%22monospace%22 font-size=%2216%22 font-weight=%22700%22 text-anchor=%22middle%22 fill=%22white%22%3EV%3C/text%3E%3C/svg%3E">\n'
                      '<meta name="description" content="Cadastro assistido de condições comerciais com fornecedores — demonstração com dados fictícios.">\n'
                      f"<script>window.__resources = {json.dumps(resources)};</script>\n"
                      '<script src="/assets/dc-runtime.js"></script>', "runtime")
@@ -110,15 +209,8 @@ def main() -> None:
                      "<li>E-mail em texto livre, com ou sem planilha anexa, como entrada</li>"
                      "<li>Leitura do e-mail por agente de IA, com evidência do trecho de origem de cada dado</li>",
                      "escopo: dentro")
-    t = replace_once(t, '<sc-if value="{{ hasNotice }}" hint-placeholder-val="{{ false }}">',
-                     '<sc-if value="{{ isAnalyzing }}" hint-placeholder-val="{{ false }}">\n'
-                     '<div role="status" style="padding:12px 16px;border:1px solid #CBD7E2;background:#E8EEF3;color:#3D5A73;border-radius:8px;'
-                     "font:500 13.5px/1.45 'IBM Plex Sans'\">A IA está lendo a mensagem e o anexo — costuma levar de 10 a 30 segundos. "
-                     "Nada é gravado sem a sua revisão.</div>\n</sc-if>\n"
-                     '<sc-if value="{{ hasNotice }}" hint-placeholder-val="{{ false }}">', "aviso de leitura")
-    t = replace_once(t, "onDismissError: () => this.setState({ error: null }), hasNotice: !!s.notice, notice: s.notice,",
-                     "onDismissError: () => this.setState({ error: null }), hasNotice: !!s.notice, notice: s.notice, isAnalyzing: s.busy === 'analyze',",
-                     "isAnalyzing")
+    # 5) ajustes de usabilidade pedidos após a primeira publicação
+    t = apply_ux(t)
 
     (OUT / "index.html").write_text(t, encoding="utf-8")
     total = sum(f.stat().st_size for f in OUT.rglob("*") if f.is_file())

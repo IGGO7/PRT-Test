@@ -35,12 +35,13 @@ As demais do `.env.example` podem ficar sem valor. Depois de mudar variáveis, u
 
 ## 4. Conferir
 
-1. Abra `https://SEU-PROJETO.vercel.app/api/health`. O esperado é `"status": "ok"`, com
-   `storage.ok: true` e `llm.configured: true`. Se não, o campo `detail` diz o que falta.
+1. Abra `https://SEU-PROJETO.vercel.app/api/health?deep=1`. O esperado é `"status": "ok"`, com
+   `storage.ok: true` e `llm.call_ok: true` (faz uma chamada mínima ao modelo). Se não, o campo `detail`
+   diz o que falta — chave recusada, modelo indisponível, conta sem créditos ou banco não configurado.
 2. Abra a raiz do site, clique **A** (Beta) → **Simular recebimento** → **Analisar →**.
    A leitura pela IA leva de 10 a 30 segundos.
-3. Se a análise falhar com `EXTRACTION_FAILED`, veja os logs da função na Vercel: o motivo mais comum é
-   o modelo em `OPENAI_MODEL` não estar disponível na sua conta. Troque o modelo e faça Redeploy.
+3. Se a análise falhar, a mensagem na tela já diz a causa (com **Detalhes técnicos** ligado, aparece também o erro bruto).
+   O motivo mais comum é o modelo em `OPENAI_MODEL` não estar disponível na sua conta: troque o modelo e faça Redeploy.
 
 ## 5. Link público
 

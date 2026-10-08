@@ -1,4 +1,4 @@
-"""Serviço da Central de Condições Comerciais — contrato de API do protótipo (handoff §3).
+"""Serviço do Vitalis (central de condições comerciais) — contrato de API do protótipo (handoff §3).
 
 Fluxo por mensagem: caixa de entrada → interpretação (IA) → regras → conclusão.
 Invariantes no servidor: IA sem poder de escrita; aprovação humana vinculada ao hash da revisão;
@@ -17,7 +17,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Callable
 
 from .config import Settings
-from .dataset import get_example
+from .dataset import get_example, load_examples
 from .engine import (
     APPROVERS,
     AUTO_RULES,
@@ -35,7 +35,7 @@ from .extraction import Extractor, run_extraction
 from .interpretation import to_fields
 from .store import SessionNotFound, SessionStore, VersionConflict
 
-SCHEMA = 2
+SCHEMA = 3  # 3: caixa de entrada nasce com os 4 e-mails do dataset
 _ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
 
@@ -50,9 +50,19 @@ class ApiError(Exception):
         self.findings, self.extra = findings or [], extra
 
 
+def seed_inbox() -> list[dict]:
+    """A sessão nasce com os 4 e-mails originais do dataset na caixa de entrada (recebidos, ainda não analisados).
+    `received_at` é a data do próprio e-mail; mais recentes primeiro, como numa caixa real."""
+    items = []
+    for fx in load_examples().values():
+        items.append({"id": "MSG-" + rand(5), "received_at": fx.sent_at or now_iso(), "source": Service._fixture_source(fx),
+                      "proposal": None, "approval": None, "operation": None})
+    return sorted(items, key=lambda i: i["received_at"], reverse=True)
+
+
 def new_state(settings: Settings, llm_calls: int = 0) -> dict:
     return {"schema": SCHEMA, "created_at": now_iso(), "business_date": settings.business_date.isoformat(),
-            "erp": initial_erp_state(), "inbox": [], "current": None,
+            "erp": initial_erp_state(), "inbox": seed_inbox(), "current": None,
             "test": {"erp_fail_next": False, "erp_random_503": False, "auto_conclusion": True},
             "events": [], "counters": {"llm_calls": llm_calls}}
 
@@ -235,7 +245,8 @@ class Service:
         if llm is None:
             _event(S, "EXTRACAO_FALHOU", meta.get("error") or "")
             self._save(sid, S, v)
-            raise ApiError(502, "EXTRACTION_FAILED", "A leitura por IA falhou e nada foi preenchido automaticamente. Tente analisar de novo.",
+            reason = meta.get("error_reason") or "motivo não identificado"
+            raise ApiError(502, "EXTRACTION_FAILED", f"A leitura por IA falhou: {reason}. Nada foi preenchido automaticamente.",
                            retryable=True, detail=meta.get("error"))
         mapped = to_fields(llm, item["source"], S["erp"])
         secs = (meta.get("latency_ms") or 0) / 1000

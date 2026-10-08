@@ -1,6 +1,6 @@
-# Vitalis — Central de Condições Comerciais
+# Vitalis
 
-Case técnico demonstrativo (Pareto AI Builder) com **dados fictícios**. Transforma o e-mail de um fornecedor
+Central de condições comerciais. Case técnico demonstrativo (Pareto AI Builder) com **dados fictícios**. Transforma o e-mail de um fornecedor
 em uma decisão estruturada, verificável e pronta para cadastro, sem retirar a responsabilidade de quem autoriza.
 
 > Fontes: briefing Pareto (`docs/BRIEFING.md`), *Fonte Única de Verdade v0.3.2* e o dataset original (`data/dataset`).

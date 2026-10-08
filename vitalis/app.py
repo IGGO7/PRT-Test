@@ -26,17 +26,22 @@ HEADER_SESSION = "X-Vitalis-Session"
 def create_app(store: SessionStore | None = None, extractor_factory: Callable[[], Extractor] | None = None,
                settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
-    app = FastAPI(title="Central de Condições Comerciais", version=__version__,
+    app = FastAPI(title="Vitalis", version=__version__,
                   description="Case técnico demonstrativo com dados fictícios. ERP, aprovadores e ingestão de e-mail são simulados; a leitura do e-mail é feita por agente de IA.")
 
     def default_extractor() -> Extractor:
         if not settings.openai_api_key:
             raise ApiError(503, "LLM_NOT_CONFIGURED", "A leitura por IA não está configurada no servidor (OPENAI_API_KEY).")
-        return OpenAIAgentExtractor(settings.openai_api_key, settings.openai_model, settings.openai_timeout_s, settings.openai_max_retries)
+        return OpenAIAgentExtractor(settings.openai_api_key, settings.openai_model, settings.openai_timeout_s,
+                                    settings.openai_max_retries, settings.openai_reasoning_effort)
 
     state: dict[str, Any] = {"service": None}
 
     def svc() -> Service:
+        if store is None and settings.on_vercel and settings.storage_backend != "supabase":
+            # Em serverless, memória não persiste entre instâncias: a sessão "some" no meio do fluxo.
+            raise ApiError(503, "STORAGE_NOT_CONFIGURED",
+                           "Persistência não configurada no servidor: defina SUPABASE_URL e SUPABASE_SECRET_KEY na Vercel e faça Redeploy.")
         if state["service"] is None:
             state["service"] = Service(store or build_store(settings), settings, extractor_factory or default_extractor)
         return state["service"]
@@ -89,8 +94,9 @@ def create_app(store: SessionStore | None = None, extractor_factory: Callable[[]
 
     # ------------------------------------------------------------------ rotas
     @app.get("/api/health")
-    def health() -> dict[str, Any]:
-        """Diagnóstico para o deploy: confere banco e chave de IA sem expor segredos."""
+    def health(deep: int = 0) -> dict[str, Any]:
+        """Diagnóstico para o deploy: confere banco e chave de IA sem expor segredos.
+        `?deep=1` faz uma chamada mínima ao modelo configurado (custo desprezível) para provar chave e modelo."""
         st = store or (build_store(settings) if settings.storage_backend == "supabase" and settings.supabase_url and settings.supabase_secret_key else None)
         if settings.storage_backend == "supabase" and st is None:
             storage_ok, storage_msg = False, "SUPABASE_URL ou SUPABASE_SECRET_KEY ausente"
@@ -98,11 +104,28 @@ def create_app(store: SessionStore | None = None, extractor_factory: Callable[[]
             storage_ok, storage_msg = st.ping()
         else:
             storage_ok, storage_msg = True, "memória (somente desenvolvimento — não persiste entre requisições na Vercel)"
+        if settings.on_vercel and settings.storage_backend != "supabase":
+            storage_ok, storage_msg = False, "memória não funciona na Vercel — defina SUPABASE_URL e SUPABASE_SECRET_KEY e faça Redeploy"
         llm_ok = bool(settings.openai_api_key)
+        llm: dict[str, Any] = {"configured": llm_ok, "model": settings.openai_model, "reasoning_effort": settings.openai_reasoning_effort,
+                               "detail": "OPENAI_API_KEY presente" if llm_ok else "OPENAI_API_KEY ausente"}
+        if deep and llm_ok:
+            import time
+
+            from .extraction import build_chat_model, describe_llm_error
+
+            t0 = time.monotonic()
+            try:
+                out = build_chat_model(settings.openai_api_key, settings.openai_model, 30, 0, settings.openai_reasoning_effort).invoke(
+                    "Responda somente com a palavra: ok")
+                llm.update(call_ok=True, reply=str(out.content)[:40])
+            except Exception as exc:  # noqa: BLE001 — diagnóstico
+                llm_ok = False
+                llm.update(call_ok=False, detail=describe_llm_error(exc, settings.openai_model), error=f"{type(exc).__name__}: {str(exc)[:300]}")
+            llm["latency_ms"] = int((time.monotonic() - t0) * 1000)
         return {"status": "ok" if storage_ok and llm_ok else "incompleto", "version": __version__,
                 "storage": {"backend": settings.storage_backend, "ok": storage_ok, "detail": storage_msg},
-                "llm": {"configured": llm_ok, "model": settings.openai_model,
-                        "detail": "OPENAI_API_KEY presente" if llm_ok else "OPENAI_API_KEY ausente"},
+                "llm": llm, "runtime": "vercel" if settings.on_vercel else "local",
                 "business_date": settings.business_date.isoformat(), "environment": settings.environment}
 
     @app.get("/api/examples")

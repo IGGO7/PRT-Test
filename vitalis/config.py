@@ -39,8 +39,10 @@ class Settings:
     # IA (D23): modelo configurável; gpt-5-mini é candidato, não decisão congelada.
     openai_api_key: str | None = None
     openai_model: str = "gpt-5-mini"
-    openai_timeout_s: int = 60
+    openai_timeout_s: int = 90
     openai_max_retries: int = 1
+    # Modelos de raciocínio (gpt-5*, o*): "low" reduz a latência sem mudar o contrato de saída.
+    openai_reasoning_effort: str | None = "low"
 
     # Data de negócio simulada (D04).
     business_date: date = date(2026, 9, 30)
@@ -59,13 +61,18 @@ class Settings:
     allowed_origins: list[str] = field(default_factory=list)
 
     environment: str = "development"
+    on_vercel: bool = False
 
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
-    supabase_url = _env("SUPABASE_URL")
-    supabase_key = _env("SUPABASE_SECRET_KEY") or _env("SUPABASE_SERVICE_ROLE_KEY")
-    backend = _env("STORAGE_BACKEND") or ("supabase" if supabase_url and supabase_key else "memory")
+    # Aceita os nomes usados pela integração Supabase ↔ Vercel, além dos do .env.example.
+    supabase_url = _env("SUPABASE_URL") or _env("NEXT_PUBLIC_SUPABASE_URL")
+    supabase_key = (_env("SUPABASE_SECRET_KEY") or _env("SUPABASE_SERVICE_ROLE_KEY") or _env("SUPABASE_SERVICE_KEY")
+                    or _env("SUPABASE_KEY"))
+    backend = (_env("STORAGE_BACKEND") or "").lower() or ("supabase" if supabase_url and supabase_key else "memory")
+    if backend not in ("supabase", "memory"):
+        backend = "supabase" if supabase_url and supabase_key else "memory"
     environment = _env("APP_ENV", "development") or "development"
     bd_raw = _env("BUSINESS_DATE", "2026-09-30") or "2026-09-30"
     return Settings(
@@ -74,8 +81,9 @@ def get_settings() -> Settings:
         storage_backend=backend,
         openai_api_key=_env("OPENAI_API_KEY"),
         openai_model=_env("OPENAI_MODEL", "gpt-5-mini") or "gpt-5-mini",
-        openai_timeout_s=_env_int("OPENAI_TIMEOUT_S", 60),
+        openai_timeout_s=_env_int("OPENAI_TIMEOUT_S", 90),
         openai_max_retries=_env_int("OPENAI_MAX_RETRIES", 1),
+        openai_reasoning_effort=(_env("OPENAI_REASONING_EFFORT", "low") or "low").lower(),
         business_date=date.fromisoformat(bd_raw),
         max_analyses_per_session=_env_int("MAX_ANALYSES_PER_SESSION", 25),
         max_body_chars=_env_int("MAX_BODY_CHARS", 8_000),
@@ -83,4 +91,5 @@ def get_settings() -> Settings:
         session_cookie_secure=(_env("SESSION_COOKIE_SECURE", "true") or "true").lower() != "false",
         allowed_origins=_env_list("ALLOWED_ORIGINS"),
         environment=environment,
+        on_vercel=bool(_env("VERCEL")),
     )

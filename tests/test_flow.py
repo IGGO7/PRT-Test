@@ -81,9 +81,12 @@ def test_examples_are_the_original_dataset_files(client):
     assert ex["nutrivida"]["in_reply_to"] == "<e11a0b9f.20260922141500@vitalis.com.br>"
 
 
-def test_inbox_starts_empty_no_fixed_queue(ui):
-    assert ui.v["inbox"] == [] and ui.v["proposal"] is None                                  # D01/D02
-    assert ui.v["business_date"] == "2026-09-30"
+def test_inbox_starts_with_dataset_emails_unanalyzed(ui):
+    inbox = ui.v["inbox"]
+    assert ui.v["proposal"] is None and ui.v["business_date"] == "2026-09-30"
+    assert len(inbox) == 4 and all(i["kind"] == "DATASET_EMAIL" and i["state"] is None for i in inbox)   # recebidos, não analisados
+    assert [i["received_at"] for i in inbox] == sorted((i["received_at"] for i in inbox), reverse=True)
+    assert len({i["from"] for i in inbox}) == 4
 
 
 # ------------------------------------------------------------------ Beta
@@ -253,9 +256,9 @@ def test_sessions_are_isolated_and_reset(client):
     a = UI(client)
     a.receive_example("alfa")
     b = UI(TestClient(client.app))
-    assert b.v["inbox"] == [] and a.v["inbox"]
+    assert len(b.v["inbox"]) == 4 and len(a.v["inbox"]) == 5
     a.post("/api/reset")
-    assert a.v["inbox"] == [] and a.v["backend"]["llm_calls"] == 0
+    assert len(a.v["inbox"]) == 4 and a.v["backend"]["llm_calls"] == 0
 
 
 @pytest.mark.parametrize("payload,code", [
@@ -266,3 +269,33 @@ def test_sessions_are_isolated_and_reset(client):
 ])
 def test_input_limits(ui, payload, code):
     assert ui.post("/api/inbox", payload, expect=422)["code"] == code
+
+
+def test_extraction_failure_reports_cause(client):
+    from vitalis.extraction import describe_llm_error
+
+    class AuthenticationError(Exception):
+        pass
+
+    class NotFoundError(Exception):
+        pass
+
+    assert "chave" in describe_llm_error(AuthenticationError("401"), "gpt-5-mini")
+    assert "gpt-x" in describe_llm_error(NotFoundError("model_not_found"), "gpt-x")
+    assert "créditos" in describe_llm_error(Exception("You exceeded your current quota"), "m")
+
+
+def test_memory_storage_refused_on_vercel(monkeypatch):
+    from dataclasses import replace
+
+    from fastapi.testclient import TestClient
+
+    from vitalis.app import create_app
+    from vitalis.config import get_settings
+
+    s = replace(get_settings(), on_vercel=True, storage_backend="memory")
+    c = TestClient(create_app(settings=s))
+    r = c.get("/api/state")
+    assert r.status_code == 503 and r.json()["code"] == "STORAGE_NOT_CONFIGURED"
+    h = c.get("/api/health").json()
+    assert h["storage"]["ok"] is False and h["status"] == "incompleto"

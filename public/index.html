@@ -2,8 +2,8 @@
 <html><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Central de Condições Comerciais</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%231F4D46%22/%3E%3Ctext x=%2216%22 y=%2221%22 font-family=%22monospace%22 font-size=%2213%22 font-weight=%22700%22 text-anchor=%22middle%22 fill=%22white%22%3ECC%3C/text%3E%3C/svg%3E">
+<title>Vitalis</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%231F4D46%22/%3E%3Ctext x=%2216%22 y=%2221%22 font-family=%22monospace%22 font-size=%2216%22 font-weight=%22700%22 text-anchor=%22middle%22 fill=%22white%22%3EV%3C/text%3E%3C/svg%3E">
 <meta name="description" content="Cadastro assistido de condições comerciais com fornecedores — demonstração com dados fictícios.">
 <script>window.__resources = {"https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js": "/assets/react-dom.production.min.js", "https://unpkg.com/react@18.3.1/umd/react.production.min.js": "/assets/react.production.min.js"};</script>
 <script src="/assets/dc-runtime.js"></script>
@@ -398,15 +398,28 @@ body{margin:0;background:#F4F3EF;color:#17191C;font-family:'IBM Plex Sans',syste
 a{color:#1F4D46}a:hover{color:#123530}
 input,textarea,select,button{font-family:inherit}
 button:disabled{cursor:not-allowed}
+@keyframes vt-spin{to{transform:rotate(360deg)}}
+@keyframes vt-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 </style>
 </helmet>
 <div style="min-height:100vh;display:flex;flex-direction:column">
+<sc-if value="{{ overlay }}" hint-placeholder-val="{{ false }}">
+<div role="alertdialog" aria-busy="true" aria-live="polite" aria-label="{{ overlayTitle }}" style="position:fixed;inset:0;z-index:1000;background:rgba(244,243,239,.82);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);display:grid;place-items:center;padding:16px;cursor:wait">
+<div style="background:#fff;border:1px solid #E2E0DA;border-radius:12px;box-shadow:0 16px 48px rgba(23,25,28,.14);padding:28px 30px 24px;display:grid;justify-items:center;gap:12px;width:min(400px,100%);text-align:center">
+<div style="width:42px;height:42px;border-radius:50%;border:3px solid #E3EEEB;border-top-color:#1F4D46;animation:vt-spin .9s linear infinite"></div>
+<span style="font:600 16px/1.3 'IBM Plex Sans';color:#17191C">{{ overlayTitle }}</span>
+<span style="font:400 13px/1.55 'IBM Plex Sans';color:#5F6368;text-wrap:pretty">{{ overlayText }}</span>
+<span style="font:500 12px 'IBM Plex Mono';color:#3F4347;padding:3px 10px;border-radius:999px;background:#F4F3EF">{{ overlayElapsed }}</span>
+</div>
+</div>
+</sc-if>
+
 <header style="background:#fff;border-bottom:1px solid #E2E0DA;padding:12px 24px;display:flex;align-items:center;gap:14px 28px;flex-wrap:wrap">
 <div style="display:flex;align-items:center;gap:12px">
-<div style="width:34px;height:34px;border-radius:7px;background:#1F4D46;color:#fff;display:grid;place-items:center;font:700 14px 'IBM Plex Sans'">CC</div>
+<div style="width:34px;height:34px;border-radius:7px;background:#1F4D46;color:#fff;display:grid;place-items:center;font:700 17px 'IBM Plex Sans'">V</div>
 <div style="display:flex;flex-direction:column;gap:1px">
-<span style="font:700 16px/1.1 'IBM Plex Sans'">Central de Condições Comerciais</span>
-<span style="font:400 12.5px/1.2 'IBM Plex Sans';color:#5F6368">Cadastro assistido de condições com fornecedores</span>
+<span style="font:700 17px/1.1 'IBM Plex Sans'">Vitalis</span>
+<span style="font:400 12.5px/1.2 'IBM Plex Sans';color:#5F6368">Central de condições comerciais · cadastro assistido</span>
 </div>
 </div>
 <nav style="display:flex;align-items:center;gap:6px;flex:1 1 auto;flex-wrap:wrap">
@@ -424,7 +437,7 @@ button:disabled{cursor:not-allowed}
 <span style="font:600 11.5px 'IBM Plex Mono';padding:5px 9px;border-radius:6px;background:#17191C;color:#fff;white-space:nowrap">Data de negócio 30/09/2026</span>
 <span style="font:500 11.5px 'IBM Plex Sans';padding:5px 9px;border-radius:6px;background:#ECEBE6;color:#3F4347">Demonstração · dados fictícios · ERP e aprovadores simulados</span>
 </div>
-<label title="Mostra códigos de regra, controles de teste e o estado bruto da sessão. Referência de desenvolvimento." style="display:flex;gap:6px;align-items:center;font:500 12px 'IBM Plex Sans';color:#5F6368;cursor:pointer;white-space:nowrap"><input type="checkbox" checked="{{ tech }}" sc-camel-on-change="{{ onToggleTech }}" style="width:14px;height:14px;accent-color:#5F6368">Modo técnico</label>
+<label title="Opcional, para avaliação técnica. Exibe os códigos das regras aplicadas, o modelo e o tempo da leitura por IA, chaves de idempotência e tentativas de envio ao ERP, a simulação de ERP indisponível e o estado bruto da sessão. Não altera o fluxo nem as decisões." style="display:flex;gap:6px;align-items:center;font:500 12px 'IBM Plex Sans';color:#5F6368;cursor:pointer;white-space:nowrap"><input type="checkbox" checked="{{ tech }}" sc-camel-on-change="{{ onToggleTech }}" style="width:14px;height:14px;accent-color:#5F6368">Detalhes técnicos</label>
 <button sc-camel-on-click="{{ onReset }}" style="border:1px solid #D6D3CB;background:#fff;color:#17191C;font:500 13px 'IBM Plex Sans';padding:8px 14px;border-radius:7px;cursor:pointer" style-hover="background:#F4F3EF">Reiniciar demonstração</button>
 </header>
 <sc-if value="{{ showBar }}" hint-placeholder-val="{{ false }}">
@@ -443,12 +456,10 @@ button:disabled{cursor:not-allowed}
 <span style="font:600 13.5px/1.45 'IBM Plex Sans'">{{ error.message }}</span>
 <sc-if value="{{ tech }}" hint-placeholder-val="{{ false }}"><span style="font:500 11.5px 'IBM Plex Mono'">{{ errorMeta }}</span></sc-if>
 </div>
+<sc-if value="{{ hasErrorDetail }}" hint-placeholder-val="{{ false }}"><span style="font:400 11.5px/1.45 'IBM Plex Mono';color:#7A271A;word-break:break-word">{{ errorDetail }}</span></sc-if>
 <sc-for list="{{ errorFindings }}" as="ef"><span style="font:400 12.5px/1.45 'IBM Plex Sans';color:#17191C">{{ ef.message }}</span></sc-for>
 <button sc-camel-on-click="{{ onDismissError }}" style="justify-self:start;border:0;background:transparent;color:#B42318;font:600 12px 'IBM Plex Sans';padding:0;cursor:pointer">Fechar</button>
 </div>
-</sc-if>
-<sc-if value="{{ isAnalyzing }}" hint-placeholder-val="{{ false }}">
-<div role="status" style="padding:12px 16px;border:1px solid #CBD7E2;background:#E8EEF3;color:#3D5A73;border-radius:8px;font:500 13.5px/1.45 'IBM Plex Sans'">A IA está lendo a mensagem e o anexo — costuma levar de 10 a 30 segundos. Nada é gravado sem a sua revisão.</div>
 </sc-if>
 <sc-if value="{{ hasNotice }}" hint-placeholder-val="{{ false }}">
 <div style="padding:12px 16px;border:1px solid #CBD7E2;background:#E8EEF3;color:#3D5A73;border-radius:8px;font:500 13.5px/1.45 'IBM Plex Sans'">{{ notice }}</div>
@@ -470,12 +481,13 @@ button:disabled{cursor:not-allowed}
 <h1 style="margin:0;font:600 20px/1.2 'IBM Plex Sans'">Caixa de entrada</h1>
 <span style="font:400 12.5px 'IBM Plex Sans';color:#5F6368">{{ inboxCount }}</span>
 </div>
-<span style="font:500 11.5px 'IBM Plex Sans';color:#5F6368">Mensagens recebidas nesta sessão</span>
+<sc-if value="{{ simClosed }}" hint-placeholder-val="{{ true }}"><button sc-camel-on-click="{{ onOpenSim }}" style="border:1px solid #1F4D46;background:#fff;color:#1F4D46;font:600 13.5px 'IBM Plex Sans';padding:9px 16px;border-radius:7px;cursor:pointer;display:flex;gap:8px;align-items:center" style-hover="background:#E3EEEB"><span style="font:600 16px/1 'IBM Plex Sans'">+</span>Simular novo e-mail</button></sc-if>
+<sc-if value="{{ simOpen }}" hint-placeholder-val="{{ false }}"><span style="font:500 11.5px 'IBM Plex Sans';color:#5F6368">Mensagens recebidas nesta sessão</span></sc-if>
 </div>
 <sc-if value="{{ inboxEmpty }}" hint-placeholder-val="{{ true }}">
 <div style="padding:40px 24px;display:grid;gap:6px;text-align:center;color:#5F6368">
 <span style="font:600 14px 'IBM Plex Sans';color:#17191C">Nenhum e-mail recebido</span>
-<span style="font:400 13px/1.5 'IBM Plex Sans';text-wrap:pretty">Simule o recebimento de um e-mail ao lado — escrito livremente ou a partir de um exemplo do dataset.</span>
+<span style="font:400 13px/1.5 'IBM Plex Sans';text-wrap:pretty">Use “Simular novo e-mail” para criar uma mensagem — escrita livremente ou a partir de um exemplo do dataset.</span>
 </div>
 </sc-if>
 <sc-for list="{{ inbox }}" as="it" hint-placeholder-count="0">
@@ -496,13 +508,14 @@ button:disabled{cursor:not-allowed}
 </button>
 </sc-for>
 </div>
-<div style="flex:1 1 520px;min-width:0;background:#fff;border:1px solid #E2E0DA;border-radius:10px">
+<sc-if value="{{ simOpen }}" hint-placeholder-val="{{ false }}">
+<div id="sim-panel" style="flex:1 1 520px;min-width:0;background:#fff;border:1px solid #E2E0DA;border-radius:10px;animation:vt-in .22s ease-out">
 <div style="padding:18px 22px;border-bottom:1px solid #E2E0DA;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center">
 <div style="display:grid;gap:2px">
 <h2 style="margin:0;font:600 17px/1.2 'IBM Plex Sans'">Simular e-mail recebido</h2>
 <span style="font:400 12.5px 'IBM Plex Sans';color:#5F6368">Recurso do protótipo — em produção os e-mails chegam à caixa de entrada.</span>
 </div>
-<span style="font:500 11.5px 'IBM Plex Mono';padding:4px 9px;border-radius:999px;color:{{ srcFg }};background:{{ srcBg }}">{{ srcLabel }}</span>
+<div style="display:flex;gap:10px;align-items:center"><span style="font:500 11.5px 'IBM Plex Mono';padding:4px 9px;border-radius:999px;color:{{ srcFg }};background:{{ srcBg }}">{{ srcLabel }}</span><button sc-camel-on-click="{{ onCloseSim }}" title="Recolher" aria-label="Recolher simulação" style="width:30px;height:30px;border:1px solid #D6D3CB;background:#fff;border-radius:7px;color:#3F4347;font:500 17px/1 'IBM Plex Sans';cursor:pointer" style-hover="background:#F4F3EF">×</button></div>
 </div>
 <div style="padding:18px 22px;display:grid;gap:14px">
 <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
@@ -556,6 +569,7 @@ button:disabled{cursor:not-allowed}
 <button sc-camel-on-click="{{ onReceive }}" disabled="{{ receiveDisabled }}" style="border:0;background:#1F4D46;color:#fff;font:600 14px 'IBM Plex Sans';padding:10px 22px;border-radius:7px;cursor:pointer;opacity:{{ receiveOpacity }}" style-hover="background:#173B35">{{ receiveLabel }}</button>
 </div>
 </div>
+</sc-if>
 </section>
 </sc-if>
 <sc-if value="{{ isS2 }}" hint-placeholder-val="{{ false }}">
@@ -874,6 +888,7 @@ class Component extends DCLogic {
   static SRC = { DATASET_EMAIL: 'Fixture original do dataset', MANUAL_SIMULATION: 'Entrada manual · origem não verificada', EDITED_EXAMPLE: 'Exemplo editado pelo operador' };
 
   state = { step: 1, v: null, fixtures: null, form: { from: '', subject: '', body: '', csvName: '', csv: '' }, exampleId: null, edited: false, busy: null, error: null, notice: null,
+    simOpen: false, busyAt: 0, tick: 0,
     draft: { changes: {}, confirms: {}, acks: null }, editKey: null, editVal: null, storeFilter: '', approverId: '', modal: null, reason: '', note: '', selOpt: null, rejectCode: '', dlg: null, tech: (() => { try { return localStorage.getItem('cc-tech') === '1' || /[?&]dev=1/.test(location.search); } catch (e) { return false; } })(), wide: typeof window !== 'undefined' ? window.innerWidth >= 920 : true };
 
   async componentDidMount() {
@@ -892,16 +907,30 @@ class Component extends DCLogic {
       if (!window.CCMockAPI) throw { code: 'MOCK_NOT_LOADED', message: 'Simulador do backend não carregado.' };
       return window.CCMockAPI.request(method, path, body);
     }
-    const r = await fetch(path, { method, credentials: 'include', headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
-    const j = await r.json().catch(() => ({}));
-    if (!r.ok) throw Object.assign({ status: r.status }, j);
+    let r;
+    try { r = await fetch(path, { method, credentials: 'include', headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined }); }
+    catch (e) { throw { code: 'NETWORK', message: 'Sem conexão com o servidor. Verifique a internet e tente de novo.' }; }
+    const j = await r.json().catch(() => null);
+    if (!r.ok) throw Object.assign({ status: r.status }, j && j.code ? j : { code: 'HTTP_' + r.status, message: r.status === 504 ? 'O servidor excedeu o tempo limite da hospedagem antes de concluir. Nada foi gravado; tente de novo.' : 'O servidor respondeu com erro ' + r.status + ' sem detalhes. Nada foi gravado; tente de novo.' });
+    if (!j) throw { code: 'INVALID_RESPONSE', message: 'Resposta inesperada do servidor.' };
     return j;
   }
-  envelope(e) { return { status: e.status || null, code: e.code || 'ERRO', message: e.message || String(e), correlation_id: e.correlation_id || null, findings: e.findings || [] }; }
+  envelope(e) { return { status: e.status || null, code: e.code || 'ERRO', message: e.message || String(e), correlation_id: e.correlation_id || null, findings: e.findings || [], detail: e.detail || null }; }
   async call(kind, method, path, body, after) {
-    this.setState({ busy: kind, error: null, notice: null });
-    try { const v = await this.api(method, path, body); this.setState({ v, busy: null, notice: v.notice || null }); if (after) after(v); return v; }
-    catch (e) { this.setState({ busy: null, error: this.envelope(e) }); return null; }
+    this.setState({ busy: kind, busyAt: Date.now(), error: null, notice: null });
+    clearInterval(this._tick); this._tick = setInterval(() => this.setState({ tick: Date.now() }), 250);
+    try { const v = await this.api(method, path, body); clearInterval(this._tick); this.setState({ v, busy: null, notice: v.notice || null }); if (after) after(v); return v; }
+    catch (e) { clearInterval(this._tick); this.setState({ busy: null, error: this.envelope(e) }); return null; }
+  }
+  overlayVals() {
+    const s = this.state, ms = s.busy ? Date.now() - (s.busyAt || Date.now()) : 0, secs = Math.floor(ms / 1000);
+    const T = { analyze: ['Lendo o e-mail com IA', 'O agente está extraindo fornecedor, condições, lojas e prazos da mensagem e do anexo. Costuma levar de 15 a 60 segundos. Nada é gravado sem a sua revisão.'],
+      open: ['Abrindo a análise', 'Carregando a análise salva desta mensagem.'],
+      register: ['Registrando no ERP', 'Enviando a condição aprovada ao ERP simulado. Se ele estiver em manutenção, o envio é repetido automaticamente com a mesma chave.'] };
+    const k = T[s.busy] ? s.busy : 'other', show = !!s.busy && (k !== 'other' ? ms >= 200 : ms >= 700);
+    const tx = T[k] || ['Processando', 'Aguarde a resposta do servidor.'];
+    return { overlay: show, overlayTitle: tx[0], overlayText: secs >= 75 && k === 'analyze' ? 'Está demorando mais que o normal — a tela continua bloqueada até a IA responder ou o servidor encerrar a tentativa.' : tx[1],
+      overlayElapsed: secs + ' s' };
   }
   inferStep(v) {
     const p = v && v.proposal; if (!p) return 1;
@@ -934,12 +963,13 @@ class Component extends DCLogic {
     const s = this.state, orig = s.exampleId && !s.edited;
     const body = orig ? { mode: 'dataset_example', example_id: s.exampleId }
       : { mode: 'manual_simulation', sender: s.form.from, subject: s.form.subject, body: s.form.body, csv: s.form.csv || null, csv_name: s.form.csvName || null, derived_from_example: s.exampleId || null };
-    this.call('receive', 'POST', '/api/inbox', body, () => this.setState({ form: { from: '', subject: '', body: '', csvName: '', csv: '' }, exampleId: null, edited: false, notice: 'E-mail recebido na caixa de entrada. Selecione-o para analisar.' }));
+    this.call('receive', 'POST', '/api/inbox', body, () => this.setState({ simOpen: false, form: { from: '', subject: '', body: '', csvName: '', csv: '' }, exampleId: null, edited: false, notice: 'E-mail recebido na caixa de entrada. Selecione-o para analisar.' }));
   }
   // Abre a mensagem: analisa na primeira abertura; nas seguintes, retoma a análise persistida.
   openItem(id) {
     this.setState({ draft: this.emptyDraft(), editKey: null, approverId: '', selOpt: null, note: '', rejectCode: '' });
-    this.call('analyze', 'POST', '/api/analyze', { item_id: id }, v => this.setState({ step: this.inferStep(v), draft: this.loadDraft(v) }));
+    const it = ((this.state.v && this.state.v.inbox) || []).find(x => x.id === id);
+    this.call(it && it.state ? 'open' : 'analyze', 'POST', '/api/analyze', { item_id: id }, v => this.setState({ step: this.inferStep(v), draft: this.loadDraft(v) }));
   }
   backInbox() { this.call('close', 'POST', '/api/inbox/close', {}, () => this.setState({ step: 1, draft: this.emptyDraft(), editKey: null })); }
   goField(key) {
@@ -1007,7 +1037,7 @@ class Component extends DCLogic {
   }
   escalate(route) { const s = this.state; this.call('escalate', 'POST', '/api/review', { proposal_id: s.v.proposal.id, expected_version: s.v.version, decision: 'ESCALAR', route, note: s.note }, () => this.setState({ note: '', dlg: null, step: 4 })); }
   reject() { const s = this.state; this.call('reject', 'POST', '/api/review', { proposal_id: s.v.proposal.id, expected_version: s.v.version, decision: 'REJEITAR', reason_code: s.rejectCode, note: s.note }, () => this.setState({ note: '', rejectCode: '', dlg: null, step: 4 })); }
-  reset() { this.call('reset', 'POST', '/api/reset', {}, () => this.setState({ step: 1, form: { from: '', subject: '', body: '', csvName: '', csv: '' }, exampleId: null, edited: false, draft: this.emptyDraft(), approverId: '', editKey: null })); }
+  reset() { this.call('reset', 'POST', '/api/reset', {}, () => this.setState({ simOpen: false, step: 1, form: { from: '', subject: '', body: '', csvName: '', csv: '' }, exampleId: null, edited: false, draft: this.emptyDraft(), approverId: '', editKey: null })); }
 
   fmt(editor, v) {
     const c = (this.state.v && this.state.v.catalog) || { fornecedores: [] };
@@ -1046,7 +1076,7 @@ class Component extends DCLogic {
       showBar: !!p && s.step > 1, p: p || { required: {}, source: {} }, srcKindLabel: p ? C.SRC[p.source.kind] : '',
       dirty: dirtyN > 0, dirtyLabel: dirtyN + ' alteração(ões) não salva(s)', stLabel: st[0], stFg: st[1], stBg: st[2], stCode: interp ? 'regras ainda não avaliadas' : p ? p.state : '',
       hasError: !!s.error, error: err, errorMeta: [err.status, err.code, err.correlation_id].filter(Boolean).join(' · '), errorFindings: err.findings || [],
-      onDismissError: () => this.setState({ error: null }), hasNotice: !!s.notice, notice: s.notice, isAnalyzing: s.busy === 'analyze',
+      onDismissError: () => this.setState({ error: null }), hasNotice: !!s.notice, notice: s.notice, ...this.overlayVals(), errorDetail: err.detail || '', hasErrorDetail: tech && !!err.detail,
       isS1: s.step === 1, isS2: s.step === 2 && !!p, isS3: s.step === 3 && !!p, isS4: s.step === 4 && !!p, isS5: s.step === 4 && hasResult
     };
     try {
@@ -1069,6 +1099,7 @@ class Component extends DCLogic {
       csvHeader: rows[0] || [], csvRows: rows.slice(1).map(r => ({ cells: r.map(x => ({ v: x || '∅' })) })),
       onFile: e => this.onFile(e), onRemoveCsv: () => { this.setForm('csv', ''); this.setForm('csvName', ''); },
       onClear: () => this.setState({ form: { from: '', subject: '', body: '', csvName: '', csv: '' }, exampleId: null, edited: false, error: null }),
+      simOpen: !!s.simOpen, simClosed: !s.simOpen, onOpenSim: () => { this.setState({ simOpen: true }); this.scrollToId('sim-panel'); }, onCloseSim: () => this.setState({ simOpen: false }),
       onReceive: () => this.receive(), receiveDisabled: disabled, receiveOpacity: disabled ? 0.45 : 1, receiveLabel: s.busy === 'receive' ? 'Recebendo…' : 'Simular recebimento',
       examples: C.EXAMPLES.map(e => { const a = e.id === s.exampleId; return { ...e, title: e.letter + ' · ' + e.who + ' — ' + e.desc + ' Esperado: ' + e.expect + '.', bd: a ? '#1F4D46' : '#D6D3CB', bg: a ? '#1F4D46' : '#fff', fg: a ? '#fff' : '#17191C', load: () => this.loadExample(e.id) }; }),
       hasExampleCaption: !!ex, exampleCaption: ex ? ex.who + (s.edited ? ' · editado — será analisado como texto livre' : ' · e-mail original do dataset') : '',
