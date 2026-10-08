@@ -107,6 +107,25 @@ def match_stores(mention: str, lojas: list[dict]) -> list[str]:
     return out
 
 
+_GENERIC = {"ltda", "industria", "farmaceutica", "distribuidora", "produtos", "higiene", "laboratorios", "laboratorio", "farma",
+            "pharma", "cosmeticos", "dermocosmeticos", "suplementos", "alimentares", "genericos", "comercio", "importacao"}
+
+
+def match_supplier(texts: list[str], fornecedores: list[dict]) -> str | None:
+    """Fornecedor identificado por uma palavra exclusiva da razão social (ex.: 'beta', 'nutrivida') presente
+    no nome citado ou no domínio do remetente. Só devolve quando exatamente um fornecedor corresponde."""
+    owners: dict[str, set[str]] = {}
+    for f in fornecedores:
+        for w in _tokens(f["razao_social"]) - _GENERIC:
+            owners.setdefault(w, set()).add(f["cod_fornecedor"])
+    unique = {w: next(iter(c)) for w, c in owners.items() if len(c) == 1 and len(w) >= 4}
+    hay = " ".join(_norm(x) for x in texts if x)
+    words = set(re.split(r"[^a-z0-9]+", hay))
+    hits = {code for w, code in unique.items() if w in words or re.search(r"@[a-z0-9.-]*" + re.escape(w), hay)}
+    return next(iter(hits)) if len(hits) == 1 else None
+
+
+_PCT = re.compile(r"(\d{1,2}(?:[.,]\d{1,2})?)\s*%")
 _COMP_HINT = {"VERBA_EXPOSICAO": re.compile(r"verba|R\$|reais|valor", re.I), "DESCONTO_PERCENTUAL": re.compile(r"%|desconto|por ?cento", re.I)}
 
 
@@ -153,6 +172,12 @@ def to_fields(llm: LLMExtraction, source: dict, erp: dict) -> dict:
     # Fornecedor, categoria e lojas são correspondências com o cadastro: sempre exigem confirmação humana.
     forn = _simple(ctx, "fornecedor", llm.supplier_code, lambda v: v.strip().upper(), True,
                    lambda v: (v in supplier_codes, f"Código {v} não existe no cadastro simulado"))
+    if forn["value"] is None and forn["origin_kind"] != "CONFLICT":
+        # O modelo não sugeriu código válido: tenta a palavra exclusiva da razão social no nome citado e no remetente.
+        guess = match_supplier([llm.supplier_name.value or "", ctx.texts["remetente"]], erp["fornecedores"]["itens"])
+        if guess:
+            forn.update(value=guess, origin_kind="INFERRED", confirmation_status="PENDING",
+                        reason="Correspondência pelo nome/domínio do remetente no cadastro; confirme o fornecedor")
     if llm.supplier_name.value:
         forn["raw_value"] = llm.supplier_name.value + ((" · " + forn["raw_value"]) if forn["raw_value"] not in ("não informado", llm.supplier_name.value) else "")
         ctx.register(llm.supplier_name.evidence, "fornecedor")
@@ -217,6 +242,20 @@ def to_fields(llm: LLMExtraction, source: dict, erp: dict) -> dict:
                 + (pct_txt(parse_number(a.value)) if key == "desconto" else brl(parse_number(a.value)))
                 for a in c.amount.alternatives) or f["raw_value"]
             f["reason"] = f.get("reason") or "Fontes divergentes"
+        if key == "desconto" and f["value"] is not None and ctx.texts["anexo"] and f["origin_kind"] != "CONFLICT":
+            # Verificação cruzada corpo × anexo: percentuais diferentes nas duas fontes são conflito, mesmo que o modelo
+            # tenha escolhido um deles. A interpretação não escolhe entre fontes (RB16).
+            body_p = {parse_number(m) for m in _PCT.findall(ctx.body)}
+            att_p = {parse_number(m) for m in _PCT.findall(ctx.texts["anexo"])}
+            if body_p and att_p and body_p != att_p:
+                fmt = lambda s: ", ".join(pct_txt(x) for x in sorted(s))  # noqa: E731
+                for cell in ctx.cells:
+                    if _PCT.fullmatch(cell.strip()) and parse_number(cell) in att_p and cell not in ctx.csv_hl:
+                        ctx.csv_hl.append(cell)
+                f.update(value=None, origin_kind="CONFLICT", confirmation_status="PENDING",
+                         raw_value=f"Corpo do e-mail: {fmt(body_p)} · {ctx.location({'anexo'})}: {fmt(att_p)}",
+                         source_location=ctx.location({"corpo", "anexo"}),
+                         reason="Fontes divergentes (verificação cruzada entre corpo e anexo)")
         if key == "verba" and c.valor_basis == "POR_LOJA" and f["value"] is not None:
             stores = f_lojas["value"] or []
             n = active_stores if stores == ["REDE"] else len(stores)
