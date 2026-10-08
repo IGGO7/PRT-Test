@@ -177,20 +177,25 @@ def validate(p: dict, erp: dict, business_date: str) -> dict:
         add("RB04:DURACAO", "RB04", "BLOCKER", "Vigência superior a 12 meses (Política §6).", ["inicio", "fim"])
 
     normative = False
+    seasonal = (p.get("flags") or {}).get("seasonal")
     if pct is not None and cat in DISCOUNT_CEILING:
         teto = DISCOUNT_CEILING[cat]
         if pct > teto:
-            if cat in SEASONAL_CATEGORIES and pct <= SEASONAL_MAX:
+            if cat in SEASONAL_CATEGORIES and pct <= SEASONAL_MAX and seasonal:
+                # Nota (*) da §4 invocada pela fonte: a exceção depende de aprovação do Trade Marketing (sem evidência)
+                # e, acima de 25%, colide com a vedação da §5. Critérios e precedência não definidos → Diretoria (§11).
                 normative = True
-                seasonal = (p.get("flags") or {}).get("seasonal")
+                conflito = (" e a tabela de alçadas (§5) veda desconto acima de 25% — a precedência entre a nota e a vedação não está definida"
+                            if pct > 25 else "; os critérios de aprovação da exceção e a alçada aplicável não estão definidos na política")
                 add("RB13:SAZONAL", "RB13", "BLOCKER",
-                    f"{pct_txt(pct)} excede o teto ordinário de {cat} ({pct_txt(teto)}) e a tabela de alçadas veda desconto acima de 25%. "
-                    "A nota (*) da política admite até 30% para Genéricos e MIP em campanhas sazonais aprovadas pelo Trade Marketing. "
-                    + ("A fonte descreve campanha sazonal, mas não há evidência da aprovação do Trade Marketing" if seasonal else "A fonte não caracteriza campanha sazonal")
-                    + ", e a precedência entre a nota e a vedação não está definida — submeter à Diretoria Comercial (Política §11).",
+                    f"{pct_txt(pct)} excede o teto ordinário de {cat} ({pct_txt(teto)}). A fonte invoca campanha sazonal e a nota (*) da política "
+                    f"admite até 30% para Genéricos e MIP quando aprovada pelo Trade Marketing, mas não há evidência dessa aprovação{conflito}. "
+                    "Submeter à Diretoria Comercial (Política §11).",
                     ["desconto", "categoria"], "NORMATIVO")
             else:
-                add("RB02:TETO", "RB02", "BLOCKER", f"{pct_txt(pct)} excede o teto de {pct_txt(teto)} para {cat} (Política §4).", ["desconto", "categoria"])
+                extra = (" A nota sazonal (*) não se aplica: a fonte não caracteriza campanha sazonal." if cat in SEASONAL_CATEGORIES and pct <= SEASONAL_MAX
+                         else " Nem a exceção sazonal (*) admite mais de 30%." if cat in SEASONAL_CATEGORIES else "")
+                add("RB02:TETO", "RB02", "BLOCKER", f"{pct_txt(pct)} excede o teto de {pct_txt(teto)} para {cat} (Política §4).{extra}", ["desconto", "categoria"])
 
     def lvl_desc(v):
         return 1 if v <= 10 else 2 if v <= 20 else 3 if v <= 25 else None
@@ -225,9 +230,10 @@ def validate(p: dict, erp: dict, business_date: str) -> dict:
         if not contra:
             add("RB05:CONTRAPARTIDA", "RB05", "BLOCKER", "Verba de exposição sem contrapartida descrita (Política §7).", ["contrapartida"])
         if contra and not re.search(r"\d{1,2}/\d{1,2}|\d{4}-\d{2}|janeiro|fevereiro|mar[cç]o|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro|semana|dias|m[eê]s|meses|trimestre|per[ií]odo|durante|vig[eê]ncia", contra, re.I):
-            add("RB05:PERIODO", "RB05", "WARNING",
-                "A contrapartida não descreve período de execução (Política §7). Na falta dele, será considerada a vigência da condição"
-                + (f" ({br(ini)} a {br(fim)})" if ini and fim else "") + "; confirme com o fornecedor se for diferente.", ["contrapartida"])
+            add("RB05:PERIODO", "RB05", "BLOCKER",
+                "A contrapartida não define período de execução (Política §7: toda verba deve ter contrapartida com período de execução definido). "
+                "Informe o período na contrapartida"
+                + (f" (por exemplo, “durante a vigência, {br(ini)} a {br(fim)}”)" if ini and fim else "") + " ou solicite-o ao fornecedor.", ["contrapartida"])
         if not lojas:
             add("RB05:LOJAS", "RB05", "BLOCKER", "Verba de exposição sem lojas identificadas (Política §7).", ["lojas"])
     if contra and "REDE" in lojas:

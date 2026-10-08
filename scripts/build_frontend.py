@@ -53,6 +53,21 @@ OVERLAY = """<sc-if value="{{ overlay }}" hint-placeholder-val="{{ false }}">
 """
 
 
+AGENT_CARD = ""
+AGENT_CARD_BODY = """<sc-if value="{{ hasAgent }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;overflow:hidden">
+<div style="padding:14px 18px;border-bottom:1px solid #E2E0DA;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline"><h2 style="margin:0;font:600 14px 'IBM Plex Sans'">Leitura do agente de IA</h2><span style="font:500 11.5px 'IBM Plex Mono';color:#5F6368">{{ agentMeta }}</span></div>
+<div style="padding:12px 18px;display:grid;gap:10px">
+<span style="font:400 13.5px/1.55 'IBM Plex Sans';color:#17191C;text-wrap:pretty">{{ agentSummary }}</span>
+<sc-if value="{{ hasAmb }}"><div style="display:grid;gap:4px"><span style="font:600 11px 'IBM Plex Mono';letter-spacing:.06em;color:#8A4B00">AMBIGUIDADES APONTADAS</span><sc-for list="{{ ambList }}" as="am"><span style="font:400 12.5px/1.5 'IBM Plex Sans';color:#3F4347">• {{ am.t }}</span></sc-for></div></sc-if>
+<sc-if value="{{ hasMiss }}"><span style="font:400 12.5px/1.5 'IBM Plex Sans';color:#3F4347"><span style="font:600 11px 'IBM Plex Mono';letter-spacing:.06em;color:#B42318">NÃO ENCONTRADO NA FONTE</span> · {{ missText }}</span></sc-if>
+<span style="font:400 11.5px/1.45 'IBM Plex Sans';color:#5F6368">Texto gerado pelo modelo a partir desta mensagem. Os dados abaixo foram conferidos contra a fonte; o que não tem evidência literal fica marcado para verificação.</span>
+</div>
+</div>
+</sc-if>
+"""
+
+
 def apply_ux(t: str) -> str:
     # Nome do produto: Vitalis (logo, título)
     t = replace_once(t, "font:700 14px 'IBM Plex Sans'\">CC</div>", "font:700 17px 'IBM Plex Sans'\">V</div>", "logo")
@@ -135,6 +150,33 @@ def apply_ux(t: str) -> str:
                      "    this.call('receive', 'POST', '/api/inbox', body, () => this.setState({ simOpen: false, form: { from: '', subject: '', body: '', csvName: '', csv: '' }, exampleId: null, edited: false, notice:", "receive fecha")
     t = replace_once(t, "  reset() { this.call('reset', 'POST', '/api/reset', {}, () => this.setState({ step: 1,",
                      "  reset() { this.call('reset', 'POST', '/api/reset', {}, () => this.setState({ simOpen: false, step: 1,", "reset fecha")
+    # Leitura do agente de IA: resumo, ambiguidades e dados não encontrados vêm direto da saída do modelo
+    t = replace_once(t, "<div style=\"min-width:0;display:grid;gap:16px\">\n<sc-if value=\"{{ hasInsights }}\" hint-placeholder-val=\"{{ false }}\">",
+                     AGENT_CARD + "<div style=\"min-width:0;display:grid;gap:16px\">\n" + AGENT_CARD_BODY + "<sc-if value=\"{{ hasInsights }}\" hint-placeholder-val=\"{{ false }}\">", "card agente")
+    t = replace_once(t, "    const fl = p.flags || {}, ins = [];\n"
+                        "    if (fl.injection) ins.push(['RISCO', 'Instrução dirigida a processamento automático', 'Tratada como dado não confiável: não altera regras, aprovação nem cadastro.', fl.injection]);\n"
+                        "    if (fl.approval_claim) ins.push(['RISCO', 'Alegação de aprovação prévia', 'Afirmação do fornecedor não é evidência de aprovação da empresa.', fl.approval_claim]);\n"
+                        "    if (fl.seasonal) ins.push(['CONTEXTO', 'Menção a campanha sazonal', 'Pode envolver a exceção de teto da política; a validação de regras avalia.', fl.seasonal === 'sazonal' ? '' : fl.seasonal]);\n"
+                        "    if (fl.quoted_thread) ins.push(['CONTEXTO', 'Mensagem com histórico citado', 'Confira se os valores vêm da mensagem atual e não do histórico.', '']);\n",
+                     "    const fl = p.flags || {}, fs = p.flag_sources || {}, ins = [];\n"
+                     "    if (fl.not_a_proposal) ins.push(['RISCO', 'A IA não identificou proposta comercial', 'O conteúdo não parece propor desconto ou verba. Confira a mensagem antes de seguir.', '', 'not_a_proposal']);\n"
+                     "    if (fl.injection) ins.push(['RISCO', 'Instrução dirigida a processamento automático', 'Tratada como dado não confiável: não altera regras, aprovação nem cadastro.', fl.injection, 'injection']);\n"
+                     "    if (fl.approval_claim) ins.push(['RISCO', 'Alegação de aprovação prévia', 'Afirmação do fornecedor não é evidência de aprovação da empresa.', fl.approval_claim, 'approval_claim']);\n"
+                     "    if (fl.seasonal) ins.push(['CONTEXTO', 'Menção a campanha sazonal', 'Pode envolver a exceção de teto da política; a validação de regras avalia.', fl.seasonal === 'sazonal' ? '' : fl.seasonal, 'seasonal']);\n"
+                     "    if (fl.quoted_thread) ins.push(['CONTEXTO', 'Mensagem com histórico citado', 'Confira se os valores vêm da mensagem atual e não do histórico.', '', 'quoted_thread']);\n"
+                     "    const SRCL = { agente: 'Detectado pelo agente de IA', regra: 'Detectado pela verificação fixa do texto (sem IA)', 'agente+regra': 'Detectado pelo agente de IA e pela verificação fixa' };\n"
+                     "    const agentMeta = (p.extractor || '').replace(/^Agente de IA · /, ''), amb = p.ambiguities || [], miss = p.ai_missing_fields || [];\n", "insights origem")
+    t = replace_once(t, "      insights: ins.map(a => ({ tag: a[0], tFg: a[0] === 'RISCO' ? '#B42318' : '#3D5A73', tBg: a[0] === 'RISCO' ? '#FDECEA' : '#E8EEF3', title: a[1], text: a[2], quote: a[3], hasQuote: !!a[3] })), hasInsights: ins.length > 0, aiSummary,",
+                     "      insights: ins.map(a => ({ tag: a[0], tFg: a[0] === 'RISCO' ? '#B42318' : '#3D5A73', tBg: a[0] === 'RISCO' ? '#FDECEA' : '#E8EEF3', title: a[1], text: a[2], quote: a[3], hasQuote: !!a[3], srcLabel: SRCL[fs[a[4]]] || 'Detectado pelo agente de IA' })), hasInsights: ins.length > 0, aiSummary,\n"
+                     "      hasAgent: !!p.ai_summary, agentSummary: p.ai_summary || '', agentMeta, hasAmb: amb.length > 0, ambList: amb.map(x => ({ t: x })), hasMiss: miss.length > 0, missText: miss.join(', '),", "vals agente")
+    t = replace_once(t, '<span style="font:400 12.5px/1.5 \'IBM Plex Sans\';color:#3F4347;text-wrap:pretty">{{ in.text }}</span>',
+                     '<span style="font:400 12.5px/1.5 \'IBM Plex Sans\';color:#3F4347;text-wrap:pretty">{{ in.text }}</span>\n'
+                     '<span style="font:500 11px \'IBM Plex Sans\';color:#5F6368">{{ in.srcLabel }}</span>', "insight origem rótulo")
+    t = replace_once(t, "Leitura da IA sobre a mensagem. Não exige ação aqui; os efeitos aparecem na validação de regras.",
+                     "Sinais encontrados na mensagem. Não exigem ação aqui; os efeitos aparecem na validação de regras.", "insights subtítulo")
+    # dica dos exemplos: sem resultado esperado pré-escrito
+    t = replace_once(t, "title: e.letter + ' · ' + e.who + ' — ' + e.desc + ' Esperado: ' + e.expect + '.',",
+                     "title: e.letter + ' · ' + e.who + ' — e-mail original do dataset',", "dica exemplos")
     t = replace_once(t, "  componentWillUnmount() {", "  componentWillUnmount() { clearInterval(this._tick);", "unmount") if "  componentWillUnmount() {" in t else t
     return t
 

@@ -190,38 +190,36 @@ def to_fields(llm: LLMExtraction, source: dict, erp: dict) -> dict:
                 f["reason"] = f"Valor por loja × {n} lojas = total da negociação (a alçada considera o total)"
         fields.append(f)
 
+    # Sinais: o agente de IA é a fonte primária. Para os dois sinais de segurança (instrução embutida e
+    # alegação de aprovação), uma verificação fixa por padrão de texto funciona como rede de proteção
+    # caso o modelo não os reporte. A origem de cada sinal fica registrada em `flag_sources`.
     flags: dict[str, Any] = {}
-    for rx in _INJECTION:  # determinístico primeiro; o modelo complementa
-        m = rx.search(ctx.body)
-        if m:
-            flags["injection"] = m.group(0)
-            break
-    if "injection" not in flags:
-        for q in llm.embedded_instructions:
+    sources_by_flag: dict[str, str] = {}
+
+    def ai_span(quotes: list[LLMQuote]) -> str | None:
+        for q in quotes:
             span, _ = ctx.locate(q)
             if span:
-                flags["injection"] = span
-                break
-    m = _CLAIM.search(ctx.body)  # determinístico primeiro: não depende do modelo
-    if m:
-        flags["approval_claim"] = m.group(0).split(":")[-1].strip()
-    else:
-        for q in llm.claimed_approvals:
-            span, _ = ctx.locate(q)
-            if span:
-                flags["approval_claim"] = span
-                break
+                return span
+        return None
+
+    def merge(key: str, ai: str | None, rule: str | None) -> None:
+        if ai or rule:
+            flags[key] = ai or rule
+            sources_by_flag[key] = "agente+regra" if ai and rule else "agente" if ai else "regra"
+
+    rx_inj = next((m.group(0) for rx in _INJECTION if (m := rx.search(ctx.body))), None)
+    merge("injection", ai_span(llm.embedded_instructions), rx_inj)
+    m = _CLAIM.search(ctx.body)
+    merge("approval_claim", ai_span(llm.claimed_approvals), m.group(0).split(":")[-1].strip() if m else None)
+    ai_season = None
     if llm.seasonal_campaign:
-        span, _ = ctx.locate(llm.seasonal_campaign)
-        flags["seasonal"] = span or llm.seasonal_campaign.quote
-    else:
-        m = _CAMPAIGN.search(ctx.body) or _CAMPAIGN.search(ctx.texts["assunto"])
-        if m:
-            flags["seasonal"] = m.group(0).strip()
-        elif re.search(r"sazonal", ctx.body, re.I):
-            flags["seasonal"] = "sazonal"
+        ai_season = ctx.locate(llm.seasonal_campaign)[0] or llm.seasonal_campaign.quote
+    m = _CAMPAIGN.search(ctx.body) or _CAMPAIGN.search(ctx.texts["assunto"])
+    merge("seasonal", ai_season, m.group(0).strip() if m else ("sazonal" if re.search(r"sazonal", ctx.body, re.I) else None))
     if _THREAD.search(ctx.body):
         flags["quoted_thread"] = True
+        sources_by_flag["quoted_thread"] = "regra"
     if flags.get("injection"):
         ctx.register([LLMQuote(source="corpo", quote=flags["injection"])], None, "risk")
         for e in ctx.evidence:
@@ -231,11 +229,12 @@ def to_fields(llm: LLMExtraction, source: dict, erp: dict) -> dict:
         ctx.evidence.append({"text": flags["seasonal"], "field": None, "kind": "risk"})
     if not llm.is_commercial_proposal:
         flags["not_a_proposal"] = True
+        sources_by_flag["not_a_proposal"] = "agente"
 
     # evidências não podem se sobrepor parcialmente para o destaque da fonte: mantém as mais longas
     ev, kept = sorted(ctx.evidence, key=lambda e: -len(e["text"])), []
     for e in ev:
         if not any(e["text"] in k["text"] for k in kept):
             kept.append(e)
-    return {"fields": fields, "evidence": kept, "csv_highlights": ctx.csv_hl, "flags": flags, "summary_ai": llm.summary,
-            "ambiguities": list(llm.ambiguities)}
+    return {"fields": fields, "evidence": kept, "csv_highlights": ctx.csv_hl, "flags": flags, "flag_sources": sources_by_flag,
+            "summary_ai": llm.summary, "ambiguities": list(llm.ambiguities), "missing_fields": list(llm.missing_fields)}

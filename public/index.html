@@ -606,12 +606,24 @@ button:disabled{cursor:not-allowed}
 </sc-if>
 </div>
 <div style="min-width:0;display:grid;gap:16px">
+<sc-if value="{{ hasAgent }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;overflow:hidden">
+<div style="padding:14px 18px;border-bottom:1px solid #E2E0DA;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline"><h2 style="margin:0;font:600 14px 'IBM Plex Sans'">Leitura do agente de IA</h2><span style="font:500 11.5px 'IBM Plex Mono';color:#5F6368">{{ agentMeta }}</span></div>
+<div style="padding:12px 18px;display:grid;gap:10px">
+<span style="font:400 13.5px/1.55 'IBM Plex Sans';color:#17191C;text-wrap:pretty">{{ agentSummary }}</span>
+<sc-if value="{{ hasAmb }}"><div style="display:grid;gap:4px"><span style="font:600 11px 'IBM Plex Mono';letter-spacing:.06em;color:#8A4B00">AMBIGUIDADES APONTADAS</span><sc-for list="{{ ambList }}" as="am"><span style="font:400 12.5px/1.5 'IBM Plex Sans';color:#3F4347">• {{ am.t }}</span></sc-for></div></sc-if>
+<sc-if value="{{ hasMiss }}"><span style="font:400 12.5px/1.5 'IBM Plex Sans';color:#3F4347"><span style="font:600 11px 'IBM Plex Mono';letter-spacing:.06em;color:#B42318">NÃO ENCONTRADO NA FONTE</span> · {{ missText }}</span></sc-if>
+<span style="font:400 11.5px/1.45 'IBM Plex Sans';color:#5F6368">Texto gerado pelo modelo a partir desta mensagem. Os dados abaixo foram conferidos contra a fonte; o que não tem evidência literal fica marcado para verificação.</span>
+</div>
+</div>
+</sc-if>
 <sc-if value="{{ hasInsights }}" hint-placeholder-val="{{ false }}">
 <div style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;overflow:hidden">
-<div style="padding:14px 18px;border-bottom:1px solid #E2E0DA;display:grid;gap:2px"><h2 style="margin:0;font:600 14px 'IBM Plex Sans'">Sinais identificados no texto</h2><span style="font:400 12.5px/1.45 'IBM Plex Sans';color:#5F6368">Leitura da IA sobre a mensagem. Não exige ação aqui; os efeitos aparecem na validação de regras.</span></div>
+<div style="padding:14px 18px;border-bottom:1px solid #E2E0DA;display:grid;gap:2px"><h2 style="margin:0;font:600 14px 'IBM Plex Sans'">Sinais identificados no texto</h2><span style="font:400 12.5px/1.45 'IBM Plex Sans';color:#5F6368">Sinais encontrados na mensagem. Não exigem ação aqui; os efeitos aparecem na validação de regras.</span></div>
 <sc-for list="{{ insights }}" as="in" hint-placeholder-count="0"><div style="padding:12px 18px;border-bottom:1px solid #F0EEE9;display:grid;gap:4px">
 <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font:600 10px 'IBM Plex Mono';letter-spacing:.06em;padding:2px 6px;border-radius:4px;color:{{ in.tFg }};background:{{ in.tBg }}">{{ in.tag }}</span><span style="font:600 13.5px/1.35 'IBM Plex Sans'">{{ in.title }}</span></span>
 <span style="font:400 12.5px/1.5 'IBM Plex Sans';color:#3F4347;text-wrap:pretty">{{ in.text }}</span>
+<span style="font:500 11px 'IBM Plex Sans';color:#5F6368">{{ in.srcLabel }}</span>
 <sc-if value="{{ in.hasQuote }}"><span style="font:400 12px/1.5 'IBM Plex Mono';color:#5F6368;overflow-wrap:anywhere">“{{ in.quote }}”</span></sc-if>
 </div></sc-for>
 </div>
@@ -1101,7 +1113,7 @@ class Component extends DCLogic {
       onClear: () => this.setState({ form: { from: '', subject: '', body: '', csvName: '', csv: '' }, exampleId: null, edited: false, error: null }),
       simOpen: !!s.simOpen, simClosed: !s.simOpen, onOpenSim: () => { this.setState({ simOpen: true }); this.scrollToId('sim-panel'); }, onCloseSim: () => this.setState({ simOpen: false }),
       onReceive: () => this.receive(), receiveDisabled: disabled, receiveOpacity: disabled ? 0.45 : 1, receiveLabel: s.busy === 'receive' ? 'Recebendo…' : 'Simular recebimento',
-      examples: C.EXAMPLES.map(e => { const a = e.id === s.exampleId; return { ...e, title: e.letter + ' · ' + e.who + ' — ' + e.desc + ' Esperado: ' + e.expect + '.', bd: a ? '#1F4D46' : '#D6D3CB', bg: a ? '#1F4D46' : '#fff', fg: a ? '#fff' : '#17191C', load: () => this.loadExample(e.id) }; }),
+      examples: C.EXAMPLES.map(e => { const a = e.id === s.exampleId; return { ...e, title: e.letter + ' · ' + e.who + ' — e-mail original do dataset', bd: a ? '#1F4D46' : '#D6D3CB', bg: a ? '#1F4D46' : '#fff', fg: a ? '#fff' : '#17191C', load: () => this.loadExample(e.id) }; }),
       hasExampleCaption: !!ex, exampleCaption: ex ? ex.who + (s.edited ? ' · editado — será analisado como texto livre' : ' · e-mail original do dataset') : '',
       ...this.inboxVals()
     };
@@ -1119,11 +1131,14 @@ class Component extends DCLogic {
     else if (closed) ctaLabel = 'Enviar correções e revalidar →';
     else ctaLabel = 'Concluir interpretação →';
     const hint = locked ? 'Análise encerrada; os dados ficam só para consulta.' : left ? 'Falta verificar ' + left + ' dado(s) marcados “A verificar”. Os demais foram lidos explicitamente da fonte — corrija se discordar.' : x.dirtyN && closed ? x.dirtyN + ' correção(ões) a enviar. Enviar gera nova revisão e descarta ciências e encaminhamentos.' : x.dirtyN ? x.dirtyN + ' verificação(ões) prontas. Ao concluir, o motor de regras valida os dados.' : closed ? 'Corrigir um dado agora gera nova revisão e refaz as regras.' : 'Nenhum dado pendente de verificação.';
-    const fl = p.flags || {}, ins = [];
-    if (fl.injection) ins.push(['RISCO', 'Instrução dirigida a processamento automático', 'Tratada como dado não confiável: não altera regras, aprovação nem cadastro.', fl.injection]);
-    if (fl.approval_claim) ins.push(['RISCO', 'Alegação de aprovação prévia', 'Afirmação do fornecedor não é evidência de aprovação da empresa.', fl.approval_claim]);
-    if (fl.seasonal) ins.push(['CONTEXTO', 'Menção a campanha sazonal', 'Pode envolver a exceção de teto da política; a validação de regras avalia.', fl.seasonal === 'sazonal' ? '' : fl.seasonal]);
-    if (fl.quoted_thread) ins.push(['CONTEXTO', 'Mensagem com histórico citado', 'Confira se os valores vêm da mensagem atual e não do histórico.', '']);
+    const fl = p.flags || {}, fs = p.flag_sources || {}, ins = [];
+    if (fl.not_a_proposal) ins.push(['RISCO', 'A IA não identificou proposta comercial', 'O conteúdo não parece propor desconto ou verba. Confira a mensagem antes de seguir.', '', 'not_a_proposal']);
+    if (fl.injection) ins.push(['RISCO', 'Instrução dirigida a processamento automático', 'Tratada como dado não confiável: não altera regras, aprovação nem cadastro.', fl.injection, 'injection']);
+    if (fl.approval_claim) ins.push(['RISCO', 'Alegação de aprovação prévia', 'Afirmação do fornecedor não é evidência de aprovação da empresa.', fl.approval_claim, 'approval_claim']);
+    if (fl.seasonal) ins.push(['CONTEXTO', 'Menção a campanha sazonal', 'Pode envolver a exceção de teto da política; a validação de regras avalia.', fl.seasonal === 'sazonal' ? '' : fl.seasonal, 'seasonal']);
+    if (fl.quoted_thread) ins.push(['CONTEXTO', 'Mensagem com histórico citado', 'Confira se os valores vêm da mensagem atual e não do histórico.', '', 'quoted_thread']);
+    const SRCL = { agente: 'Detectado pelo agente de IA', regra: 'Detectado pela verificação fixa do texto (sem IA)', 'agente+regra': 'Detectado pelo agente de IA e pela verificação fixa' };
+    const agentMeta = (p.extractor || '').replace(/^Agente de IA · /, ''), amb = p.ambiguities || [], miss = p.ai_missing_fields || [];
     const k = o => p.fields.filter(f => f.origin_kind === o).length;
     const aiSummary = p.fields.length + ' dados propostos: ' + [[k('EXPLICIT'), 'explícito(s)'], [k('NORMALIZED'), 'normalizado(s)'], [k('INFERRED'), 'inferido(s)'], [k('CONFLICT'), 'em conflito'], [k('MISSING'), 'não identificado(s)'], [k('HUMAN_CORRECTED'), 'corrigido(s)']].filter(a => a[0]).map(a => a[0] + ' ' + a[1]).join(' · ') + '. Fornecedor, categoria e lojas são escolhidos nos catálogos do ERP simulado.';
     const blk = fv.filter(f => f.severity === 'BLOCKER'), wrn = fv.filter(f => f.severity === 'WARNING'), info = fv.filter(f => f.severity === 'INFO');
@@ -1137,7 +1152,8 @@ class Component extends DCLogic {
     const autoHint = p.stage === 'CONCLUSAO' ? 'Validação concluída. Corrigir um dado na interpretação refaz esta etapa.' : !autoOn ? 'Conclusão automática desligada: na conclusão você escolhe o retorno manualmente.' : !revOpen && blk.some(f => f.resolution_owner === 'EXTERNO') ? 'Ao concluir a validação, o sistema encaminha automaticamente ao Cadastro.' : !revOpen && blk.some(f => f.resolution_owner === 'NORMATIVO') ? 'Ao concluir a validação, o sistema encaminha automaticamente à Diretoria.' : blk.some(f => f.id === 'RB02:TETO' || f.id === 'RB03:VEDADO') ? 'Ao concluir a validação, o sistema registra bloqueio por política.' : 'Nenhuma conclusão automática se aplica: a decisão é sua.';
     return {
       i2: { doneLabel: need.length ? done + ' de ' + need.length + ' dados verificados' : closed ? (p.fields.filter(f => ['CONFIRMED', 'ABSENT'].includes(f.confirmation_status)).length + ' dados verificados · interpretação concluída') : 'Nenhum dado exige verificação', pct: (need.length ? Math.round(done / need.length * 100) : 100) + '%', hint, cta, ctaLabel, ctaDisabled: ctaDis, ctaOpacity: ctaDis ? 0.45 : 1, reopenWarn: closed && !locked && (x.dirtyN > 0 || !!s.editKey) },
-      insights: ins.map(a => ({ tag: a[0], tFg: a[0] === 'RISCO' ? '#B42318' : '#3D5A73', tBg: a[0] === 'RISCO' ? '#FDECEA' : '#E8EEF3', title: a[1], text: a[2], quote: a[3], hasQuote: !!a[3] })), hasInsights: ins.length > 0, aiSummary,
+      insights: ins.map(a => ({ tag: a[0], tFg: a[0] === 'RISCO' ? '#B42318' : '#3D5A73', tBg: a[0] === 'RISCO' ? '#FDECEA' : '#E8EEF3', title: a[1], text: a[2], quote: a[3], hasQuote: !!a[3], srcLabel: SRCL[fs[a[4]]] || 'Detectado pelo agente de IA' })), hasInsights: ins.length > 0, aiSummary,
+      hasAgent: !!p.ai_summary, agentSummary: p.ai_summary || '', agentMeta, hasAmb: amb.length > 0, ambList: amb.map(x => ({ t: x })), hasMiss: miss.length > 0, missText: miss.join(', '),
       ruleGroups, r3: { recLabel, autoHint, autoOn, onToggleAuto: () => this.call('test', 'POST', '/api/test-mode', { auto_conclusion: !autoOn }), clean: !blk.length && !wOpen,
         cleanText: wrn.length ? 'Nenhum impedimento e todos os avisos com ciência. Pronta para aprovação na conclusão.' : 'Nenhum impedimento ou aviso para estes dados. Pronta para aprovação na conclusão.',
         cta: locked || p.stage === 'CONCLUSAO' ? () => this.go(4) : () => this.closeRules(), ctaLabel: locked ? 'Ver conclusão →' : p.stage === 'CONCLUSAO' ? 'Ir para conclusão →' : s.busy === 'rules' ? 'Concluindo…' : 'Concluir validação →', showAuto: !locked && p.stage !== 'CONCLUSAO' && !!s.tech, ctaDisabled: busy, ctaOpacity: busy ? 0.45 : 1 },

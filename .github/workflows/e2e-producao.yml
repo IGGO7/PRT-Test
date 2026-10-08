@@ -1,0 +1,47 @@
+# Verificação ponta a ponta no site publicado, com o agente de IA real.
+# Roda a cada push na main (depois que a Vercel publica o mesmo commit) e grava o relatório
+# na branch `e2e-report` (RELATORIO.md + resultado.json).
+name: e2e-producao
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-producao
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    env:
+      BASE_URL: https://prt-git-main-costaiggo-5939s-projects.vercel.app
+      EXPECT_SHA: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install httpx==0.28.1
+      - name: Cenários reais contra o site publicado
+        id: run
+        continue-on-error: true
+        run: python tests/e2e/prod_check.py --out /tmp/e2e-report
+      - name: Publica o relatório na branch e2e-report
+        if: always()
+        run: |
+          git config user.name "e2e-bot"
+          git config user.email "e2e-bot@users.noreply.github.com"
+          git checkout --orphan e2e-report
+          git rm -rq --cached . && find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp /tmp/e2e-report/* . 2>/dev/null || echo "sem relatório" > RELATORIO.md
+          echo '{"git":{"deploymentEnabled":false}}' > vercel.json
+          echo "commit testado: ${GITHUB_SHA}" >> RELATORIO.md
+          git add -A && git commit -qm "Relatório e2e de ${GITHUB_SHA::7}" && git push -qf origin e2e-report
+      - name: Resultado
+        if: steps.run.outcome == 'failure'
+        run: exit 1

@@ -130,6 +130,7 @@ def create_app(store: SessionStore | None = None, extractor_factory: Callable[[]
         return {"status": "ok" if storage_ok and llm_ok else "incompleto", "version": __version__,
                 "storage": {"backend": settings.storage_backend, "ok": storage_ok, "detail": storage_msg},
                 "llm": llm, "runtime": "vercel" if settings.on_vercel else "local",
+                "commit": (os.environ.get("VERCEL_GIT_COMMIT_SHA") or "")[:7] or None,
                 "business_date": settings.business_date.isoformat(), "environment": settings.environment}
 
     @app.get("/api/examples")

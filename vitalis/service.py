@@ -254,7 +254,8 @@ class Service:
             "id": "PRP-" + rand(6), "item_id": item["id"], "created_at": now_iso(), "source": item["source"], "revision": 1,
             "stage": "INTERPRETACAO", "auto_allowed": False, "fields": mapped["fields"], "evidence": mapped["evidence"],
             "csv_highlights": mapped["csv_highlights"], "flags": mapped["flags"], "acks": {}, "decision": None,
-            "ai_summary": mapped["summary_ai"], "ambiguities": mapped["ambiguities"],
+            "ai_summary": mapped["summary_ai"], "ambiguities": mapped["ambiguities"], "flag_sources": mapped["flag_sources"],
+            "ai_missing_fields": mapped["missing_fields"],
             "extractor": f"Agente de IA · {meta.get('model')} · {secs:.1f} s".replace(".", ","), "extraction_meta": meta,
         }
         item["approval"] = item["operation"] = None

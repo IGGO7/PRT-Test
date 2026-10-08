@@ -193,7 +193,7 @@ def test_alfa_seasonal_routed_to_board(ui):                                     
     ui.close_interp()
     s = ui.finding("RB13:SAZONAL")
     assert s and s["resolution_owner"] == "NORMATIVO" and "28%" in s["message"]
-    assert "descreve campanha sazonal" in s["message"]                                       # fonte caracteriza a campanha
+    assert "invoca campanha sazonal" in s["message"]                                        # fonte caracteriza a campanha
     assert ui.finding("RB05:CONTRA_LOJAS")
     ui.close_rules()
     assert ui.p["state"] == "BLOQUEADA" and ui.p["decision"]["automatic"] and ui.p["decision"]["route"] == "DIRETORIA"
@@ -204,6 +204,7 @@ def test_alfa_seasonal_routed_to_board(ui):                                     
 def test_nutrivida_inactive_and_injection(ui):                                                # T08/T09
     ui.open(ui.receive_example("nutrivida"))
     assert ui.p["flags"]["injection"] and ui.p["flags"]["approval_claim"] == "esta condição já foi pré-aprovada"
+    assert ui.p["flag_sources"]["injection"] == "agente+regra" and ui.p["flag_sources"]["approval_claim"] == "agente+regra"
     assert any(e["kind"] == "risk" for e in ui.p["evidence"])
     ui.close_interp()
     assert ui.finding("RB01:FORN-005")["resolution_owner"] == "EXTERNO"
